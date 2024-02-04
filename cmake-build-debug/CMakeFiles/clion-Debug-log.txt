@@ -1,0 +1,6 @@
+"C:\Program Files\JetBrains\CLion 2023.2.2\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2023.2.2/bin/ninja/win/x64/ninja.exe" -G Ninja -S C:\Users\conta\CLionProjects\SpaceShooter -B C:\Users\conta\CLionProjects\SpaceShooter\cmake-build-debug
+-- Found SFML 2.6.1 in C:/SFML/lib/cmake/SFML
+-- Found SFML 2.6.1 in C:/SFML/lib/cmake/SFML
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: C:/Users/conta/CLionProjects/SpaceShooter/cmake-build-debug
