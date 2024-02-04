@@ -29,7 +29,7 @@ const EntityVector& EntityManager::getEntities()
 
 const EntityVector& EntityManager::getEntities(const std::string &TAG)
 {
-    mEntitiesToReturn.clear();
+    /*mEntitiesToReturn.clear();
     for (auto e : mEntities)
     {
         if (e->getTag() == TAG)
@@ -37,15 +37,16 @@ const EntityVector& EntityManager::getEntities(const std::string &TAG)
             mEntitiesToReturn.push_back(e);
         }
     }
-    return mEntitiesToReturn;
+    return mEntitiesToReturn;*/
 
-    /*return mEntityMap[TAG];*/
+    return mEntityMap[TAG];
 }
 
 void EntityManager::removeDeadEntities()
 {
     for (auto e : mEntitiesToDelete)
     {
+        mEntityMap[e->getTag()].erase(std::remove(mEntityMap[e->getTag()].begin(), mEntityMap[e->getTag()].end(), e), mEntityMap[e->getTag()].end());
         for (auto i = mEntities.begin(); i != mEntities.end(); i++)
         {
             if (*i == e)
@@ -60,7 +61,6 @@ void EntityManager::removeDeadEntities()
 
 void EntityManager::killEntity(std::shared_ptr<Entity> ENTITY)
 {
-    mEntityMap[ENTITY->getTag()].erase(std::remove(mEntityMap[ENTITY->getTag()].begin(), mEntityMap[ENTITY->getTag()].end(), ENTITY), mEntityMap[ENTITY->getTag()].end());
     mEntitiesToDelete.push_back(ENTITY);
     ENTITY->destroy();
 }

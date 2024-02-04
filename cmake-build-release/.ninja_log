@@ -9,3 +9,6 @@
 3263	3518	7287245406808826	SpaceShooter.exe	32d7141547cf1a14
 4	2107	7287246489325470	CMakeFiles/SpaceShooter.dir/Backend/Game.cpp.obj	a5ecac1378c71b0e
 2108	2354	7287246491706907	SpaceShooter.exe	32d7141547cf1a14
+97	2313	7287563204809678	CMakeFiles/SpaceShooter.dir/Backend/EntityManager.cpp.obj	4160f21f082259a
+28	2800	7287563209701511	CMakeFiles/SpaceShooter.dir/Backend/Game.cpp.obj	a5ecac1378c71b0e
+2800	3289	7287563214527308	SpaceShooter.exe	32d7141547cf1a14
