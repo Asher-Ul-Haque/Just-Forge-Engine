@@ -1,6 +1,0 @@
-C:/Users/conta/CLionProjects/SpaceShooter/cmake-build-release/CMakeFiles/SpaceShooter.dir
-C:/Users/conta/CLionProjects/SpaceShooter/cmake-build-release/CMakeFiles/edit_cache.dir
-C:/Users/conta/CLionProjects/SpaceShooter/cmake-build-release/CMakeFiles/rebuild_cache.dir
-C:/Users/conta/CLionProjects/SpaceShooter/cmake-build-release/Backend/CMakeFiles/Backend.dir
-C:/Users/conta/CLionProjects/SpaceShooter/cmake-build-release/Backend/CMakeFiles/edit_cache.dir
-C:/Users/conta/CLionProjects/SpaceShooter/cmake-build-release/Backend/CMakeFiles/rebuild_cache.dir
