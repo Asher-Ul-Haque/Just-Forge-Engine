@@ -4,24 +4,27 @@
 #include "ScenePlay.h"
 // - - - - - - - - - - -
 
-SceneMenu::SceneMenu(GameEngine *GAMEENGINE)
+SceneMenu::SceneMenu(GameEngine *GAMEENGINE) : Scene(GAMEENGINE)
 {
     init();
 }
 
 void SceneMenu::init()
 {
-    mTitle = "Nah-rio";
-    mFont.loadFromFile(R"(C:\Users\conta\CLionProjects\SuperMario\Assets\Fonts\ka1.ttf)"); //This is for a sample game, change it to your own path using file dialog
+    mTitle = "Nah-rio"; //Add your own title, this is just a sample
+    mFont.loadFromFile(R"(..\\Assets\\Fonts\\ka1.ttf)"); //This is for a sample game, change it to your own path using file dialog
     mLevelOptions = "Level 1\n";
 
     mMenuTitle.setString(mTitle);
+    mMenuTitle.setFont(mFont);
     mMenuTitle.setOutlineThickness(5);
     mMenuTitle.setOutlineColor(sf::Color(0, 0, 0));
     mMenuTitle.setLetterSpacing(3);
     mMenuTitle.setCharacterSize(30);
-    mMenuTitle.setFillColor(sf::Color(rand()%256, rand()%256, rand()%256));
-    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2 -200, sceneGameEngine->getWindow().getSize().y/2 -600);
+    mMenuTitle.setFillColor(sf::Color(255, 0, 0));
+//    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2 -200, sceneGameEngine->getWindow().getSize().y/2 -600);
+    mMenuTitle.setPosition(500, 200);
+
 
     registerAction(sf::Keyboard::Enter, "START_LEVEL");
     registerAction(sf::Keyboard::Escape, "QUIT");
@@ -34,7 +37,10 @@ void SceneMenu::init()
     mMenuOptions.setLetterSpacing(2);
     mMenuOptions.setCharacterSize(20);
     mMenuOptions.setFillColor(sf::Color(255, 255, 255));
-    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2 -200, sceneGameEngine->getWindow().getSize().y/2 -400);
+
+    rect = sf::RectangleShape(sf::Vector2f(100, 100));
+    rect.setFillColor(sf::Color::Red);
+    rect.setPosition(100, 100);
 }
 
 void SceneMenu::registerAction(int INPUTKEY, const std::string &ACTIONNAME)
@@ -90,5 +96,6 @@ void SceneMenu::sRender()
     sceneGameEngine->getWindow().clear(sf::Color(0, 0, 0));
     sceneGameEngine->getWindow().draw(mMenuTitle);
     sceneGameEngine->getWindow().draw(mMenuOptions);
+    sceneGameEngine->getWindow().draw(rect);
     sceneGameEngine->getWindow().display();
 }

@@ -81,7 +81,7 @@ void GameEngine::update()
 {
     sUserInput();
     gWindow.clear();
-    gSceneMap[gCurrentSceneName]->update();
+    gSceneMap[gCurrentScene]->update();
     gWindow.display();
 };
 
@@ -125,4 +125,7 @@ void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE
     gCurrentScene = SCENENAME;
     gSceneMap[SCENENAME]->init();
 }
+
+//Make the screen stay open for a few seconds
+
 
