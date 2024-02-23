@@ -27,8 +27,8 @@ add_executable(SuperMario
         main.cpp)
 
 set(SFML_STATIC_LIBRARIES TRUE)
-set(SFML_DIR C:/SFML/lib/cmake/SFML)
+set(SFML_DIR SFML/lib/cmake/SFML)
 find_package(SFML COMPONENTS system window graphics audio network REQUIRED)
 
-include_directories(C:/SuperMario/SFML/include/SFML)
+include_directories(SFML/lib/cmake/SFML)
 target_link_libraries(SuperMario sfml-system sfml-window sfml-graphics sfml-audio)
