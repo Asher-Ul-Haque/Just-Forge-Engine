@@ -1,7 +1,7 @@
-#include "GameEngine.h"
-#include "Assets.h"
-#include "SceneMenu.h"
-#include "Scene.h"
+#include "../TheMachine/GameEngine.h"
+#include "../TheMachine/Management/Assets.h"
+#include "../TheMachine/Scenes/SceneMenu.h"
+#include "../TheMachine/Scenes/Scene.h"
 #include <ctime>
 
 // - - - - - - - - - - -

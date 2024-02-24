@@ -1,8 +1,8 @@
 #ifndef SUPERMARIO_GAMEENGINE_H
 #define SUPERMARIO_GAMEENGINE_H
-#include "Assets.h"
-#include "Scene.h"
-#include "EntityManager.h"
+#include "Management/Assets.h"
+#include "Scenes/Scene.h"
+#include "Entities/EntityManager.h"
 #include <iostream>
 #include <memory>
 

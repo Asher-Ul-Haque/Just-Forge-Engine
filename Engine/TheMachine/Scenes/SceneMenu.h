@@ -1,12 +1,12 @@
 #ifndef SUPERMARIO_SCENEMENU_H
 #define SUPERMARIO_SCENEMENU_H
 #include "Scene.h"
-#include "GameEngine.h"
-#include "Action.h"
+#include "../GameEngine.h"
+#include "../Management/Action.h"
 #include "ScenePlay.h"
 #include <map>
 #include <memory>
-#include "EntityManager.h"
+#include "../Entities/EntityManager.h"
 //---------------------------------
 
 class SceneMenu : public Scene

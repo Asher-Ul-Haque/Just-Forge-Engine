@@ -1,4 +1,4 @@
-#include "Assets.h"
+#include "../../TheMachine/Management/Assets.h"
 #include <string>
 #include <fstream>
 #include <iostream>

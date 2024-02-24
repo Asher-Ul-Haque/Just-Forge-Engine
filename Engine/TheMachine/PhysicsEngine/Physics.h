@@ -2,7 +2,7 @@
 #define SUPERMARIO_PHYSICS_H
 #include <memory>
 #include "Vector2D.h"
-#include "Entity.h"
+#include "../Entities/Entity.h"
 //---------------------------------
 
 class Physics

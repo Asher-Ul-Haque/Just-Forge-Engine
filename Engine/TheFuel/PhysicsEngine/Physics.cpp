@@ -1,5 +1,5 @@
-#include "Physics.h"
-#include "Components.h"
+#include "../../TheMachine/PhysicsEngine/Physics.h"
+#include "../../TheMachine/Entities/Components.h"
 
 Vector2D Physics::getOverlap(std::shared_ptr<Entity> ENTITYA, std::shared_ptr<Entity> ENTITYB)
 {

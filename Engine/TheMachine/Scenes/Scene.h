@@ -1,7 +1,7 @@
 #ifndef SUPERMARIO_SCENE_H
 #define SUPERMARIO_SCENE_H
-#include "Action.h"
-#include "EntityManager.h"
+#include "../Management/Action.h"
+#include "../Entities/EntityManager.h"
 #include <memory>
 #include <map>
 #include <string>

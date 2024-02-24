@@ -1,8 +1,8 @@
 #ifndef SUPERMARIO_COMPONENTS_H
 #define SUPERMARIO_COMPONENTS_H
-#include "Vector2D.h"
-#include "Assets.h"
-#include "Animation.h"
+#include "../PhysicsEngine/Vector2D.h"
+#include "../Management/Assets.h"
+#include "../Management/Animation.h"
 #include <SFML/Graphics.hpp>
 //---------------------------------
 

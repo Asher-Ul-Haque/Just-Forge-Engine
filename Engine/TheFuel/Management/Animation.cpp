@@ -1,4 +1,4 @@
-#include "Animation.h"
+#include "../../TheMachine/Management/Animation.h"
 #include <SFML/Graphics.hpp>
 #include <cmath>
 

@@ -1,7 +1,7 @@
 #include <fstream>
-#include "SceneMenu.h"
-#include "GameEngine.h"
-#include "ScenePlay.h"
+#include "../../TheMachine/Scenes/SceneMenu.h"
+#include "../../TheMachine/GameEngine.h"
+#include "../../TheMachine/Scenes/ScenePlay.h"
 // - - - - - - - - - - -
 
 SceneMenu::SceneMenu(GameEngine *GAMEENGINE) : Scene(GAMEENGINE)

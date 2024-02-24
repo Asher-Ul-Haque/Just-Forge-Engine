@@ -1,5 +1,5 @@
-#include "Entity.h"
-#include "EntityManager.h"
+#include "../../TheMachine/Entities/Entity.h"
+#include "../../TheMachine/Entities/EntityManager.h"
 
 
 EntityManager::EntityManager(): mTotalEntities(0) {}
@@ -18,7 +18,7 @@ void EntityManager::update()
 
 // = = = = = = = = = = = = = = = = =
 
-#include "Entity.h"
+#include "../../TheMachine/Entities/Entity.h"
 std::shared_ptr<Entity> EntityManager::createEntity(const std::string& TAG)
 {
     std::shared_ptr<Entity> a = std::make_shared<Entity>(mTotalEntities++, TAG);
