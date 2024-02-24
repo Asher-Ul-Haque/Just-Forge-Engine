@@ -22,12 +22,8 @@ The Just Forge Engine wiki provides extensive documentation and tutorials coveri
 
 **License:**
 
-I have used the SFML library. I have included the whole library for ease of installation. For takedown, email
-
-
-**License:**
-
-The Just Forge Engine is distributed under the MIT license. See the license file for details.
+1. I have used the SFML library. I have included the whole library for ease of installation. For takedown, email or make a PR, please.
+2. The Just Forge Engine is distributed under the MIT license. See the license file for details.
 
 **Contributing:**
 
