@@ -31,29 +31,40 @@ void GameEngine::sUserInput()
     {
         switch (eventManager.type)
         {
+
             case sf::Event::Closed:
+                std::cout << "Quit called" << std::endl;
                 quit();
-            case sf::Event::KeyPressed || sf::Event::KeyReleased:
+                break;
+            case sf::Event::KeyReleased:
+                std::cout << "Key pressed" << eventManager.key.code << std::endl;
+                if (eventManager.key.code == sf::Keyboard::Escape)
+                {
+                    std::cout << "Quit called" << std::endl;
+                    quit();
+                }
                 switch (eventManager.key.code)
                 {
                     case sf::Keyboard::X:
+                        std::cout << "Screenshot called" << std::endl;
                         sf::Texture screenshot;
                         screenshot.update(gWindow);
-                        if (screenshot.copyToImage().saveToFile("Test.png"))
+                        if (screenshot.copyToImage().saveToFile(R"(..\\Assets\\test.png)"));
                         {
                             std::cout << "Screenshot saved to test.png" << std::endl;
                             break;
                         }
-                        break;
                 }
-
-                if(currentScene()->getActionMap().find(eventManager.key.code) == currentScene()->getActionMap().end())
+                if(gSceneMap[gCurrentScene]->getActionMap().find(eventManager.key.code) == gSceneMap[gCurrentScene]->getActionMap().end())
                 {
                     continue;
                 }
                 // determine whether it is a start or end of the action
                 const std::string actionType = (eventManager.type == sf::Event::KeyPressed) ? "START" : "END";
-                currentScene()->sDoAction(Action(currentScene()->getActionMap().at(eventManager.key.code), actionType));
+                std::cout << "Action type: " << actionType << std::endl;
+                gSceneMap[gCurrentScene]->sDoAction(Action(gSceneMap[gCurrentScene]->getActionMap().at(eventManager.key.code), actionType));
+                std::cout << "Action done" << std::endl;
+                break;
         }
     }
 }
@@ -80,9 +91,7 @@ void GameEngine::run()
 void GameEngine::update()
 {
     sUserInput();
-    gWindow.clear();
     gSceneMap[gCurrentScene]->update();
-    gWindow.display();
 };
 
 // - - - - - - - - - - -

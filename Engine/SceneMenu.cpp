@@ -20,10 +20,11 @@ void SceneMenu::init()
     mMenuTitle.setOutlineThickness(5);
     mMenuTitle.setOutlineColor(sf::Color(0, 0, 0));
     mMenuTitle.setLetterSpacing(3);
-    mMenuTitle.setCharacterSize(30);
-    mMenuTitle.setFillColor(sf::Color(255, 0, 0));
+    mMenuTitle.setCharacterSize(70);
+    mMenuTitle.setFillColor(sf::Color(155, 255, 155));
+    mMenuTitle.setOrigin(mMenuTitle.getGlobalBounds().width/2, mMenuTitle.getGlobalBounds().height/2);
 //    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2 -200, sceneGameEngine->getWindow().getSize().y/2 -600);
-    mMenuTitle.setPosition(500, 200);
+    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2, 100);
 
 
     registerAction(sf::Keyboard::Enter, "START_LEVEL");
@@ -32,15 +33,14 @@ void SceneMenu::init()
     registerAction(sf::Keyboard::Down, "NEXT_LEVEL_SELECT");
 
     mMenuOptions.setString(mLevelOptions);
+    mMenuOptions.setFont(mFont);
     mMenuOptions.setOutlineThickness(1);
     mMenuOptions.setOutlineColor(sf::Color(0, 0, 0));
     mMenuOptions.setLetterSpacing(2);
-    mMenuOptions.setCharacterSize(20);
+    mMenuOptions.setCharacterSize(40);
     mMenuOptions.setFillColor(sf::Color(255, 255, 255));
-
-    rect = sf::RectangleShape(sf::Vector2f(100, 100));
-    rect.setFillColor(sf::Color::Red);
-    rect.setPosition(100, 100);
+    mMenuOptions.setOrigin(mMenuOptions.getGlobalBounds().width/2, mMenuOptions.getGlobalBounds().height/2);
+    mMenuOptions.setPosition(sceneGameEngine->getWindow().getSize().x/2, 500);
 }
 
 void SceneMenu::registerAction(int INPUTKEY, const std::string &ACTIONNAME)
@@ -51,6 +51,7 @@ void SceneMenu::registerAction(int INPUTKEY, const std::string &ACTIONNAME)
 void SceneMenu::sDoAction(const Action &ACTION)
 {
     const std::string name = ACTION.getName();
+    std::cout << "Action: " << name << std::endl;
     if (name == "START_LEVEL")
     {
         std::string controlFile = "Controls.txt";
@@ -58,12 +59,17 @@ void SceneMenu::sDoAction(const Action &ACTION)
     }
     if (name == "PREVIOUS_LEVEL_SELECT")
     {
-        mSelectedMenuIndex--;
-        if (mSelectedMenuIndex < 0)
+        if (mSelectedMenuIndex == 0)
         {
             mSelectedMenuIndex = mTotalLevels-1;
         }
+        else
+        {
+            mSelectedMenuIndex--;
+        }
+        std::cout << "Selected index: " << mSelectedMenuIndex << std::endl;
         mLevelOptions = "Level " + std::to_string(mSelectedMenuIndex + 1) + "\n";
+        std::cout << mLevelOptions << std::endl;
     }
     if (name == "NEXT_LEVEL_SELECT")
     {
@@ -72,12 +78,15 @@ void SceneMenu::sDoAction(const Action &ACTION)
         {
             mSelectedMenuIndex = 0;
         }
+        std::cout << "Selected index: " << mSelectedMenuIndex << std::endl;
         mLevelOptions = "Level " + std::to_string(mSelectedMenuIndex + 1) + "\n";
+        std::cout << mLevelOptions << std::endl;
     }
     else if (name == "QUIT")
     {
         onEnd();
     }
+    mMenuOptions.setString(mLevelOptions);
 
 }
 
@@ -93,9 +102,8 @@ void SceneMenu::onEnd()
 
 void SceneMenu::sRender()
 {
-    sceneGameEngine->getWindow().clear(sf::Color(0, 0, 0));
+    sceneGameEngine->getWindow().clear(sf::Color(115, 115, 255));
     sceneGameEngine->getWindow().draw(mMenuTitle);
     sceneGameEngine->getWindow().draw(mMenuOptions);
-    sceneGameEngine->getWindow().draw(rect);
     sceneGameEngine->getWindow().display();
 }
