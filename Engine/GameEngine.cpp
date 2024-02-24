@@ -1,8 +1,8 @@
 #include "GameEngine.h"
 #include "Assets.h"
-#include "ScenePlay.h"
 #include "SceneMenu.h"
 #include "Scene.h"
+#include <ctime>
 
 // - - - - - - - - - - -
 
@@ -48,10 +48,17 @@ void GameEngine::sUserInput()
                     case sf::Keyboard::X:
                         std::cout << "Screenshot called" << std::endl;
                         sf::Texture screenshot;
+                        screenshot.create(gWindow.getSize().x, gWindow.getSize().y);
                         screenshot.update(gWindow);
-                        if (screenshot.copyToImage().saveToFile(R"(..\\Assets\\test.png)"));
+                        time_t now = time(0);
+                        std::string dateTime = ctime(&now);
+                        dateTime.erase(std::remove(dateTime.begin(), dateTime.end(), ' '), dateTime.end());
+                        dateTime.erase(std::remove(dateTime.begin(), dateTime.end(), '\n'), dateTime.end());
+                        std::replace(dateTime.begin(), dateTime.end(), ':', '_');
+                        std::string path = R"(..\\Screenshots\\)" + dateTime +".png";
+                        if (screenshot.copyToImage().saveToFile(path));
                         {
-                            std::cout << "Screenshot saved to test.png" << std::endl;
+                            std::cout << "Screenshot saved to " << path << std::endl;
                             break;
                         }
                 }

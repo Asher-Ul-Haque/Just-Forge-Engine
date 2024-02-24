@@ -102,7 +102,7 @@ void SceneMenu::onEnd()
 
 void SceneMenu::sRender()
 {
-    sceneGameEngine->getWindow().clear(sf::Color(115, 115, 255));
+    sceneGameEngine->getWindow().clear(sf::Color(4, 156, 216));
     sceneGameEngine->getWindow().draw(mMenuTitle);
     sceneGameEngine->getWindow().draw(mMenuOptions);
     sceneGameEngine->getWindow().display();
