@@ -17,7 +17,7 @@ void GameEngine::init(const std::string& PATH)
 {
     gAssets.setPath(PATH);
     gAssets.loadFromFile(PATH);
-    gWindow.create(sf::VideoMode(1280, 760), "Definately Not Mario");
+    gWindow.create(sf::VideoMode(1024, 760), "Definately Not Mario");
     gWindow.setFramerateLimit(60);
     changeScene("MENU", std::make_shared<SceneMenu>(this), false);
 }

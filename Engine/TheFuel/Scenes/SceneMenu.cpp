@@ -17,20 +17,14 @@ void SceneMenu::init()
 
     mMenuTitle.setString(mTitle);
     mMenuTitle.setFont(mFont);
-    mMenuTitle.setOutlineThickness(5);
+    mMenuTitle.setOutlineThickness(9);
     mMenuTitle.setOutlineColor(sf::Color(0, 0, 0));
     mMenuTitle.setLetterSpacing(3);
     mMenuTitle.setCharacterSize(70);
-    mMenuTitle.setFillColor(sf::Color(155, 255, 155));
+    mMenuTitle.setFillColor(sf::Color(255, 100, 100));
     mMenuTitle.setOrigin(mMenuTitle.getGlobalBounds().width/2, mMenuTitle.getGlobalBounds().height/2);
 //    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2 -200, sceneGameEngine->getWindow().getSize().y/2 -600);
-    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2, 100);
-
-
-    registerAction(sf::Keyboard::Enter, "START_LEVEL");
-    registerAction(sf::Keyboard::Escape, "QUIT");
-    registerAction(sf::Keyboard::Up, "PREVIOUS_LEVEL_SELECT");
-    registerAction(sf::Keyboard::Down, "NEXT_LEVEL_SELECT");
+    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2, 330);
 
     mMenuOptions.setString(mLevelOptions);
     mMenuOptions.setFont(mFont);
@@ -38,9 +32,25 @@ void SceneMenu::init()
     mMenuOptions.setOutlineColor(sf::Color(0, 0, 0));
     mMenuOptions.setLetterSpacing(2);
     mMenuOptions.setCharacterSize(40);
-    mMenuOptions.setFillColor(sf::Color(255, 255, 255));
-    mMenuOptions.setOrigin(mMenuOptions.getGlobalBounds().width/2, mMenuOptions.getGlobalBounds().height/2);
-    mMenuOptions.setPosition(sceneGameEngine->getWindow().getSize().x/2, 500);
+    mMenuOptions.setOutlineColor(sf::Color(255, 100, 100));
+    mMenuOptions.setOutlineThickness(3);
+    mMenuOptions.setFillColor(sf::Color(0, 0, 0));
+    mMenuOptions.setOrigin(mMenuOptions.getGlobalBounds().width/2, mMenuOptions.getGlobalBounds().height/2 );
+    mMenuOptions.setPosition(sceneGameEngine->getWindow().getSize().x/2, 430);
+
+    mBackgroundTexture.loadFromFile(R"(..\\Assets\\Textures\\pixil-frame-0.png)"); //This is for a sample game, change it to your own path using file dialog
+    mBackgroundTexture.setSmooth(true);
+    mBackground.setTexture(mBackgroundTexture);
+    mBackground.setScale(1, 1);
+    mBackground.setPosition(0, 0);
+    mBackground.setTextureRect(sf::IntRect(0, 276, sceneGameEngine->getWindow().getSize().x, sceneGameEngine->getWindow().getSize().y));
+
+    registerAction(sf::Keyboard::Enter, "START_LEVEL");
+    registerAction(sf::Keyboard::Escape, "QUIT");
+    registerAction(sf::Keyboard::Left, "PREVIOUS_LEVEL_SELECT");
+    registerAction(sf::Keyboard::Right, "NEXT_LEVEL_SELECT");
+
+
 }
 
 void SceneMenu::registerAction(int INPUTKEY, const std::string &ACTIONNAME)
@@ -103,6 +113,7 @@ void SceneMenu::onEnd()
 void SceneMenu::sRender()
 {
     sceneGameEngine->getWindow().clear(sf::Color(4, 156, 216));
+    sceneGameEngine->getWindow().draw(mBackground);
     sceneGameEngine->getWindow().draw(mMenuTitle);
     sceneGameEngine->getWindow().draw(mMenuOptions);
     sceneGameEngine->getWindow().display();

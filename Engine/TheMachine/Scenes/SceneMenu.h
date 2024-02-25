@@ -18,6 +18,8 @@ protected:
     std::string mTitle, mLevelOptions;
     sf::Text mMenuTitle, mMenuOptions;
     sf::Font mFont;
+    sf::Texture mBackgroundTexture;
+    sf::Sprite mBackground;
 
     void registerAction(int INPUTKEY, const std::string& ACTIONNAME) override;
     void sDoAction(const Action& ACTION) override;
