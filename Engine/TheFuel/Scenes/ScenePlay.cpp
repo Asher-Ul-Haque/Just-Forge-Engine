@@ -458,7 +458,8 @@ void ScenePlay::sRender()
                 sf::Sprite currentSprite;
                 currentSprite = e->getComponent<CSprite>().sprite;
                 auto& animation = e->getComponent<CTexture>();
-                Animation animator(animation.getName(), currentSprite, animation.spriteSheetPath, animation.frameCount, animation.speed);
+                std::string currentAnimation = animation.getName();
+                Animation animator(currentAnimation, &currentSprite, animation.spriteSheetPath, animation.frameCount, animation.speed, e->getComponent<CTransform>().scale);
                 currentSprite.setPosition(transform.position.x, transform.position.y);
                 currentSprite.setScale(transform.scale.x, transform.scale.y);
                 currentSprite.setOrigin(animator.getSize().x/2.f, animator.getSize().y/2.f);

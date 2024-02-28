@@ -14,17 +14,18 @@ class Animation
     const std::string aSpriteSheetPath;
     const std::string aName;
     size_t aCurrentFrame;
-    sf::Sprite aSprite;
+    sf::Sprite* aSprite;
     size_t aFrameCount;
     Vector2D aSize;
     size_t aSpeed;
+    bool aloop;
     //---------------------------------
 
 // - - - - - - - - - - - - - - - - -
 public:
     //Construction
     Animation();
-    Animation(const std::string& NAME, sf::Sprite& SPRITE, std::string& SPRITESHEETPATH, size_t FRAMECOUNT, size_t SPEED);
+    Animation(std::string& NAME, sf::Sprite* SPRITE, std::string& SPRITESHEETPATH, size_t FRAMECOUNT, size_t SPEED, Vector2D SIZE, bool LOOP = true);
     void update();
     const Vector2D& getSize() const;
     const std::string& getName() const;

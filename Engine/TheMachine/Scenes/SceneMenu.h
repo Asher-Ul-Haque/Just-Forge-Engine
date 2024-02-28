@@ -20,6 +20,11 @@ protected:
     sf::Font mFont;
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackground;
+    unsigned int currentFrame;
+    short direction;
+    std::string mAnimationName = "Background";
+    std::string mAnimationPath = R"(..\\Assets\\Textures\\background.png)";
+    Animation* mAnimation;
 
     void registerAction(int INPUTKEY, const std::string& ACTIONNAME) override;
     void sDoAction(const Action& ACTION) override;

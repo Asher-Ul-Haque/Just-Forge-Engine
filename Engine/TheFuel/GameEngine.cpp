@@ -17,7 +17,7 @@ void GameEngine::init(const std::string& PATH)
 {
     gAssets.setPath(PATH);
     gAssets.loadFromFile(PATH);
-    gWindow.create(sf::VideoMode(1024, 760), "Definately Not Mario");
+    gWindow.create(sf::VideoMode(1000, 800), "Definately Not Mario");
     gWindow.setFramerateLimit(60);
     changeScene("MENU", std::make_shared<SceneMenu>(this), false);
 }
@@ -139,7 +139,7 @@ void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE
     }
     gSceneMap[SCENENAME] = SCENE;
     gCurrentScene = SCENENAME;
-    gSceneMap[SCENENAME]->init();
+//    gSceneMap[SCENENAME]->init();
 }
 
 //Make the screen stay open for a few seconds
