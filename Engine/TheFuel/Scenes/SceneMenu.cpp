@@ -2,6 +2,7 @@
 #include "../../TheMachine/Scenes/SceneMenu.h"
 #include "../../TheMachine/GameEngine.h"
 #include "../../TheMachine/Scenes/ScenePlay.h"
+#include "../../TheMachine/Management/Animation.h"
 // - - - - - - - - - - -
 
 SceneMenu::SceneMenu(GameEngine *GAMEENGINE) : Scene(GAMEENGINE)
@@ -11,9 +12,11 @@ SceneMenu::SceneMenu(GameEngine *GAMEENGINE) : Scene(GAMEENGINE)
 
 void SceneMenu::init()
 {
+    currentFrame = 0;
     mTitle = "Nah-rio"; //Add your own title, this is just a sample
     mFont.loadFromFile(R"(..\\Assets\\Fonts\\ka1.ttf)"); //This is for a sample game, change it to your own path using file dialog
     mLevelOptions = "Level 1\n";
+
 
     mMenuTitle.setString(mTitle);
     mMenuTitle.setFont(mFont);
@@ -23,8 +26,7 @@ void SceneMenu::init()
     mMenuTitle.setCharacterSize(70);
     mMenuTitle.setFillColor(sf::Color(255, 100, 100));
     mMenuTitle.setOrigin(mMenuTitle.getGlobalBounds().width/2, mMenuTitle.getGlobalBounds().height/2);
-//    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2 -200, sceneGameEngine->getWindow().getSize().y/2 -600);
-    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2, 330);
+    mMenuTitle.setPosition(sceneGameEngine->getWindow().getSize().x/2, 370);
 
     mMenuOptions.setString(mLevelOptions);
     mMenuOptions.setFont(mFont);
@@ -36,21 +38,26 @@ void SceneMenu::init()
     mMenuOptions.setOutlineThickness(3);
     mMenuOptions.setFillColor(sf::Color(0, 0, 0));
     mMenuOptions.setOrigin(mMenuOptions.getGlobalBounds().width/2, mMenuOptions.getGlobalBounds().height/2 );
-    mMenuOptions.setPosition(sceneGameEngine->getWindow().getSize().x/2, 430);
+    mMenuOptions.setPosition(sceneGameEngine->getWindow().getSize().x/2, 470);
 
-    mBackgroundTexture.loadFromFile(R"(..\\Assets\\Textures\\pixil-frame-0.png)"); //This is for a sample game, change it to your own path using file dialog
-    mBackgroundTexture.setSmooth(true);
-    mBackground.setTexture(mBackgroundTexture);
+//    mBackgroundTexture.loadFromFile(mAnimationPath); //This is for a sample game, change it to your own path using file dialog
+//    mBackgroundTexture.setSmooth(true);
+//    mBackground.setTexture(mBackgroundTexture);
     mBackground.setScale(1, 1);
     mBackground.setPosition(0, 0);
-    mBackground.setTextureRect(sf::IntRect(0, 276, sceneGameEngine->getWindow().getSize().x, sceneGameEngine->getWindow().getSize().y));
+    mBackground.setTextureRect(sf::IntRect(0, 200, sceneGameEngine->getWindow().getSize().x, sceneGameEngine->getWindow().getSize().y));
+
+    std::cout << "The sprite given is at: " << &mBackground << std::endl;
+//    Animation mAnimation(mAnimationName, &mBackground, mAnimationPath, 6, 100);
+//    mBackground.setTexture(mBackgroundTexture);
 
     registerAction(sf::Keyboard::Enter, "START_LEVEL");
     registerAction(sf::Keyboard::Escape, "QUIT");
     registerAction(sf::Keyboard::Left, "PREVIOUS_LEVEL_SELECT");
     registerAction(sf::Keyboard::Right, "NEXT_LEVEL_SELECT");
+    registerAction(sf::Keyboard::Space, "NEXT_FRAME");
 
-
+    mAnimation = new Animation(mAnimationName, &mBackground, mAnimationPath, 9, 6, Vector2D(1000, 800));
 }
 
 void SceneMenu::registerAction(int INPUTKEY, const std::string &ACTIONNAME)
@@ -92,6 +99,21 @@ void SceneMenu::sDoAction(const Action &ACTION)
         mLevelOptions = "Level " + std::to_string(mSelectedMenuIndex + 1) + "\n";
         std::cout << mLevelOptions << std::endl;
     }
+    if (name == "NEXT_FRAME")
+    {
+        if (currentFrame == 0)
+        {
+            direction = 1;
+        }
+        else if (currentFrame == 5)
+        {
+            direction = -1;
+        }
+        currentFrame += direction;
+        std::cout << "Current frame and direction: " << currentFrame << " " << direction << std::endl;
+
+        mBackground.setTextureRect(sf::IntRect(1000*currentFrame, 200, sceneGameEngine->getWindow().getSize().x, sceneGameEngine->getWindow().getSize().y));
+    }
     else if (name == "QUIT")
     {
         onEnd();
@@ -102,12 +124,15 @@ void SceneMenu::sDoAction(const Action &ACTION)
 
 void SceneMenu::update()
 {
+    mAnimation->update();
     sRender();
 }
 
 void SceneMenu::onEnd()
 {
     sceneHasEnded = true;
+    //delete the animation object
+    delete mAnimation;
 }
 
 void SceneMenu::sRender()
