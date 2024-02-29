@@ -15,11 +15,40 @@ GameEngine::GameEngine(const std::string &PATH)
 
 void GameEngine::init(const std::string& PATH)
 {
+    //Add a default icon
+//    sf::Image icon;
+//    icon.loadFromFile(R"(C:\Users\conta\CLionProjects\JustForge_V2\Assets\Textures\Logo - Copy.png)"); // File/Image/Pixel
+//    gWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
     gAssets.setPath(PATH);
     gAssets.loadFromFile(PATH);
     gWindow.create(sf::VideoMode(1000, 800), "Definately Not Mario");
     gWindow.setFramerateLimit(60);
-    changeScene("MENU", std::make_shared<SceneMenu>(this), false);
+    changeScene("MENU", std::make_shared<SceneMenu>(this), false, false);
+    //Collect the first line from gAssets and make a vector of strings
+    std::cout << "Collecting assets" << std::endl;
+    std::vector<std::string> assets;
+//    assets.push_back("Background");
+//    std::string path = R"(..\\Assets\\Textures\\)";
+//    path = path + "background.png";
+//    assets.push_back(path);
+//    assets.push_back("9");
+//    assets.push_back("10");
+//    assets.push_back("1000");
+//    assets.push_back("800");
+
+    std::cout << gAssets.assets.aAsset["Background"].aName << std::endl;
+    assets.push_back(gAssets.assets.aAsset["Background"].aName);
+    std::string path = R"(..\\Assets\\Textures\\)" + gAssets.assets.aAsset["Background"].aSpriteSheetPath;
+    assets.push_back(path);
+    assets.push_back(std::to_string(gAssets.assets.aAsset["Background"].aFrameCount));
+    assets.push_back(std::to_string(gAssets.assets.aAsset["Background"].aSpeed));
+    assets.push_back(std::to_string(gAssets.assets.aAsset["Background"].aFrameSize.x));
+    assets.push_back(std::to_string(gAssets.assets.aAsset["Background"].aFrameSize.y));
+
+    gSceneMap[gCurrentScene]->collectAssets(assets);
+    std::cout << "Scene assets collected" << std::endl;
+    gSceneMap[gCurrentScene]->init();
+    std::cout << "Scene initialized" << std::endl;
 }
 
 // - - - - - - - - - - -
@@ -131,7 +160,7 @@ std::shared_ptr<Scene> GameEngine::currentScene()
 }
 
 // - - - - - - - - - - - -
-void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE, bool ENDCURRENTSCENE)
+void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE, bool ENDCURRENTSCENE, bool INITNEWSCENE)
 {
     if (ENDCURRENTSCENE)
     {
@@ -139,7 +168,10 @@ void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE
     }
     gSceneMap[SCENENAME] = SCENE;
     gCurrentScene = SCENENAME;
-//    gSceneMap[SCENENAME]->init();
+    if (INITNEWSCENE)
+    {
+        gSceneMap[SCENENAME]->init();
+    }
 }
 
 //Make the screen stay open for a few seconds

@@ -29,7 +29,7 @@ protected:
 // - - - - - - - - - - - - - - - - - -
 public:
     size_t gSimulationSpeed = 1;
-    void changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE, bool ENDCURRENTSCENE = false);
+    void changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE, bool ENDCURRENTSCENE = false, bool INITNEWSCENE = true);
     GameEngine(const std::string& PATH);
 
     void quit();

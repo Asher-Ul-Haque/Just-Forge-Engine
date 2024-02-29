@@ -27,6 +27,16 @@ void Animation::update()
 {
     switch (aloop)
     {
+//        //When a loop is true, the animation will loop like 1->2->3->2->1
+//        case true:
+//            aCurrentFrame += 1;
+//            if (aCurrentFrame >= aFrameCount * aSpeed)
+//            {
+//                aCurrentFrame = 0;
+//            }
+//            break;
+
+
         case true:
             aCurrentFrame += 1;
             if (aCurrentFrame >= aFrameCount * aSpeed)
@@ -42,7 +52,10 @@ void Animation::update()
             break;
     }
 
-    aSprite->setTextureRect(sf::IntRect(std::floor(aCurrentFrame / aSpeed) * aSize.x, 0, aSize.x, aSize.y));
+    if (aSpeed!= 0)
+    {
+        aSprite->setTextureRect(sf::IntRect(std::floor(aCurrentFrame / aSpeed) * aSize.x, 0, aSize.x, aSize.y));
+    }
 }
 
 // - - - - - - - -

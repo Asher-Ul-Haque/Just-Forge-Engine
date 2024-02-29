@@ -7,7 +7,22 @@
 
 SceneMenu::SceneMenu(GameEngine *GAMEENGINE) : Scene(GAMEENGINE)
 {
-    init();
+}
+
+void SceneMenu::collectAssets(std::vector<std::string> ASSETS)
+{
+    //Parse the asset for background
+    //The format is this: Animation Background R"(..\\Assets\\Textures\\background.png)" 9 10 1000 800
+    //Parse the string vector and print the values without using a for loop, we already know the format and that there are 7 values
+    std::string mAnimationName = ASSETS[0];
+    std::string mAnimationPath = ASSETS[1];
+    int mAnimationFrames = std::stoi(ASSETS[2]);
+    int mAnimationSpeed = std::stoi(ASSETS[3]);
+    int mAnimationWidth = std::stoi(ASSETS[4]);
+    int mAnimationHeight = std::stoi(ASSETS[5]);
+
+    mAnimation = new Animation(mAnimationName, &mBackground, mAnimationPath, 9, 10, Vector2D(1000, 800));
+
 }
 
 void SceneMenu::init()
@@ -57,7 +72,8 @@ void SceneMenu::init()
     registerAction(sf::Keyboard::Right, "NEXT_LEVEL_SELECT");
     registerAction(sf::Keyboard::Space, "NEXT_FRAME");
 
-    mAnimation = new Animation(mAnimationName, &mBackground, mAnimationPath, 9, 6, Vector2D(1000, 800));
+
+    mTotalLevels = mLevelPaths.size();
 }
 
 void SceneMenu::registerAction(int INPUTKEY, const std::string &ACTIONNAME)
@@ -76,7 +92,7 @@ void SceneMenu::sDoAction(const Action &ACTION)
     }
     if (name == "PREVIOUS_LEVEL_SELECT")
     {
-        if (mSelectedMenuIndex == 0)
+        if (mSelectedMenuIndex <= 0 || mTotalLevels == 0)
         {
             mSelectedMenuIndex = mTotalLevels-1;
         }

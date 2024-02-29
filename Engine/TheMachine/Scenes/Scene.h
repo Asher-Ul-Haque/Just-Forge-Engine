@@ -46,6 +46,8 @@ public:
 
     virtual void drawLine(const Vector2D& POINT1, const Vector2D& POINT2){};
 
+    virtual void collectAssets(std::vector<std::string> ASSETS){};
+
     size_t currentFrame() const { return sceneCurrentFrame; };
 
     const ActionMap& getActionMap() const { return sceneActionMap; };

@@ -43,6 +43,7 @@ class Assets
         std::string aSpriteSheetPath;
         size_t aFrameCount;
         size_t aSpeed;
+        Vector2D(aFrameSize);
     };
 // - - - - - - - - - -
 public:
@@ -66,6 +67,8 @@ public:
     void loadFromFile(const std::string& PATH);
 
     void setPath(const std::string& PATH) { gPath = PATH; };
+
+    //Make a template function to get assets of a certain type
 
     const std::shared_ptr<allAssets> getAssets()
     {

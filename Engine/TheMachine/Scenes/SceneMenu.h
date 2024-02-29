@@ -14,7 +14,7 @@ class SceneMenu : public Scene
 protected:
     std::vector<std::string> mLevelPaths;
     size_t mSelectedMenuIndex = 0;
-    size_t mTotalLevels = 3;
+    size_t mTotalLevels;
     std::string mTitle, mLevelOptions;
     sf::Text mMenuTitle, mMenuOptions;
     sf::Font mFont;
@@ -22,19 +22,21 @@ protected:
     sf::Sprite mBackground;
     unsigned int currentFrame;
     short direction;
-    std::string mAnimationName = "Background";
-    std::string mAnimationPath = R"(..\\Assets\\Textures\\background.png)";
-    Animation* mAnimation;
 
+    void collectAssets(std::vector<std::string> ASSETS) override;
     void registerAction(int INPUTKEY, const std::string& ACTIONNAME) override;
     void sDoAction(const Action& ACTION) override;
     void update() override;
     void onEnd() override;
-    void init() override;
+    std::string mAnimationName;
+    std::string mAnimationPath;
+    Animation* mAnimation;
 // - - - - - - - - - - - - - - - - - - - - - -
 public:
     SceneMenu(GameEngine* GAMEENGINE = nullptr);
     void sRender() override;
+    void init() override;
+
 };
 //---------------------------------
 
