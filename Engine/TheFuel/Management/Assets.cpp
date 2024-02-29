@@ -59,8 +59,6 @@ void Assets::loadFromFile(const std::string& PATH)
             }
             default:
                 break;
-            }
+        }
     }
 }
-
-

@@ -12,11 +12,9 @@ aName(NAME), aSprite(SPRITE), aFrameCount(FRAMECOUNT), aSpeed(SPEED), aCurrentFr
 {
     aSpriteSheet.loadFromFile(SPRITESHEETPATH);
     aSpriteSheet.setSmooth(true);
-    std::cout << "The sprite sheet recieved is at: " << &aSpriteSheet << std::endl;
 
     aSize = Vector2D((float)aSpriteSheet.getSize().x/aFrameCount, (float)SIZE.y);
 //    aSprite->setOrigin((float)aSize.x/2.0f, (float)aSize.y/2.0f);
-    std::cout << "Set the texture of " << aName << " to " << aSpriteSheetPath << std::endl;
     aSprite->setTexture(aSpriteSheet);
     aSprite->setTextureRect(sf::IntRect(0, 0, SIZE.x, SIZE.y));
 }

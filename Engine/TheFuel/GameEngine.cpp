@@ -15,40 +15,32 @@ GameEngine::GameEngine(const std::string &PATH)
 
 void GameEngine::init(const std::string& PATH)
 {
-    //Add a default icon
-//    sf::Image icon;
-//    icon.loadFromFile(R"(C:\Users\conta\CLionProjects\JustForge_V2\Assets\Textures\Logo - Copy.png)"); // File/Image/Pixel
-//    gWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
-    gAssets.setPath(PATH);
-    gAssets.loadFromFile(PATH);
+    //Collect the assets for the menu scene
+    std::string sceneMenuAssets = PATH + R"(\\ConfigurationFiles\\Scenes\\)" + "Menu";
+    gAssets.setPath(sceneMenuAssets);
+    gAssets.loadFromFile(sceneMenuAssets);
     gWindow.create(sf::VideoMode(1000, 800), "Definately Not Mario");
     gWindow.setFramerateLimit(60);
     changeScene("MENU", std::make_shared<SceneMenu>(this), false, false);
-    //Collect the first line from gAssets and make a vector of strings
-    std::cout << "Collecting assets" << std::endl;
-    std::vector<std::string> assets;
-//    assets.push_back("Background");
-//    std::string path = R"(..\\Assets\\Textures\\)";
-//    path = path + "background.png";
-//    assets.push_back(path);
-//    assets.push_back("9");
-//    assets.push_back("10");
-//    assets.push_back("1000");
-//    assets.push_back("800");
 
-    std::cout << gAssets.assets.aAsset["Background"].aName << std::endl;
-    assets.push_back(gAssets.assets.aAsset["Background"].aName);
+    //Collect the animation assets
+    std::vector<std::string> animationAsset;
+    animationAsset.push_back(gAssets.assets.aAsset["Background"].aName);
     std::string path = R"(..\\Assets\\Textures\\)" + gAssets.assets.aAsset["Background"].aSpriteSheetPath;
-    assets.push_back(path);
-    assets.push_back(std::to_string(gAssets.assets.aAsset["Background"].aFrameCount));
-    assets.push_back(std::to_string(gAssets.assets.aAsset["Background"].aSpeed));
-    assets.push_back(std::to_string(gAssets.assets.aAsset["Background"].aFrameSize.x));
-    assets.push_back(std::to_string(gAssets.assets.aAsset["Background"].aFrameSize.y));
+    animationAsset.push_back(path);
+    animationAsset.push_back(std::to_string(gAssets.assets.aAsset["Background"].aFrameCount));
+    animationAsset.push_back(std::to_string(gAssets.assets.aAsset["Background"].aSpeed));
+    animationAsset.push_back(std::to_string(gAssets.assets.aAsset["Background"].aFrameSize.x));
+    animationAsset.push_back(std::to_string(gAssets.assets.aAsset["Background"].aFrameSize.y));
+    gSceneMap[gCurrentScene]->collectAnimationAssets(animationAsset);
 
-    gSceneMap[gCurrentScene]->collectAssets(assets);
-    std::cout << "Scene assets collected" << std::endl;
+    //Collect the font assets
+    std::vector<std::string> fontAsset;
+    fontAsset.push_back(gAssets.assets.fAsset["ka1"].fName);
+    path = R"(..\\Assets\\Fonts\\)" + gAssets.assets.fAsset["PixelFont"].fPath;
+    fontAsset.push_back(path);
+    gSceneMap[gCurrentScene]->collectFontAssets(fontAsset);
     gSceneMap[gCurrentScene]->init();
-    std::cout << "Scene initialized" << std::endl;
 }
 
 // - - - - - - - - - - -
@@ -60,7 +52,6 @@ void GameEngine::sUserInput()
     {
         switch (eventManager.type)
         {
-
             case sf::Event::Closed:
                 std::cout << "Quit called" << std::endl;
                 quit();
@@ -175,5 +166,3 @@ void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE
 }
 
 //Make the screen stay open for a few seconds
-
-

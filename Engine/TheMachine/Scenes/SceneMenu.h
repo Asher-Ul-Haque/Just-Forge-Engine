@@ -23,7 +23,8 @@ protected:
     unsigned int currentFrame;
     short direction;
 
-    void collectAssets(std::vector<std::string> ASSETS) override;
+    void collectAnimationAssets(std::vector<std::string> ASSETS) override;
+    void collectFontAssets(std::vector<std::string> ASSETS) override;
     void registerAction(int INPUTKEY, const std::string& ACTIONNAME) override;
     void sDoAction(const Action& ACTION) override;
     void update() override;
