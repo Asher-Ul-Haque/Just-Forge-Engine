@@ -14,9 +14,12 @@
 
 ScenePlay::ScenePlay(std::string& SCENELEVELPATH, std::string& CONTROLSPECIFICATIONFILE, GameEngine *GAMEENGINE): sceneLevelPath(SCENELEVELPATH), sceneControls(CONTROLSPECIFICATIONFILE)
 {
+    std::cout << "Beginning Level" << std::endl;
     sceneGameEngine = GAMEENGINE;
+    setControls(CONTROLSPECIFICATIONFILE);
+    std::cout << "Controls set" << std::endl;
     setPath(SCENELEVELPATH);
-    init();
+//    init();
 }
 
 // - - - - - - - - - - -
@@ -35,12 +38,12 @@ void ScenePlay::setPath(const std::string &LEVELPATH)
 
 // - - - - - - - - - - -
 
-void ScenePlay::setControls()
+void ScenePlay::setControls(std::string& CONTROLSPECIFICATIONFILE)
 {
-    std::ifstream controlsFile(sceneControls);
+    std::ifstream controlsFile(CONTROLSPECIFICATIONFILE);
     if (!controlsFile.is_open())
     {
-        std::cerr << "Could not open file: " << sceneControls << std::endl;
+        std::cerr << "Could not open file: " << CONTROLSPECIFICATIONFILE << std::endl;
         return;
     }
     std::string line;
@@ -75,10 +78,12 @@ void ScenePlay::init()
 {
     sceneGridText.setCharacterSize(12);
     sf::Font gridTextFont;
-    gridTextFont.loadFromFile(sceneGameEngine->getAssets().fAsset["BigPixel"].fPath);
+    gridTextFont.loadFromFile(R"(..\\Assets\\Fonts\\)" + sceneGameEngine->getAssets().fAsset["PixeloidMono"].fPath);
     sceneGridText.setFont(gridTextFont);
+    std::cout << "_ _ _ _ _ SCENE PLAY MESSAGE _ _ _ _ _" << std::endl;
     loadLevel(sceneLevelPath);
-    setControls();
+    std::cout << "Level loaded" << std::endl;
+    std::cout << "_ _ _ _ _ _ _ _ _ _ _ __ _ _ _ __ _ _ _" << std::endl << std::endl;
 
     registerAction(sf::Keyboard::F5, "TOGGLE_GRID");
     registerAction(sf::Keyboard::F6, "TOGGLE_HITBOXES");
@@ -99,13 +104,17 @@ Vector2D ScenePlay::gridToMidPixel(int GRIDX, int GRIDY)
 
 void ScenePlay::loadLevel(const std::string &FILEPATH)
 {
+    std::cout << "Loading level" << std::endl;
     sceneEntityManager = EntityManager();
+    std::cout << "Entity Manager created" << std::endl;
     std::ifstream assetsFile(FILEPATH);
     if (!assetsFile.is_open())
     {
         std::cerr << "Could not open file: " << FILEPATH << std::endl;
         return;
     }
+    std::cout << "File opened" << std::endl;
+    std::cout << "Beginning to read file" << std::endl;
     std::string line;
     while (std::getline(assetsFile, line))
     {
@@ -115,6 +124,7 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
         int GX, GY;
         iss >> blockType >> name >> GX >> GY;
         auto creation = sceneEntityManager.createEntity(name);
+        std::cout << "Entity created" << std::endl;
         switch (blockType[0])
         {
             case 'T':
@@ -167,22 +177,31 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
                 break;
         }
     }
-
     spawnPlayer();
+    std::cout << "Player created" << std::endl;
 }
 
 // - - - - - - - - - - -
 
 void ScenePlay::spawnPlayer()
 {
+    std::cout << "Spawning player" << std::endl;
     gPlayer->addComponent<CTransform>(Vector2D(224, 352), Vector2D(0, 0), 0);
+    std::cout << "Transform added" << std::endl;
     gPlayer->addComponent<CSprite>();
+    std::cout << "Sprite added" << std::endl;
     gPlayer = sceneEntityManager.createEntity("player");
+    std::cout << "Entity created" << std::endl;
     gPlayer->addComponent<CTexture>(std::make_shared<Assets::AnimationAsset>(sceneGameEngine->getAssets().aAsset["Stand"]));
+    std::cout << "Texture added" << std::endl;
     gPlayer->addComponent<CHitBox>(gPlayer->getComponent<CTransform>().position, Vector2D(48, 48));
+    std::cout << "Hitbox added" << std::endl;
     gPlayer->addComponent<CGravity>(0.1f);
+    std::cout << "Gravity added" << std::endl;
     gPlayer->addComponent<CState>("stand");
+    std::cout << "State added" << std::endl;
     gPlayer->addComponent<CInput>();
+    std::cout << "Input added" << std::endl;
 }
 
 // - - - - - - - - - - -

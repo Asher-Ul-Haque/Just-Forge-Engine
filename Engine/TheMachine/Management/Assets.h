@@ -66,6 +66,8 @@ public:
     //METHODS-
     void loadFromFile(const std::string& PATH);
 
+    const std::string& getPath() const { return gPath; };
+
     void setPath(const std::string& PATH) { gPath = PATH; };
 
     //Make a template function to get assets of a certain type

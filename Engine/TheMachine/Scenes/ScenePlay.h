@@ -35,7 +35,7 @@ public:
     void loadLevel(const std::string& LEVELPATH);
     void registerAction(int INPUTKEY, const std::string& ACTIONNAME) override;
     void init() override;
-    void setControls();
+    void setControls(std::string& CONTROLSPECIFICATIONFILE);
 
     void sRender() override;
     void update() override;

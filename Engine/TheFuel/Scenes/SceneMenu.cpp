@@ -12,17 +12,7 @@ SceneMenu::SceneMenu(GameEngine *GAMEENGINE) : Scene(GAMEENGINE)
 
 void SceneMenu::collectAnimationAssets(std::vector<std::string> ASSETS)
 {
-    //Parse the asset for background
-    //The format is this: Animation Background R"(..\\Assets\\Textures\\background.png)" 9 10 1000 800
-    //Parse the string vector and print the values without using a for loop, we already know the format and that there are 7 values
-    std::string mAnimationName = ASSETS[0];
-    std::string mAnimationPath = ASSETS[1];
-    int mAnimationFrames = std::stoi(ASSETS[2]);
-    int mAnimationSpeed = std::stoi(ASSETS[3]);
-    int mAnimationWidth = std::stoi(ASSETS[4]);
-    int mAnimationHeight = std::stoi(ASSETS[5]);
-
-    mAnimation = new Animation(mAnimationName, &mBackground, mAnimationPath, 9, 10, Vector2D(1000, 800));
+    mAnimation = new Animation(ASSETS[0], &mBackground, ASSETS[1], std::stoi(ASSETS[2]), std::stoi(ASSETS[3]), Vector2D(std::stoi(ASSETS[4]), std::stoi(ASSETS[5])));
 }
 
 void SceneMenu::collectFontAssets(std::vector<std::string> ASSETS)
@@ -31,7 +21,7 @@ void SceneMenu::collectFontAssets(std::vector<std::string> ASSETS)
     //The format is this: Font ka1 R"(..\\Assets\\Fonts\\ka1.ttf)"
     std::string mFontName = ASSETS[0];
     std::string mFontPath = ASSETS[1];
-    mFont.loadFromFile(mFontPath);
+    mFont.loadFromFile(R"(..\\Assets\\Fonts\\)" + sceneGameEngine->getAssets().fAsset["PixelFont"].fPath);
 }
 
 void SceneMenu::init()
@@ -94,11 +84,16 @@ void SceneMenu::registerAction(int INPUTKEY, const std::string &ACTIONNAME)
 void SceneMenu::sDoAction(const Action &ACTION)
 {
     const std::string name = ACTION.getName();
+    std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
     std::cout << "Action: " << name << std::endl;
+    std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
     if (name == "START_LEVEL")
     {
-        std::string controlFile = "Controls.txt";
-        sceneGameEngine->changeScene("PLAY", std::make_shared<ScenePlay>(mLevelPaths[mSelectedMenuIndex], controlFile,sceneGameEngine));
+        std::string controlFile = R"(..//Assets//ConfigurationFiles//Controls.txt)";
+        sceneGameEngine->changeScene("PLAY", std::make_shared<ScenePlay>(mLevelPaths[mSelectedMenuIndex], controlFile,sceneGameEngine), "LEVEL1", false, true);
+        std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
+        std::cout << "Playing game" << std::endl;
+        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
     }
     if (name == "PREVIOUS_LEVEL_SELECT")
     {
@@ -110,9 +105,11 @@ void SceneMenu::sDoAction(const Action &ACTION)
         {
             mSelectedMenuIndex--;
         }
+        std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
         std::cout << "Selected index: " << mSelectedMenuIndex << std::endl;
         mLevelOptions = "Level " + std::to_string(mSelectedMenuIndex + 1) + "\n";
         std::cout << mLevelOptions << std::endl;
+        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
     }
     if (name == "NEXT_LEVEL_SELECT")
     {
@@ -121,9 +118,11 @@ void SceneMenu::sDoAction(const Action &ACTION)
         {
             mSelectedMenuIndex = 0;
         }
+        std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
         std::cout << "Selected index: " << mSelectedMenuIndex << std::endl;
         mLevelOptions = "Level " + std::to_string(mSelectedMenuIndex + 1) + "\n";
         std::cout << mLevelOptions << std::endl;
+        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
     }
     if (name == "NEXT_FRAME")
     {
@@ -136,8 +135,9 @@ void SceneMenu::sDoAction(const Action &ACTION)
             direction = -1;
         }
         currentFrame += direction;
+        std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
         std::cout << "Current frame and direction: " << currentFrame << " " << direction << std::endl;
-
+        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
         mBackground.setTextureRect(sf::IntRect(1000*currentFrame, 200, sceneGameEngine->getWindow().getSize().x, sceneGameEngine->getWindow().getSize().y));
     }
     else if (name == "QUIT")

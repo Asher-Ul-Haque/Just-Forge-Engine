@@ -21,7 +21,7 @@ void GameEngine::init(const std::string& PATH)
     gAssets.loadFromFile(sceneMenuAssets);
     gWindow.create(sf::VideoMode(1000, 800), "Definately Not Mario");
     gWindow.setFramerateLimit(60);
-    changeScene("MENU", std::make_shared<SceneMenu>(this), false, false);
+    changeScene("MENU", std::make_shared<SceneMenu>(this), "Menu", false, false);
 
     //Collect the animation assets
     std::vector<std::string> animationAsset;
@@ -53,20 +53,25 @@ void GameEngine::sUserInput()
         switch (eventManager.type)
         {
             case sf::Event::Closed:
+                std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
                 std::cout << "Quit called" << std::endl;
+                std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
                 quit();
                 break;
             case sf::Event::KeyReleased:
-                std::cout << "Key pressed" << eventManager.key.code << std::endl;
                 if (eventManager.key.code == sf::Keyboard::Escape)
                 {
+                    std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
                     std::cout << "Quit called" << std::endl;
+                    std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
                     quit();
                 }
                 switch (eventManager.key.code)
                 {
                     case sf::Keyboard::X:
+                        std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
                         std::cout << "Screenshot called" << std::endl;
+                        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
                         sf::Texture screenshot;
                         screenshot.create(gWindow.getSize().x, gWindow.getSize().y);
                         screenshot.update(gWindow);
@@ -78,7 +83,9 @@ void GameEngine::sUserInput()
                         std::string path = R"(..\\Screenshots\\)" + dateTime +".png";
                         if (screenshot.copyToImage().saveToFile(path));
                         {
+                            std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
                             std::cout << "Screenshot saved to " << path << std::endl;
+                            std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
                             break;
                         }
                 }
@@ -88,9 +95,11 @@ void GameEngine::sUserInput()
                 }
                 // determine whether it is a start or end of the action
                 const std::string actionType = (eventManager.type == sf::Event::KeyPressed) ? "START" : "END";
+                std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
                 std::cout << "Action type: " << actionType << std::endl;
                 gSceneMap[gCurrentScene]->sDoAction(Action(gSceneMap[gCurrentScene]->getActionMap().at(eventManager.key.code), actionType));
                 std::cout << "Action done" << std::endl;
+                std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
                 break;
         }
     }
@@ -138,10 +147,10 @@ const bool GameEngine::isRuning() const
 
 // - - - - - - - - - - -
 
-Assets::allAssets& GameEngine::getAssets() const
-{
-    return (Assets::allAssets &) gAssets.assets;
-}
+//Assets::allAssets& GameEngine::getAssets() const
+//{
+//    return (Assets::allAssets &) gAssets.assets;
+//}
 
 // - - - - - - - - - - -
 
@@ -151,12 +160,18 @@ std::shared_ptr<Scene> GameEngine::currentScene()
 }
 
 // - - - - - - - - - - - -
-void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE, bool ENDCURRENTSCENE, bool INITNEWSCENE)
+void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE, std::string SCENEASSETPATH, bool ENDCURRENTSCENE, bool INITNEWSCENE)
 {
     if (ENDCURRENTSCENE)
     {
         gSceneMap[gCurrentScene]->onEnd();
     }
+    std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
+    std::cout << "Changing Asset path to: " << SCENEASSETPATH << std::endl;
+    gAssets.setPath(R"(..\\Assets\\ConfigurationFiles\\Scenes\\)" + SCENEASSETPATH);
+    std::cout << "Asset path changed to: " << gAssets.getPath() << std::endl;
+    std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
+    gAssets.loadFromFile(R"(..\\Assets\\ConfigurationFiles\\Scenes\\)" + SCENEASSETPATH);
     gSceneMap[SCENENAME] = SCENE;
     gCurrentScene = SCENENAME;
     if (INITNEWSCENE)
