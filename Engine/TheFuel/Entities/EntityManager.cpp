@@ -18,7 +18,6 @@ void EntityManager::update()
 
 // = = = = = = = = = = = = = = = = =
 
-#include "../../TheMachine/Entities/Entity.h"
 std::shared_ptr<Entity> EntityManager::createEntity(const std::string& TAG)
 {
     std::shared_ptr<Entity> a = std::make_shared<Entity>(mTotalEntities++, TAG);

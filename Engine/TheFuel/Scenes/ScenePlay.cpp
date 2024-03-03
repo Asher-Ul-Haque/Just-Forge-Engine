@@ -83,7 +83,7 @@ void ScenePlay::init()
     std::cout << "_ _ _ _ _ SCENE PLAY MESSAGE _ _ _ _ _" << std::endl;
     loadLevel(sceneLevelPath);
     std::cout << "Level loaded" << std::endl;
-    std::cout << "_ _ _ _ _ _ _ _ _ _ _ __ _ _ _ __ _ _ _" << std::endl << std::endl;
+    std::cout << "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
 
     registerAction(sf::Keyboard::F5, "TOGGLE_GRID");
     registerAction(sf::Keyboard::F6, "TOGGLE_HITBOXES");
@@ -116,29 +116,49 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
     std::cout << "File opened" << std::endl;
     std::cout << "Beginning to read file" << std::endl;
     std::string line;
+    gPlayer = sceneEntityManager.createEntity("player");
     while (std::getline(assetsFile, line))
     {
         std::istringstream iss(line);
         std::string blockType;
         std::string name;
         int GX, GY;
-        iss >> blockType >> name >> GX >> GY;
+        iss >> blockType;
+        if (blockType[0] == 'P')
+        {
+            iss >> scenePlayerConfigurations.x >> scenePlayerConfigurations.y >> scenePlayerConfigurations.cX >> scenePlayerConfigurations.cY >> scenePlayerConfigurations.speed >> scenePlayerConfigurations.maxSpeed >> scenePlayerConfigurations.jump >> scenePlayerConfigurations.gravity >> scenePlayerConfigurations.WEAPON;
+            std::cout << "Player data read" << std::endl;
+            break;
+        }
+        iss >> name >> GX >> GY;
         auto creation = sceneEntityManager.createEntity(name);
         std::cout << "Entity created" << std::endl;
         switch (blockType[0])
         {
             case 'T':
-                //the CTexture class takes as input a shared pointer to an AnimationAsset
                 creation->addComponent<CTexture>(std::make_shared<Assets::AnimationAsset>(sceneGameEngine->getAssets().aAsset[name]));
+                std::cout << "Adding Tile" << std::endl;
 
-            case 'P':
-                creation->addComponent<CTexture>(std::make_shared<Assets::AnimationAsset>(sceneGameEngine->getAssets().aAsset[name]));
-                creation->addComponent<CTransform>(gridToMidPixel(GX, GY), Vector2D(0, 0), 0);
-                creation->addComponent<CHitBox>(creation->getComponent<CTransform>().position ,Vector2D(48, 48));
-                creation->addComponent<CGravity>(0.1f);
-                creation->addComponent<CState>("stand");
-                creation->addComponent<CInput>();
+            /*case 'P':
+                //add stuff to PlayerConfig
+                scenePlayerConfigurations.x = GX;
+                scenePlayerConfigurations.y = GY;
+                scenePlayerConfigurations.cX = 48;
+                scenePlayerConfigurations.cY = 48;
+                scenePlayerConfigurations.speed = 1;
+                scenePlayerConfigurations.maxSpeed = 3;
+                scenePlayerConfigurations.jump = 3;
+                scenePlayerConfigurations.gravity = 0.1f;
+                scenePlayerConfigurations.WEAPON = "Fireball";
+//
+
+                gPlayer->addComponent<CHitBox>(creation->getComponent<CTransform>().position ,Vector2D(48, 48));
+                gPlayer->addComponent<CGravity>(0.1f);
+                gPlayer->addComponent<CState>("stand");
+                gPlayer->addComponent<CInput>();
+                std::cout << "Adding Player data" << std::endl;
                 break;
+                */
 
             case 'E':
                 creation->addComponent<CTexture>(std::make_shared<Assets::AnimationAsset>(sceneGameEngine->getAssets().aAsset[name]));
@@ -147,6 +167,7 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
                 creation->addComponent<CGravity>(0.1f);
                 creation->addComponent<CState>("stand");
                 creation->addComponent<CInput>();
+                std::cout << "Adding Enemy data" << std::endl;
                 break;
 
             case 'B':
@@ -156,6 +177,7 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
                 creation->addComponent<CGravity>(0.1f);
                 creation->addComponent<CState>("stand");
                 creation->addComponent<CInput>();
+                std::cout << "Adding Block data" << std::endl;
                 break;
 
             case 'C':
@@ -165,6 +187,7 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
                 creation->addComponent<CGravity>(0.1f);
                 creation->addComponent<CState>("stand");
                 creation->addComponent<CInput>();
+                std::cout << "Adding Coin data" << std::endl;
                 break;
 
             case 'F':
@@ -174,6 +197,7 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
                 creation->addComponent<CGravity>(0.1f);
                 creation->addComponent<CState>("stand");
                 creation->addComponent<CInput>();
+                std::cout << "Adding Fireball data" << std::endl;
                 break;
         }
     }
@@ -185,23 +209,25 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
 
 void ScenePlay::spawnPlayer()
 {
+    std::cout << " _ _ _ _ _ _ SCENE PLAY MESSAGE _ _ _ _ _ _" << std::endl;
     std::cout << "Spawning player" << std::endl;
-    gPlayer->addComponent<CTransform>(Vector2D(224, 352), Vector2D(0, 0), 0);
+    gPlayer = sceneEntityManager.createEntity("player");
+    std::cout << "Texture added" << std::endl;
+    gPlayer->addComponent<CTransform>(Vector2D(scenePlayerConfigurations.x, scenePlayerConfigurations.y), Vector2D(0, 0), 0);
     std::cout << "Transform added" << std::endl;
     gPlayer->addComponent<CSprite>();
     std::cout << "Sprite added" << std::endl;
-    gPlayer = sceneEntityManager.createEntity("player");
-    std::cout << "Entity created" << std::endl;
     gPlayer->addComponent<CTexture>(std::make_shared<Assets::AnimationAsset>(sceneGameEngine->getAssets().aAsset["Stand"]));
     std::cout << "Texture added" << std::endl;
-    gPlayer->addComponent<CHitBox>(gPlayer->getComponent<CTransform>().position, Vector2D(48, 48));
+    gPlayer->addComponent<CHitBox>(gPlayer->getComponent<CTransform>().position, Vector2D(scenePlayerConfigurations.cX, scenePlayerConfigurations.cY));
     std::cout << "Hitbox added" << std::endl;
-    gPlayer->addComponent<CGravity>(0.1f);
+    gPlayer->addComponent<CGravity>(scenePlayerConfigurations.gravity);
     std::cout << "Gravity added" << std::endl;
     gPlayer->addComponent<CState>("stand");
     std::cout << "State added" << std::endl;
     gPlayer->addComponent<CInput>();
     std::cout << "Input added" << std::endl;
+    std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ __ _ _ _ _ _" << std::endl << std::endl;
 }
 
 // - - - - - - - - - - -
@@ -468,6 +494,7 @@ void ScenePlay::sRender()
 
     if (sceneDrawTextures)
     {
+        std::cout << "Rendering textures" << std::endl;
         for (auto e : sceneEntityManager.getEntities())
         {
             auto& transform = e->getComponent<CTransform>();
@@ -484,6 +511,7 @@ void ScenePlay::sRender()
                 currentSprite.setOrigin(animator.getSize().x/2.f, animator.getSize().y/2.f);
                 currentSprite.setTexture(animation.texture);
                 sceneGameEngine->getWindow().draw(currentSprite);
+                std::cout << "Texture rendered" << std::endl;
             }
         }
     }

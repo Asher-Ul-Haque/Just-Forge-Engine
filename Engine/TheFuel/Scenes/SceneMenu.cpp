@@ -90,7 +90,7 @@ void SceneMenu::sDoAction(const Action &ACTION)
     if (name == "START_LEVEL")
     {
         std::string controlFile = R"(..//Assets//ConfigurationFiles//Controls.txt)";
-        sceneGameEngine->changeScene("PLAY", std::make_shared<ScenePlay>(mLevelPaths[mSelectedMenuIndex], controlFile,sceneGameEngine), "LEVEL1", false, true);
+        sceneGameEngine->changeScene("PLAY", std::make_shared<ScenePlay>(mLevelPaths[mSelectedMenuIndex], controlFile,sceneGameEngine), "LEVEL1", true, true);
         std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
         std::cout << "Playing game" << std::endl;
         std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
@@ -150,6 +150,10 @@ void SceneMenu::sDoAction(const Action &ACTION)
 
 void SceneMenu::update()
 {
+    if (sceneHasEnded)
+    {
+        return;
+    }
     mAnimation->update();
     sRender();
 }
@@ -159,6 +163,7 @@ void SceneMenu::onEnd()
     sceneHasEnded = true;
     //delete the animation object
     delete mAnimation;
+//    delete this;
 }
 
 void SceneMenu::sRender()
@@ -168,4 +173,9 @@ void SceneMenu::sRender()
     sceneGameEngine->getWindow().draw(mMenuTitle);
     sceneGameEngine->getWindow().draw(mMenuOptions);
     sceneGameEngine->getWindow().display();
+}
+
+SceneMenu::~SceneMenu()
+{
+    std::cout << "SceneMenu destructor called" << std::endl;
 }

@@ -127,6 +127,9 @@ void GameEngine::run()
 void GameEngine::update()
 {
     sUserInput();
+    std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
+    std::cout << "Updating current scene: " << gCurrentScene << std::endl;
+    std::cout << " _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
     gSceneMap[gCurrentScene]->update();
 };
 
@@ -165,6 +168,10 @@ void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE
     if (ENDCURRENTSCENE)
     {
         gSceneMap[gCurrentScene]->onEnd();
+        gWindow.clear();
+        std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
+        std::cout << "Ending current scene" << std::endl;
+        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ __ _ _ _ __ " << std::endl << std::endl;
     }
     std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
     std::cout << "Changing Asset path to: " << SCENEASSETPATH << std::endl;

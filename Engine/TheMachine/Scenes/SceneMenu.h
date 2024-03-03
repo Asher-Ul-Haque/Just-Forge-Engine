@@ -37,6 +37,7 @@ public:
     SceneMenu(GameEngine* GAMEENGINE = nullptr);
     void sRender() override;
     void init() override;
+    ~SceneMenu();
 
 };
 //---------------------------------

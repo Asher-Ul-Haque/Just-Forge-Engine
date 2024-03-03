@@ -9,11 +9,11 @@
 
 class ScenePlay : public Scene
 {
-    struct PlayerConfig
+    typedef struct playerConfig
     {
         float x, y, cX, cY, speed, maxSpeed, jump, gravity;
         std::string WEAPON;
-    };
+    } PlayerConfig;
 protected:
     std::shared_ptr<Entity> gPlayer;
     std::string sceneLevelPath;
