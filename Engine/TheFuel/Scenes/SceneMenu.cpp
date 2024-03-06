@@ -89,13 +89,7 @@ void SceneMenu::sDoAction(const Action &ACTION)
     std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
     if (name == "START_LEVEL")
     {
-        std::string controlFile = R"(..//Assets//ConfigurationFiles//Controls.txt)";
-        sceneGameEngine->changeScene("PLAY", std::make_shared<ScenePlay>(mLevelPaths[mSelectedMenuIndex], controlFile,sceneGameEngine), "LEVEL1", true, true);
-        std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
-        std::cout << "Playing game" << std::endl;
-        std::cout << "Closing menu" << std::endl;
-        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
-        onEnd();
+        std::cout << "Scene Play has not been implemented, you can implement it yourself! Have fun making many scenes" << std::endl;
     }
     if (name == "PREVIOUS_LEVEL_SELECT")
     {
@@ -165,7 +159,6 @@ void SceneMenu::onEnd()
     sceneHasEnded = true;
     //delete the animation object
     delete mAnimation;
-//    delete this;
 }
 
 void SceneMenu::sRender()

@@ -1,3 +1,0 @@
-Control Left A
-Control Right D
-Control Jump Space
