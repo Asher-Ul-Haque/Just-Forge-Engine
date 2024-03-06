@@ -1,3 +1,0 @@
-Tile Block 83 1
-Dec Flag 82.5 6
-Player 2 6 48 48 5 -20 20 0.75 Buster

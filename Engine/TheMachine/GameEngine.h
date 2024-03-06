@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_GAMEENGINE_H
-#define SUPERMARIO_GAMEENGINE_H
+#ifndef GAMEENGINE_H
+#define GAMEENGINE_H
 #include "Management/Assets.h"
 #include "Scenes/Scene.h"
 #include "Entities/EntityManager.h"
@@ -43,4 +43,4 @@ public:
 };
 
 
-#endif //SUPERMARIO_GAMEENGINE_H
+#endif //GAMEENGINE_H

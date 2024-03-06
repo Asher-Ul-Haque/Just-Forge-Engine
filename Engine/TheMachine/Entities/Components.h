@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_COMPONENTS_H
-#define SUPERMARIO_COMPONENTS_H
+#ifndef COMPONENTS_H
+#define COMPONENTS_H
 #include "../PhysicsEngine/Vector2D.h"
 #include "../Management/Assets.h"
 #include "../Management/Animation.h"
@@ -195,4 +195,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_COMPONENTS_H
+#endif //COMPONENTS_H

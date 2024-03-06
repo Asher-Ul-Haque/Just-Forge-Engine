@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_SCENEPLAY_H
-#define SUPERMARIO_SCENEPLAY_H
+#ifndef SCENEPLAY_H
+#define SCENEPLAY_H
 #include "Scene.h"
 #include <memory>
 #include <map>
@@ -53,4 +53,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_SCENEPLAY_H
+#endif //SCENEPLAY_H

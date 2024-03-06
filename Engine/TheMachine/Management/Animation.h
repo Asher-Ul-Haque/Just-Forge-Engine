@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_ANIMATION_H
-#define SUPERMARIO_ANIMATION_H
+#ifndef ANIMATION_H
+#define ANIMATION_H
 #include <cmath>
 #include <string>
 #include <SFML/Graphics.hpp>
@@ -11,8 +11,8 @@ class Animation
 {
     //Data
     sf::Texture aSpriteSheet;
-    const std::string aSpriteSheetPath;
-    const std::string aName;
+    std::string aSpriteSheetPath;
+    std::string aName;
     size_t aCurrentFrame;
     sf::Sprite* aSprite;
     size_t aFrameCount;
@@ -34,4 +34,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_ANIMATION_H
+#endif //ANIMATION_H

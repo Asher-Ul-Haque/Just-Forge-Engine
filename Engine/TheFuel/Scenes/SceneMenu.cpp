@@ -93,7 +93,9 @@ void SceneMenu::sDoAction(const Action &ACTION)
         sceneGameEngine->changeScene("PLAY", std::make_shared<ScenePlay>(mLevelPaths[mSelectedMenuIndex], controlFile,sceneGameEngine), "LEVEL1", true, true);
         std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
         std::cout << "Playing game" << std::endl;
+        std::cout << "Closing menu" << std::endl;
         std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
+        onEnd();
     }
     if (name == "PREVIOUS_LEVEL_SELECT")
     {

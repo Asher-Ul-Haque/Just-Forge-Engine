@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_ASSETS_H
-#define SUPERMARIO_ASSETS_H
+#ifndef ASSETS_H
+#define ASSETS_H
 #include <string>
 #include <vector>
 #include <memory>
@@ -81,4 +81,4 @@ public:
 
 
 
-#endif //SUPERMARIO_ASSETS_H
+#endif //ASSETS_H

@@ -12,6 +12,10 @@ void EntityManager::update()
     {
         mEntities.push_back(entity);
     }
+    for (auto& entity : mEntities)
+    {
+        entity->eAnimation->update();
+    }
     mEntitiesToAdd.clear();
     removeDeadEntities();
 }
@@ -65,6 +69,12 @@ void EntityManager::killEntity(std::shared_ptr<Entity> ENTITY)
 void EntityManager::setTag(std::shared_ptr<Entity> ENTITY, const std::string& TAG)
 {
     ENTITY->eTag = TAG;
+}
+
+void EntityManager::setAnimation(std::shared_ptr<Entity> ENTITY, const std::vector <std::string> ANIMATION)
+{
+    //The animation asset name is the first element in the vector
+//    Animation::Animation(std::string &NAME, sf::Sprite* SPRITE, std::string& SPRITESHEETPATH, size_t FRAMECOUNT, size_t SPEED, Vector2D SIZE, bool LOOP):
 }
 
 

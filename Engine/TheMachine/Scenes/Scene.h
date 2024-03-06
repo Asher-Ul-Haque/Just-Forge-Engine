@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_SCENE_H
-#define SUPERMARIO_SCENE_H
+#ifndef SCENE_H
+#define SCENE_H
 #include "../Management/Action.h"
 #include "../Entities/EntityManager.h"
 #include <memory>
@@ -63,4 +63,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_SCENE_H
+#endif //SCENE_H

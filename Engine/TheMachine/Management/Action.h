@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_ACTION_H
-#define SUPERMARIO_ACTION_H
+#ifndef ACTION_H
+#define ACTION_H
 #include <string>
 //---------------------------------
 
@@ -21,4 +21,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_ACTION_H
+#endif //ACTION_H

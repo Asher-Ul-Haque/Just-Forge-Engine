@@ -1,6 +1,7 @@
-#ifndef SUPERMARIO_ENTITY_H
-#define SUPERMARIO_ENTITY_H
+#ifndef ENTITY_H
+#define ENTITY_H
 #include "Components.h"
+#include "../../TheMachine/Management/Animation.h"
 #include <tuple>
 #include <string>
 //---------------------------------
@@ -28,6 +29,7 @@ class Entity
 
     //METHODS
 public:
+    Animation* eAnimation;
     //Construction
     Entity(const size_t& ID, const std::string& TAG):eID(ID), eTag(TAG)
     {
@@ -77,4 +79,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_ENTITY_H
+#endif //ENTITY_H

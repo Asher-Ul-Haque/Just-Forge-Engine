@@ -136,7 +136,10 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
         switch (blockType[0])
         {
             case 'T':
+                creation->addComponent<CSprite>();
+                creation->addComponent<CTransform>(gridToMidPixel(GX, GY), Vector2D(0, 0), 0);
                 creation->addComponent<CTexture>(std::make_shared<Assets::AnimationAsset>(sceneGameEngine->getAssets().aAsset[name]));
+                creation->eAnimation = new Animation(name, &creation->getComponent<CSprite>().sprite, sceneGameEngine->getAssets().aAsset[name].aSpriteSheetPath, sceneGameEngine->getAssets().aAsset[name].aFrameCount, sceneGameEngine->getAssets().aAsset[name].aSpeed, creation->getComponent<CTransform>().scale);
                 std::cout << "Adding Tile" << std::endl;
 
             /*case 'P':
@@ -166,6 +169,7 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
                 creation->addComponent<CHitBox>(creation->getComponent<CTransform>().position ,Vector2D(48, 48));
                 creation->addComponent<CGravity>(0.1f);
                 creation->addComponent<CState>("stand");
+                creation->addComponent<CSprite>();
                 creation->addComponent<CInput>();
                 std::cout << "Adding Enemy data" << std::endl;
                 break;
@@ -176,6 +180,7 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
                 creation->addComponent<CHitBox>(creation->getComponent<CTransform>().position ,Vector2D(48, 48));
                 creation->addComponent<CGravity>(0.1f);
                 creation->addComponent<CState>("stand");
+                creation->addComponent<CSprite>();
                 creation->addComponent<CInput>();
                 std::cout << "Adding Block data" << std::endl;
                 break;
@@ -184,8 +189,7 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
                 creation->addComponent<CTexture>(std::make_shared<Assets::AnimationAsset>(sceneGameEngine->getAssets().aAsset[name]));
                 creation->addComponent<CTransform>(gridToMidPixel(GX, GY), Vector2D(0, 0), 0);
                 creation->addComponent<CHitBox>(creation->getComponent<CTransform>().position ,Vector2D(48, 48));
-                creation->addComponent<CGravity>(0.1f);
-                creation->addComponent<CState>("stand");
+                creation->addComponent<CSprite>();
                 creation->addComponent<CInput>();
                 std::cout << "Adding Coin data" << std::endl;
                 break;
@@ -196,6 +200,7 @@ void ScenePlay::loadLevel(const std::string &FILEPATH)
                 creation->addComponent<CHitBox>(creation->getComponent<CTransform>().position ,Vector2D(48, 48));
                 creation->addComponent<CGravity>(0.1f);
                 creation->addComponent<CState>("stand");
+                creation->addComponent<CSprite>();
                 creation->addComponent<CInput>();
                 std::cout << "Adding Fireball data" << std::endl;
                 break;
@@ -448,7 +453,7 @@ void ScenePlay::sAnimation()
 
 void ScenePlay::onEnd()
 {
-    sceneGameEngine->changeScene("Menu", sceneGameEngine->gSceneMap["Menu"]);
+    sceneGameEngine->changeScene("MENU", sceneGameEngine->gSceneMap["MENU"], "MENU", true, true);
 }
 
 // - - - - - - - - - - -
@@ -460,7 +465,6 @@ void ScenePlay::spawnFireBall()
     fireBall->addComponent<CTexture>(std::make_shared<Assets::AnimationAsset>(sceneGameEngine->getAssets().aAsset["Fireball"]));
     fireBall->addComponent<CHitBox>(fireBall->getComponent<CTransform>().position, Vector2D(48, 48));
     fireBall->addComponent<CLifespan>(100);
-    fireBall->addComponent<CState>("stand");
     fireBall->addComponent<CInput>();
     fireBall->getComponent<CTransform>().velocity.x = 1;
 }

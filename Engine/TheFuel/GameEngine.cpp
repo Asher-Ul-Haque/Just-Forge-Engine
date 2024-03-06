@@ -127,9 +127,6 @@ void GameEngine::run()
 void GameEngine::update()
 {
     sUserInput();
-    std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
-    std::cout << "Updating current scene: " << gCurrentScene << std::endl;
-    std::cout << " _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
     gSceneMap[gCurrentScene]->update();
 };
 
@@ -165,14 +162,7 @@ std::shared_ptr<Scene> GameEngine::currentScene()
 // - - - - - - - - - - - -
 void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE, std::string SCENEASSETPATH, bool ENDCURRENTSCENE, bool INITNEWSCENE)
 {
-    if (ENDCURRENTSCENE)
-    {
-        gSceneMap[gCurrentScene]->onEnd();
-        gWindow.clear();
-        std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
-        std::cout << "Ending current scene" << std::endl;
-        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ __ _ _ _ __ " << std::endl << std::endl;
-    }
+    gWindow.clear(sf::Color(4, 156, 216));
     std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
     std::cout << "Changing Asset path to: " << SCENEASSETPATH << std::endl;
     gAssets.setPath(R"(..\\Assets\\ConfigurationFiles\\Scenes\\)" + SCENEASSETPATH);
@@ -185,6 +175,19 @@ void GameEngine::changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE
     {
         gSceneMap[SCENENAME]->init();
     }
+    if (ENDCURRENTSCENE)
+    {
+        gSceneMap[gCurrentScene]->onEnd();
+        //The sceneMap has a pointer to the current scene, so it can be deleted
+        //Free the memory from the scene pointer
+        free(gSceneMap[gCurrentScene].get());
+        gSceneMap.erase(gCurrentScene);
+        gWindow.clear();
+        std::cout << " _ _ _ _ _ GAME ENGINE MESSAGE _ _ _ _ _" << std::endl;
+        std::cout << "Ending current scene" << std::endl;
+        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ __ _ _ _ __ " << std::endl << std::endl;
+    }
+
 }
 
 //Make the screen stay open for a few seconds

@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_SCENEMENU_H
-#define SUPERMARIO_SCENEMENU_H
+#ifndef SCENEMENU_H
+#define SCENEMENU_H
 #include "Scene.h"
 #include "../GameEngine.h"
 #include "../Management/Action.h"
@@ -42,4 +42,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_SCENEMENU_H
+#endif //SCENEMENU_H
