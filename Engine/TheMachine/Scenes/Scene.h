@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_SCENE_H
-#define SUPERMARIO_SCENE_H
+#ifndef SCENE_H
+#define SCENE_H
 #include "../Management/Action.h"
 #include "../Entities/EntityManager.h"
 #include <memory>
@@ -46,6 +46,16 @@ public:
 
     virtual void drawLine(const Vector2D& POINT1, const Vector2D& POINT2){};
 
+    virtual void collectAnimationAssets(std::vector<std::string> ASSETS){};
+
+    virtual void collectFontAssets(std::vector<std::string> ASSETS){};
+
+    virtual void collectTextureAssets(std::vector<std::string> ASSETS){};
+
+    virtual void collectSoundAssets(std::vector<std::string> ASSETS){};
+
+    virtual void collectMusicAssets(std::vector<std::string> ASSETS){};
+
     size_t currentFrame() const { return sceneCurrentFrame; };
 
     const ActionMap& getActionMap() const { return sceneActionMap; };
@@ -53,4 +63,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_SCENE_H
+#endif //SCENE_H

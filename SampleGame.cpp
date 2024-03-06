@@ -1,14 +1,13 @@
-//
-// Created by conta on 19-02-2024.
-//
 #include "Engine/TheMachine/GameEngine.h"
+#include <cstdlib>
 #include <iostream>
 
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
     //Create a game engine
-    GameEngine game(R"(..\\Assets\\ConfigurationFiles\\AssetFile)");
+    std::cout << " _ _ _ _ _   NAH-RIO MESSAGE _ _ _ _ _" << std::endl;
+    std::cout << " Creating game engine" << std::endl << " - - - - - - - - - - - - - " << std::endl << std::endl;
+    GameEngine game(R"(..\\Assets)");
     //Run the game
     try
     {

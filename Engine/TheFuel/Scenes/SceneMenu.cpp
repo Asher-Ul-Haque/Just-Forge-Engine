@@ -3,20 +3,32 @@
 #include "../../TheMachine/GameEngine.h"
 #include "../../TheMachine/Scenes/ScenePlay.h"
 #include "../../TheMachine/Management/Animation.h"
+#include <filesystem>
 // - - - - - - - - - - -
 
 SceneMenu::SceneMenu(GameEngine *GAMEENGINE) : Scene(GAMEENGINE)
 {
-    init();
+}
+
+void SceneMenu::collectAnimationAssets(std::vector<std::string> ASSETS)
+{
+    mAnimation = new Animation(ASSETS[0], &mBackground, ASSETS[1], std::stoi(ASSETS[2]), std::stoi(ASSETS[3]), Vector2D(std::stoi(ASSETS[4]), std::stoi(ASSETS[5])));
+}
+
+void SceneMenu::collectFontAssets(std::vector<std::string> ASSETS)
+{
+    //Parse the asset for font
+    //The format is this: Font ka1 R"(..\\Assets\\Fonts\\ka1.ttf)"
+    std::string mFontName = ASSETS[0];
+    std::string mFontPath = ASSETS[1];
+    mFont.loadFromFile(R"(..\\Assets\\Fonts\\)" + sceneGameEngine->getAssets().fAsset["PixelFont"].fPath);
 }
 
 void SceneMenu::init()
 {
     currentFrame = 0;
     mTitle = "Nah-rio"; //Add your own title, this is just a sample
-    mFont.loadFromFile(R"(..\\Assets\\Fonts\\ka1.ttf)"); //This is for a sample game, change it to your own path using file dialog
     mLevelOptions = "Level 1\n";
-
 
     mMenuTitle.setString(mTitle);
     mMenuTitle.setFont(mFont);
@@ -40,16 +52,9 @@ void SceneMenu::init()
     mMenuOptions.setOrigin(mMenuOptions.getGlobalBounds().width/2, mMenuOptions.getGlobalBounds().height/2 );
     mMenuOptions.setPosition(sceneGameEngine->getWindow().getSize().x/2, 470);
 
-//    mBackgroundTexture.loadFromFile(mAnimationPath); //This is for a sample game, change it to your own path using file dialog
-//    mBackgroundTexture.setSmooth(true);
-//    mBackground.setTexture(mBackgroundTexture);
     mBackground.setScale(1, 1);
     mBackground.setPosition(0, 0);
     mBackground.setTextureRect(sf::IntRect(0, 200, sceneGameEngine->getWindow().getSize().x, sceneGameEngine->getWindow().getSize().y));
-
-    std::cout << "The sprite given is at: " << &mBackground << std::endl;
-//    Animation mAnimation(mAnimationName, &mBackground, mAnimationPath, 6, 100);
-//    mBackground.setTexture(mBackgroundTexture);
 
     registerAction(sf::Keyboard::Enter, "START_LEVEL");
     registerAction(sf::Keyboard::Escape, "QUIT");
@@ -57,7 +62,18 @@ void SceneMenu::init()
     registerAction(sf::Keyboard::Right, "NEXT_LEVEL_SELECT");
     registerAction(sf::Keyboard::Space, "NEXT_FRAME");
 
-    mAnimation = new Animation(mAnimationName, &mBackground, mAnimationPath, 9, 6, Vector2D(1000, 800));
+    mTotalLevels = 0;
+    for (const auto & entry : std::filesystem::directory_iterator("..//Assets//ConfigurationFiles//Levels//"))
+    {
+        mLevelPaths.push_back(entry.path().string());
+        mTotalLevels++;
+    }
+
+    for (auto e : mLevelPaths)
+    {
+        std::cout << e << std::endl;
+    }
+
 }
 
 void SceneMenu::registerAction(int INPUTKEY, const std::string &ACTIONNAME)
@@ -68,15 +84,16 @@ void SceneMenu::registerAction(int INPUTKEY, const std::string &ACTIONNAME)
 void SceneMenu::sDoAction(const Action &ACTION)
 {
     const std::string name = ACTION.getName();
+    std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
     std::cout << "Action: " << name << std::endl;
+    std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
     if (name == "START_LEVEL")
     {
-        std::string controlFile = "Controls.txt";
-        sceneGameEngine->changeScene("PLAY", std::make_shared<ScenePlay>(mLevelPaths[mSelectedMenuIndex], controlFile,sceneGameEngine));
+        std::cout << "Scene Play has not been implemented, you can implement it yourself! Have fun making many scenes" << std::endl;
     }
     if (name == "PREVIOUS_LEVEL_SELECT")
     {
-        if (mSelectedMenuIndex == 0)
+        if (mSelectedMenuIndex <= 0 || mTotalLevels == 0)
         {
             mSelectedMenuIndex = mTotalLevels-1;
         }
@@ -84,9 +101,11 @@ void SceneMenu::sDoAction(const Action &ACTION)
         {
             mSelectedMenuIndex--;
         }
+        std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
         std::cout << "Selected index: " << mSelectedMenuIndex << std::endl;
         mLevelOptions = "Level " + std::to_string(mSelectedMenuIndex + 1) + "\n";
         std::cout << mLevelOptions << std::endl;
+        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
     }
     if (name == "NEXT_LEVEL_SELECT")
     {
@@ -95,9 +114,11 @@ void SceneMenu::sDoAction(const Action &ACTION)
         {
             mSelectedMenuIndex = 0;
         }
+        std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
         std::cout << "Selected index: " << mSelectedMenuIndex << std::endl;
         mLevelOptions = "Level " + std::to_string(mSelectedMenuIndex + 1) + "\n";
         std::cout << mLevelOptions << std::endl;
+        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
     }
     if (name == "NEXT_FRAME")
     {
@@ -110,8 +131,9 @@ void SceneMenu::sDoAction(const Action &ACTION)
             direction = -1;
         }
         currentFrame += direction;
+        std::cout << " _ _ _ _ _ SCENE MENU MESSAGE _ _ _ _ _" << std::endl;
         std::cout << "Current frame and direction: " << currentFrame << " " << direction << std::endl;
-
+        std::cout << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _" << std::endl << std::endl;
         mBackground.setTextureRect(sf::IntRect(1000*currentFrame, 200, sceneGameEngine->getWindow().getSize().x, sceneGameEngine->getWindow().getSize().y));
     }
     else if (name == "QUIT")
@@ -124,6 +146,10 @@ void SceneMenu::sDoAction(const Action &ACTION)
 
 void SceneMenu::update()
 {
+    if (sceneHasEnded)
+    {
+        return;
+    }
     mAnimation->update();
     sRender();
 }
@@ -142,4 +168,9 @@ void SceneMenu::sRender()
     sceneGameEngine->getWindow().draw(mMenuTitle);
     sceneGameEngine->getWindow().draw(mMenuOptions);
     sceneGameEngine->getWindow().display();
+}
+
+SceneMenu::~SceneMenu()
+{
+    std::cout << "SceneMenu destructor called" << std::endl;
 }

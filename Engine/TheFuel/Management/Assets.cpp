@@ -53,14 +53,12 @@ void Assets::loadFromFile(const std::string& PATH)
             case 'A':
             {
                 AnimationAsset aAsset;
-                iss >> aAsset.aName >> aAsset.aSpriteSheetPath >> aAsset.aFrameCount >> aAsset.aSpeed;
+                iss >> aAsset.aName >> aAsset.aSpriteSheetPath >> aAsset.aFrameCount >> aAsset.aSpeed >> aAsset.aFrameSize.x >> aAsset.aFrameSize.y;
                 assets.aAsset.insert(std::pair<std::string, AnimationAsset>(aAsset.aName, aAsset));
                 break;
             }
             default:
                 break;
-            }
+        }
     }
 }
-
-

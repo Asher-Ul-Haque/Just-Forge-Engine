@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_PHYSICS_H
-#define SUPERMARIO_PHYSICS_H
+#ifndef PHYSICS_H
+#define PHYSICS_H
 #include <memory>
 #include "Vector2D.h"
 #include "../Entities/Entity.h"
@@ -14,4 +14,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_PHYSICS_H
+#endif //PHYSICS_H

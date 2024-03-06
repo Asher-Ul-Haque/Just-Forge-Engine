@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_VECTOR2D_H
-#define SUPERMARIO_VECTOR2D_H
+#ifndef VECTOR2D_H
+#define VECTOR2D_H
 //---------------------------------
 
 class Vector2D
@@ -44,4 +44,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_VECTOR2D_H
+#endif //VECTOR2D_H

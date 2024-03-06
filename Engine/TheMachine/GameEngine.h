@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_GAMEENGINE_H
-#define SUPERMARIO_GAMEENGINE_H
+#ifndef GAMEENGINE_H
+#define GAMEENGINE_H
 #include "Management/Assets.h"
 #include "Scenes/Scene.h"
 #include "Entities/EntityManager.h"
@@ -29,13 +29,13 @@ protected:
 // - - - - - - - - - - - - - - - - - -
 public:
     size_t gSimulationSpeed = 1;
-    void changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE, bool ENDCURRENTSCENE = false);
+    void changeScene(std::string SCENENAME, std::shared_ptr<Scene> SCENE, std::string SCENEASSETPATH = "NONE", bool ENDCURRENTSCENE = false, bool INITNEWSCENE = true);
     GameEngine(const std::string& PATH);
 
     void quit();
     void run();
 
-    Assets::allAssets& getAssets() const;
+    Assets::allAssets& getAssets() const { return (Assets::allAssets &) gAssets.assets; }
     sf::RenderWindow& getWindow();
     const bool isRuning() const;
 
@@ -43,4 +43,4 @@ public:
 };
 
 
-#endif //SUPERMARIO_GAMEENGINE_H
+#endif //GAMEENGINE_H

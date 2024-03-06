@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_SCENEPLAY_H
-#define SUPERMARIO_SCENEPLAY_H
+#ifndef SCENEPLAY_H
+#define SCENEPLAY_H
 #include "Scene.h"
 #include <memory>
 #include <map>
@@ -9,11 +9,11 @@
 
 class ScenePlay : public Scene
 {
-    struct PlayerConfig
+    typedef struct playerConfig
     {
         float x, y, cX, cY, speed, maxSpeed, jump, gravity;
         std::string WEAPON;
-    };
+    } PlayerConfig;
 protected:
     std::shared_ptr<Entity> gPlayer;
     std::string sceneLevelPath;
@@ -35,7 +35,7 @@ public:
     void loadLevel(const std::string& LEVELPATH);
     void registerAction(int INPUTKEY, const std::string& ACTIONNAME) override;
     void init() override;
-    void setControls();
+    void setControls(std::string& CONTROLSPECIFICATIONFILE);
 
     void sRender() override;
     void update() override;
@@ -53,4 +53,4 @@ public:
 };
 //---------------------------------
 
-#endif //SUPERMARIO_SCENEPLAY_H
+#endif //SCENEPLAY_H

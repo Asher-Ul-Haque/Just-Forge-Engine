@@ -1,5 +1,5 @@
-#ifndef SUPERMARIO_ASSETS_H
-#define SUPERMARIO_ASSETS_H
+#ifndef ASSETS_H
+#define ASSETS_H
 #include <string>
 #include <vector>
 #include <memory>
@@ -43,6 +43,7 @@ class Assets
         std::string aSpriteSheetPath;
         size_t aFrameCount;
         size_t aSpeed;
+        Vector2D(aFrameSize);
     };
 // - - - - - - - - - -
 public:
@@ -65,7 +66,11 @@ public:
     //METHODS-
     void loadFromFile(const std::string& PATH);
 
+    const std::string& getPath() const { return gPath; };
+
     void setPath(const std::string& PATH) { gPath = PATH; };
+
+    //Make a template function to get assets of a certain type
 
     const std::shared_ptr<allAssets> getAssets()
     {
@@ -76,4 +81,4 @@ public:
 
 
 
-#endif //SUPERMARIO_ASSETS_H
+#endif //ASSETS_H
