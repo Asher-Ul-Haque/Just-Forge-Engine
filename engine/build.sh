@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/build/bash
 # Build script for Just Forge Engine
 set echo on
 
-mkdir -p ../bin
+mkdir -p ../build
 
 # Get a list of all the .c files.
 cFilenames=$(find . -type f -name "*.c")
@@ -18,4 +18,4 @@ linkerFlags="-lvulkan -lxcb -lX11 -lX11-xcb -lxkbcommon -L$VULKAN_SDK/lib -L/usr
 defines="-D_DEBUG -DFORGE_EXPORT"
 
 echo "Building $assembly..."
-clang $cFilenames $compilerFlags -o ../bin/lib$assembly.so $defines $includeFlags $linkerFlags
+clang $cFilenames $compilerFlags -o ../build/lib$assembly.so $defines $includeFlags $linkerFlags
