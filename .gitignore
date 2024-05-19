@@ -1,0 +1,7 @@
+/.oldWiki/
+/build/
+/*.key
+/*.dll
+/*.so
+/*.exe
+**/*.[!a-zA-Z0-9]*
