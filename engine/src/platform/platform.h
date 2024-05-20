@@ -2,7 +2,7 @@
 #include "../defines.h"
 
 // - - - Platform State
-typedef struct platformState
+FORGE_API typedef struct platformState
 {
     void* internalState;
 } platformState;
@@ -13,11 +13,11 @@ typedef struct platformState
 
 // - - - State Functions - - -
 
-bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT);
+FORGE_API bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT);
 
-void platformShutdown(platformState* STATE);
+FORGE_API void platformShutdown(platformState* STATE);
 
-bool8 platformGiveMessages(platformState* STATE);
+FORGE_API bool8 platformGiveMessages(platformState* STATE);
 
 
 // - - - Memory Functions - - -
@@ -31,6 +31,9 @@ void* platformZeroMemory(void* MEMORY, unsigned long long SIZE);
 void* platformCopyMemory(void* DESTINATION, const void* SOURCE, unsigned long long SIZE);
 
 void* platformSetMemory(void* DESTINATION, int VALUE, unsigned long long SIZE);
+
+
+// - - - Writing Functions - - - 
 
 void platformWriteConsole(const char* MESSAGE, unsigned char COLOR);
 

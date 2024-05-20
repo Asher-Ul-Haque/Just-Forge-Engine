@@ -1,5 +1,7 @@
 #include <core/logger.h>
 #include <core/asserts.h>
+#include <platform/platform.h>
+// TODO: Test
 
 int main(void) 
 {
@@ -10,7 +12,17 @@ int main(void)
     FORGE_LOG_DEBUG("A test messgae: %f", 3.14);
     FORGE_LOG_TRACE("A test messgae: %f", 3.14);
 
-    FORGE_ASSERT(1 == 1);
-    FORGE_ASSERT_MESSAGE(1 == 0, "This is a test message");
+    platformState state;
+    if (platformInit(&state, "Forge Tester", 100, 100, 1280, 720))
+    {
+        while (TRUE)
+        {
+            if (!platformGiveMessages(&state))
+            {
+                break;
+            }
+        }
+    }
+    platformShutdown(&state);
     return 0;
 }
