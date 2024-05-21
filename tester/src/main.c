@@ -12,8 +12,10 @@ int main(void)
     FORGE_LOG_TRACE("A test messgae: %f", 3.14);
 
     platformState state;
-    if(platformInit(&state, "Just Forge Tester", 100, 100, 1280, 720)) {
-        while(TRUE) {
+    if(platformInit(&state, "Just Forge Tester", 100, 100, 1280, 720)) 
+    {
+        while (TRUE) 
+        {
             platformGiveMessages(&state);
         }
     }

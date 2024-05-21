@@ -2,6 +2,11 @@ REM Build script for engine
 @ECHO OFF
 SetLocal EnableDelayedExpansion
 
+REM Ensure the build directory exists.
+IF NOT EXISTS ../build/ (
+    MKDIR ../build/
+)
+
 REM Get a list of all the .c files.
 SET cFilenames=
 FOR /R %%f in (*.c) do (

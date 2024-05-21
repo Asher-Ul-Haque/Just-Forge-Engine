@@ -46,14 +46,14 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     windowClass.cbWndExtra = 0;
     windowClass.hInstance = state->hInstance;
     windowClass.hIcon = icon;
-    windowClass.hCursror = LoadCursor(NULL, IDC_ARROW); //Default cursor,
+    windowClass.hCursor = LoadCursor(NULL, IDC_ARROW); //Default cursor,
     windowClass.hbrBackground = NULL; //No background
     windowClass.lpszClassName = "ForgeWindowClass";
 
     if (!RegisterClassA(&windowClass))
     {
         MessageBoxA(0, "Failed to register window class", "Error", MB_ICONERROR);
-        return false;
+        return FALSE;
     }
 
     //Create the window
@@ -98,7 +98,7 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     {
         MessageBoxA(0, "Failed to create window", "Error", MB_ICONERROR);
         FORGE_LOG_FATAL("Failed to create window!");
-        return false;
+        return FALSE;
     }
     else 
     {
@@ -161,7 +161,7 @@ void platformFreeMemory(void* MEMORY, bool8 ALIGNED)
 
 void* platformZeroMemory(void* MEMORY, unsigned long long SIZE)
 {
-    memset(MEMORY, 0, SIZE);
+   return memset(MEMORY, 0, SIZE);
 }
 
 void* platformCopyMemory(void* DESTINATION, const void* SOURCE, unsigned long long SIZE)
@@ -184,10 +184,10 @@ void platformWriteConsole(const char* MESSAGE, unsigned char COLOR)
     static unsigned char levels[6] = { 64, 4, 6, 2, 1, 8 };
     //@Travis Vroman found these colors, I have no idea how
     SetConsoleTextAttribute(consoleHandle, levels[COLOR]);
-    OutputDebugStringA(message);
+    OutputDebugStringA(MESSAGE);
     unsigned long long length = strlen(MESSAGE);
     LPDWORD numberWritten = 0;
-    writeConsoleA(consoleHandle, message, (DWORD) length, numberWritten, 0);
+    WriteConsoleA(consoleHandle, MESSAGE, (DWORD) length, numberWritten, 0);
 }
 
 void platformWriteConsoleError(const char* MESSAGE, unsigned char COLOR)
@@ -196,10 +196,10 @@ void platformWriteConsoleError(const char* MESSAGE, unsigned char COLOR)
     static unsigned char levels[6] = { 64, 4, 6, 2, 1, 8 };
     //@Travis Vroman found these colors, I have no idea how
     SetConsoleTextAttribute(consoleHandle, levels[COLOR]);
-    OutputDebugStringA(message);
+    OutputDebugStringA(MESSAGE);
     unsigned long long length = strlen(MESSAGE);
     LPDWORD numberWritten = 0;
-    writeConsoleA(consoleHandle, message, (DWORD) length, numberWritten, 0);
+    WriteConsoleA(consoleHandle, MESSAGE, (DWORD) length, numberWritten, 0);
 }
 
 
@@ -262,7 +262,7 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
             // TODO: input from mouse
             break;
 
-        case WM_MOUSEWHEEL
+        case WM_MOUSEWHEEL:
             //int zDelta = GET_WHEEL_DELTA_WPARAM(WINDOW_PARAMETER);
             //if (zDelta != 0)
             //{

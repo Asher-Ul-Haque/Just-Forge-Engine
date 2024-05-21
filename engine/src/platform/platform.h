@@ -2,7 +2,7 @@
 #include "../defines.h"
 
 // - - - Platform State
-FORGE_API typedef struct platformState
+typedef struct platformState
 {
     void* internalState;
 } platformState;

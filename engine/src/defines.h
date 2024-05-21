@@ -35,18 +35,13 @@ STATIC_ASSERT(sizeof(unsigned short) == 2, "unsigned short is not 2 bytes");
 STATIC_ASSERT(sizeof(int) == 4, "int is not 4 bytes");
 STATIC_ASSERT(sizeof(unsigned int) == 4, "unsigned int is not 4 bytes");
 
-// - - - Beeg integer
-STATIC_ASSERT(sizeof(long) == 8, "long is not 8 bytes");
-STATIC_ASSERT(sizeof(unsigned long) == 8, "unsigned long is not 8 bytes");
-
-// - - - Too beeg integer
+// - - - Beeg Integer
 STATIC_ASSERT(sizeof(long long) == 8, "long long is not 8 bytes");
 STATIC_ASSERT(sizeof(unsigned long long) == 8, "unsigned long long is not 8 bytes");
 
 // - - - Floating point numbers
 STATIC_ASSERT(sizeof(float) == 4, "float is not 4 bytes");
 STATIC_ASSERT(sizeof(double) == 8, "double is not 8 bytes");
-STATIC_ASSERT(sizeof(long double) == 16, "long double is not 16 bytes");
 
 
 // - - - | Platform Detection | - - -
