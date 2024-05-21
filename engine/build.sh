@@ -1,4 +1,4 @@
-#!/build/bash
+#!/bin/bash
 # Build script for Just Forge Engine
 set echo on
 

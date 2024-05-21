@@ -1,7 +1,7 @@
-#include "platform.h"
+#include "platform/platform.h"
+#if FORGE_PLATFORM_WINDOWS
 #include <core/logger.h>
 #include <stdlib.h>
-#ifdef FORGE_PLATFORM_WINDOWS
 #include <windows.h>
 #include <windowsx.h> //This is for the GET_X_LPARAM and GET_Y_LPARAM macros
 
@@ -106,7 +106,7 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     }
 
     //Show the window
-    bool8 shouldActivate = 1; / TODO: if the windows should not accept input, set this to 0
+    bool8 shouldActivate = 1; // TODO: if the windows should not accept input, set this to 0
     int showWindowCommandFlags = shouldActivate ? SW_SHOW : SW_SHOWNOACTIVATE;
     //If the window is initially minimized, use SW_MINIMIZE : SW_SHOWMINNOACTIVE
     //If the window is initially maximized, use SW_MAXIMIZE : SW_SHOWMAXIMIZED

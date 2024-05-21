@@ -60,6 +60,35 @@ STATIC_ASSERT(sizeof(long double) == 16, "long double is not 16 bytes");
 #elif defined(__linux__) || defined(__gnu_linux__)
 #define FORGE_PLATFORM_LINUX 1
 
+#if defined(__ANDROID__)
+#define FORGE_PLATFORM_ANDROID 1 
+#endif
+
+#elif defined(__unix__)
+#define FORGE_PLATFORM_UNIX 1 
+#elif degined(_POSIX_VERSION)
+#define FORGE_PLATFORM_POSIX 1 
+
+// - - - MacOS
+#elif defined(__APPLE__) || defined(__MACH__)
+#define FORGE_PLATFORM_MACOS 1 
+#include <TargetConditionals.h>
+
+#if TARGET_IPHONE_SIMULATOR 
+//iOS Simulator
+#define FORGE_PLATFORM_IOS 1
+#define FORGE_PLATFORM_IOS_SIMULATOR 1 
+
+#elif TARGET_OS_IPHONE
+#define FORGE_PLATFORM_IOS 1 
+
+#elif TARGET_OS_MAC
+#define FORGE_PLATFORM_MACOS 1 
+#else 
+#error "Unknown Apple platform" 
+#endif 
+#else 
+#error "Unknown platform!"
 #endif
 
 

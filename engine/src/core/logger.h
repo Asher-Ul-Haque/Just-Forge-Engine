@@ -25,7 +25,7 @@
 
 // - - -  Log Levels  - - -
 
-typedef enum 
+typedef enum LogLevel 
 {
     LOG_LEVEL_FATAL = 0, //Just give up and die 
     LOG_LEVEL_ERROR = 1, //Something went wrong badly

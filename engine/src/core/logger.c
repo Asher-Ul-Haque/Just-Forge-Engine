@@ -29,8 +29,8 @@ void shutdownLogger()
 
 void logOutput(LogLevel LEVEL, const char* MESSAGE, ...)
 {
-    const char* levelStrings[6] = {"[FATAL]:\t", "[ERROR]:\t", "[WARN]:\t\t", "[INFO]:\t\t", "[DEBUG]:\t", "[TRACE]:\t"};
-    bool8 isError = LEVEL < 2;
+    const char* levelStrings[6] = {"[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
+    bool8 isError = LEVEL < LOG_LEVEL_WARNING;
     const int messageLength = 32000;
     char outputMessage[messageLength];
     memset(outputMessage, 0, sizeof(outputMessage));
@@ -62,5 +62,5 @@ void logOutput(LogLevel LEVEL, const char* MESSAGE, ...)
 
 void reportAssertionFailure(const char* EXPRESSION, const char* MESSAGE, const char* FILE, int LINE)
 {
-    logOutput(LOG_LEVEL_FATAL, "Assertion Failed: %s: %s\tin file: %s at line: %d", EXPRESSION, MESSAGE, FILE, LINE);
+    logOutput(LOG_LEVEL_FATAL, "Assertion Failed: %s, message: %s in file: %s at line: %d", EXPRESSION, MESSAGE, FILE, LINE);
 }
