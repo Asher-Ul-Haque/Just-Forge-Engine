@@ -10,12 +10,12 @@ FOR /R %%f in (*.c) do (
 
 REM echo "Files:" %cFilenames%
 
-SET assembly=testbed
+SET assembly=Just_Forge_Tester
 SET compilerFlags=-g 
 REM -Wall -Werror
 SET includeFlags=-Isrc -I../engine/src/
-SET linkerFlags=-L../build/ -lengine.lib
-SET defines=-D_DEBUG -DKIMPORT
+SET linkerFlags=-L../build/ -lJust_Forge_Engine.lib
+SET defines=-D_DEBUG -DFORGE_IMPORT
 
 ECHO "Building %assembly%%..."
 clang %cFilenames% %compilerFlags% -o ../build/%assembly%.exe %defines% %includeFlags% %linkerFlags%

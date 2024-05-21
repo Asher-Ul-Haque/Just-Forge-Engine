@@ -16,12 +16,13 @@ typedef struct internalState
 static double clockFrequency;
 static LARGE_INTEGER startTime;
 
+
 // - - - | Platform Functions | - - -
 
 
 // - - - State Functions - - -
 
-LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsinged int MESSAGE, WPARAM WINDOW_PARAMETER, LPARAM LONG_PARAMETER);
+LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE, WPARAM WINDOW_PARAMETER, LPARAM LONG_PARAMETER);
 
 // - - - Initialize the platform
 bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT)
@@ -220,7 +221,7 @@ void platformSleep(unsigned long long MILLISECONDS)
 // - - - | Window Message Procedure | - - -
 
 
-LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsinged int MESSAGE, WPARAM WINDOW_PARAMETER, LPARAM LONG_PARAMETER)
+LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE, WPARAM WINDOW_PARAMETER, LPARAM LONG_PARAMETER)
 {
     switch (MESSAGE)
     {
@@ -262,7 +263,6 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsinged int MESSAGE,
             break;
 
         case WM_MOUSEWHEEL
-        {
             //int zDelta = GET_WHEEL_DELTA_WPARAM(WINDOW_PARAMETER);
             //if (zDelta != 0)
             //{
@@ -271,7 +271,6 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsinged int MESSAGE,
                 // TODO: input from mousewheel
             //}
             break;
-        }
 
         case WM_LBUTTONDOWN:
 
