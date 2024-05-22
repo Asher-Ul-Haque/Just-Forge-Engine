@@ -1,4 +1,4 @@
-#!/build/bash
+#!/bin/bash
 # Build script for testbed
 set echo on
 

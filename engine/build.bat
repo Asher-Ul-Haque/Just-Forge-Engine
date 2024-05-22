@@ -2,6 +2,11 @@ REM Build script for engine
 @ECHO OFF
 SetLocal EnableDelayedExpansion
 
+REM Ensure the build directory exists.
+IF NOT EXISTS ../build/ (
+    MKDIR ../build/
+)
+
 REM Get a list of all the .c files.
 SET cFilenames=
 FOR /R %%f in (*.c) do (
@@ -10,12 +15,12 @@ FOR /R %%f in (*.c) do (
 
 REM echo "Files:" %cFilenames%
 
-SET assembly=engine
+SET assembly=Just_Forge_Engine
 SET compilerFlags=-g -shared -Wvarargs -Wall -Werror
 REM -Wall -Werror
 SET includeFlags=-Isrc -I%VULKAN_SDK%/Include
 SET linkerFlags=-luser32 -lvulkan-1 -L%VULKAN_SDK%/Lib
-SET defines=-D_DEBUG -DKEXPORT -D_CRT_SECURE_NO_WARNINGS
+SET defines=-D_DEBUG -DFORGE_EXPORT -D_CRT_SECURE_NO_WARNINGS
 
 ECHO "Building %assembly%%..."
 clang %cFilenames% %compilerFlags% -o ../build/%assembly%.dll %defines% %includeFlags% %linkerFlags%
