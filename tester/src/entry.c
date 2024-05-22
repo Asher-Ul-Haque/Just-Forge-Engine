@@ -1,7 +1,7 @@
 #include "game.h"
 #include <entry.h>
 // TODO: remove platform.h calls
-#include <platform/platform.h>
+#include <core/memory.h>
 
 
 //Define the function to create a game
@@ -17,7 +17,7 @@ bool8 createGame(game* OUTPUT_GAME)
     OUTPUT_GAME->render = gameRender;
     OUTPUT_GAME->onResize = gameOnResize;
 
-    OUTPUT_GAME->state = platformAllocateMemory(sizeof(gameState), FALSE);
+    OUTPUT_GAME->state = forgeAllocateMemory(sizeof(gameState), MEMORY_TAG_GAME);
 
     return TRUE;
 }

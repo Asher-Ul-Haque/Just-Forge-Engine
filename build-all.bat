@@ -1,6 +1,9 @@
 @ECHO OFF
 REM Build Everything
 
+REM Make sure build directory exists
+IF NOT EXIST build (MKDIR build)
+
 ECHO "Building everything..."
 
 

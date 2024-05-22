@@ -1,7 +1,9 @@
 #include "application.h"
 #include "logger.h"
+#include "memory.h"
 #include "platform/platform.h"
 #include "game_types.h"
+#include "core/memory.h"
 
 
 // - - - | Application State | - - -
@@ -12,7 +14,7 @@ typedef struct applicationState
     game* gameInstance;
     bool8 isRunning;
     bool8 isSuspended;
-    platformState* platform;
+    platformState platform;
     short width;
     short height;
     double lastTime;
@@ -38,6 +40,7 @@ bool8 createApplication(game* GAME)
 
     //Initialise logging system
     initializeLogger();
+    // TODO: remove this test code
     FORGE_LOG_FATAL("A test messgae: %f", 3.14);
     FORGE_LOG_ERROR("A test messgae: %f", 3.14);
     FORGE_LOG_WARNING("A test messgae: %f", 3.14);
@@ -69,6 +72,7 @@ bool8 createApplication(game* GAME)
 // - - - Run Application
 bool8 runApplication()
 {
+    FORGE_LOG_INFO(forgeGetMemoryStats());
     while (appState.isRunning) 
     {
         if (!platformGiveMessages(&appState.platform))

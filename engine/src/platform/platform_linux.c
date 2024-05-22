@@ -159,6 +159,7 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
         return FALSE;
     }
 
+    XAutoRepeatOn(state->display);
     return TRUE;
 }
 

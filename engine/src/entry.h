@@ -1,7 +1,9 @@
 #pragma once
 #include "core/application.h"
 #include "core/logger.h"
+#include "core/memory.h"
 #include "game_types.h"
+#include "memory.h"
 
 
 // - - - | Game Application | - - -
@@ -13,6 +15,8 @@ extern bool8 createGame(game* OUPUT_GAME);
 // - - - Main Function
 int main(void)
 {
+    initializeMemory();
+
     game gameInstance;
     if (!createGame(&gameInstance))
     {
@@ -40,6 +44,7 @@ int main(void)
         FORGE_LOG_INFO("Failed to shutdown gracefully");
         return 2;
     }
-    
+
+    shutdownMemory();
     return 0;
 }
