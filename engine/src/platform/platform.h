@@ -13,18 +13,18 @@ typedef struct platformState
 
 // - - - State Functions - - -
 
-FORGE_API bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT);
+bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT);
 
-FORGE_API void platformShutdown(platformState* STATE);
+void platformShutdown(platformState* STATE);
 
-FORGE_API bool8 platformGiveMessages(platformState* STATE);
+bool8 platformGiveMessages(platformState* STATE);
 
 
 // - - - Memory Functions - - -
 
-void* platformAllocateMemory(unsigned long long SIZE, bool8 ALIGNED);
+FORGE_API void* platformAllocateMemory(unsigned long long SIZE, bool8 ALIGNED);
 
-void platformFreeMemory(void* MEMORY, bool8 ALIGNED);
+FORGE_API void platformFreeMemory(void* MEMORY, bool8 ALIGNED);
 
 void* platformZeroMemory(void* MEMORY, unsigned long long SIZE);
 
