@@ -110,11 +110,10 @@ char* forgeGetMemoryStats()
 
     char buffer[8000] = "System memory use (tagged):\n";
     unsigned long long offset = strlen(buffer);
+    float amount = 1.0f;
+    char unit[3] = "XB";
     for (int i = 0; i < MEMORY_TAG_MAX; ++i)
     {
-        char unit[3] = "XB";
-        float amount = 1.0f;
-
         if (stats.taggedAllocated[i] >= gb)
         {
             unit[0] = 'G';
@@ -139,7 +138,33 @@ char* forgeGetMemoryStats()
 
         int length = snprintf(buffer + offset, 8000, "  %s: %.2f %s\n", memoryTagAsStrings[i], amount, unit);
         offset += length;
+
+        //Add a total memory allocation
     }
-    char* outputString = strdup(buffer);
+    unsigned long long total = stats.totalAllocated;
+    if (total >= gb)
+    {
+        unit[0] = 'G';
+        amount = total / (float) gb;
+    }
+    else if (total >= mb)
+    {
+        unit[0] = 'M';
+        amount = total / (float) mb;
+    }
+    else if (total >= kb)
+    {
+        unit[0] = 'K';
+        amount = total / (float) kb;
+    }
+    else
+    {
+        unit[0] = 'B';
+        unit[1] = 0; //Terminate string
+        amount = total;
+    }
+    snprintf(buffer + offset, 8000, "  Total: %.2f %s\n", amount, unit);
+
+    char* outputString = stringDuplicate(buffer);
     return outputString;
 }

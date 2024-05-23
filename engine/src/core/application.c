@@ -1,9 +1,11 @@
 #include "application.h"
+#include "event.h"
 #include "logger.h"
 #include "memory.h"
 #include "platform/platform.h"
 #include "game_types.h"
 #include "core/memory.h"
+#include "core/event.h"
 
 
 // - - - | Application State | - - -
@@ -51,10 +53,19 @@ bool8 createApplication(game* GAME)
     appState.isRunning = TRUE;
     appState.isSuspended = FALSE;
 
+    //Initialise the event system
+    if (!eventInitialize())
+    {
+        FORGE_LOG_FATAL("Event system failed initialisation");
+        return FALSE;
+    }
+
+    //Intitialise the platform
     if(!platformInit(&appState.platform, GAME->config.name, GAME->config.startPositionX, GAME->config.startPositionY, GAME->config.startWidth, GAME->config.startHeight)) 
     {
         return FALSE;
     }
+
     
     //Initialise the game
     if (!appState.gameInstance->init(appState.gameInstance))
@@ -99,6 +110,7 @@ bool8 runApplication()
     }
 
     appState.isRunning = FALSE;
+    eventShutdown();
     platformShutdown(&appState.platform);
     return TRUE;
 }
