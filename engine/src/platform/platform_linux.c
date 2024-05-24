@@ -194,7 +194,7 @@ bool8 platformGiveMessages(platformState* STATE)
             break;
         }
 
-        switch (event->response_type & -0x80) //Documentation says so, do not question this number
+        switch (event->response_type & ~0x80) //Documentation says so, do not question this number
         {
             case XCB_KEY_PRESS:
 
