@@ -1,6 +1,7 @@
 #include "platform/platform.h"
 #if FORGE_PLATFORM_WINDOWS
 #include <core/logger.h>
+#include <core/input.h>
 #include <stdlib.h>
 #include <windows.h>
 #include <windowsx.h> //This is for the GET_X_LPARAM and GET_Y_LPARAM macros
@@ -230,7 +231,7 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
             //Yo Windows, Erasing is upon us.
 
         case WM_CLOSE:
-            // TODO: Fire an event for the application to quit 
+            //TODO: fire an event for window close
             return 0;
 
         case WM_DESTROY:
@@ -252,24 +253,25 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
         case WM_KEYUP:
 
         case WM_SYSKEYUP:
-            // bool8 pressed = (MESSAGE == WM_KEYDOWN || MESSAGE == WM_SYSKEYDOWN);
-            // TODO: input from keyboard
+            bool8 pressed = (MESSAGE == WM_KEYDOWN || MESSAGE == WM_SYSKEYDOWN);
+            keys key = (unsigned short) w_param;
+            inputProcessKey(key, pressed);
             break;
 
         case WM_MOUSEMOVE:
-            // int xPosition = GET_X_LPARAM(LONG_PARAMETER);
-            // int yPosition = GET_Y_LPARAM(LONG_PARAMETER);
-            // TODO: input from mouse
+            int xPosition = GET_X_LPARAM(LONG_PARAMETER);
+            int yPosition = GET_Y_LPARAM(LONG_PARAMETER);
+            inputProcessMouseMovement(xPosition, yPosition);
             break;
 
         case WM_MOUSEWHEEL:
-            //int zDelta = GET_WHEEL_DELTA_WPARAM(WINDOW_PARAMETER);
-            //if (zDelta != 0)
-            //{
-                //zDelta = (zDelta < 0) ? -1 : 1;
-                //Scrolling up or down is 1 or -1
-                // TODO: input from mousewheel
-            //}
+            int zDelta = GET_WHEEL_DELTA_WPARAM(WINDOW_PARAMETER);
+            if (zDelta != 0)
+            {
+                zDelta = (zDelta < 0) ? -1 : 1;
+                // Scrolling up or down is 1 or -1
+                inputProcessMouseWheel(zDelta);
+            }
             break;
 
         case WM_LBUTTONDOWN:
@@ -283,7 +285,27 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
         case WM_MBUTTONUP:
 
         case WM_RBUTTONUP:
-            // TODO: input from mousebuttons
+            bool8 pressed = (MESSAGE = WM_LBUTTONDOWN || MESSAGE = WM_MBUTTONDOWN || MESSAGE == WM_RBUTTONDOWN);
+            buttons mouseButton = BUTTON_MAX_BUTTONS;
+            switch(MESSAGE)
+            {
+                case WM_LBUTTONDOWN:
+                case WM_LBUTTONUP:
+                    mouseButton = BUTTON_LEFT;
+                    break;
+                case WM_MBUTTONDOWN:
+                case WM_BUTTONUP:
+                    mouseButton = BUTTON_MIDDLE;
+                    break;
+                case WM_RBUTTONDOWN:
+                case WM_RBUTTONUP:
+                    mouseButton = BUTTON_RIGHT;
+                    break;
+            }
+            if (mouseButton != BUTTON_MAX_BUTTONS)
+            {
+                inputProcessButton(mouseButton, pressed);
+            }
             break;
     }
 

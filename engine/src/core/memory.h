@@ -47,7 +47,7 @@ FORGE_API void forgeFreeMemory(void* MEMORY, unsigned long long SIZE, memoryTag 
 
 FORGE_API void forgeZeroMemory(void* MEMORY, unsigned long long SIZE);
 
-FORGE_API void forgeCopyMemory(void* DESTINATION, void* SOURCE, unsigned long long SIZE);
+FORGE_API void forgeCopyMemory(void* DESTINATION, const void* SOURCE, unsigned long long SIZE);
 
 FORGE_API void forgeSetMemory(void* MEMORY, int VALUE, unsigned long long SIZE);
 

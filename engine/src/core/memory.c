@@ -91,7 +91,7 @@ void forgeZeroMemory(void* MEMORY, unsigned long long SIZE)
     platformZeroMemory(MEMORY, SIZE);
 }
 
-void forgeCopyMemory(void* DESTINATION, void* SOURCE, unsigned long long SIZE)
+void forgeCopyMemory(void* DESTINATION, const void* SOURCE, unsigned long long SIZE)
 {
     platformCopyMemory(DESTINATION, SOURCE, SIZE);
 }
