@@ -22,9 +22,9 @@ bool8 platformGiveMessages(platformState* STATE);
 
 // - - - Memory Functions - - -
 
-FORGE_API void* platformAllocateMemory(unsigned long long SIZE, bool8 ALIGNED);
+void* platformAllocateMemory(unsigned long long SIZE, bool8 ALIGNED);
 
-FORGE_API void platformFreeMemory(void* MEMORY, bool8 ALIGNED);
+void platformFreeMemory(void* MEMORY, bool8 ALIGNED);
 
 void* platformZeroMemory(void* MEMORY, unsigned long long SIZE);
 

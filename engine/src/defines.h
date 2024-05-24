@@ -50,10 +50,12 @@ STATIC_ASSERT(sizeof(double) == 8, "double is not 8 bytes");
 // - - - Windows
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 #define FORGE_PLATFORM_WINDOWS 1
+#define stringDuplicate _strdup
 
 // - - - Linux
 #elif defined(__linux__) || defined(__gnu_linux__)
 #define FORGE_PLATFORM_LINUX 1
+#define stringDuplicate strdup
 
 #if defined(__ANDROID__)
 #define FORGE_PLATFORM_ANDROID 1 

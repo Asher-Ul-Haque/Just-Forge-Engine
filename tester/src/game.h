@@ -10,7 +10,7 @@
 
 typedef struct gameState
 {
-    double deltaTime;
+    float deltaTime;
 } gameState;
 
 
