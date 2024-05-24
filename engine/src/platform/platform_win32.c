@@ -254,7 +254,7 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
 
         case WM_SYSKEYUP:
             bool8 pressed = (MESSAGE == WM_KEYDOWN || MESSAGE == WM_SYSKEYDOWN);
-            keys key = (unsigned short) w_param;
+            keys key = (unsigned short) WINDOW_PARAMETER;
             inputProcessKey(key, pressed);
             break;
 
@@ -285,7 +285,7 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
         case WM_MBUTTONUP:
 
         case WM_RBUTTONUP:
-            bool8 pressed = (MESSAGE = WM_LBUTTONDOWN || MESSAGE = WM_MBUTTONDOWN || MESSAGE == WM_RBUTTONDOWN);
+            pressed = (MESSAGE == WM_LBUTTONDOWN || MESSAGE == WM_MBUTTONDOWN || MESSAGE == WM_RBUTTONDOWN);
             buttons mouseButton = BUTTON_MAX_BUTTONS;
             switch(MESSAGE)
             {
@@ -294,7 +294,7 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
                     mouseButton = BUTTON_LEFT;
                     break;
                 case WM_MBUTTONDOWN:
-                case WM_BUTTONUP:
+                case WM_MBUTTONUP:
                     mouseButton = BUTTON_MIDDLE;
                     break;
                 case WM_RBUTTONDOWN:
