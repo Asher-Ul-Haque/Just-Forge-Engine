@@ -26,7 +26,7 @@ typedef struct rendererBackend
 
     bool8 (*initialize)(struct rendererBackend* BACKEND, const char* APPLICATION, struct platformState* PLATFORM_STATE);
 
-    bool8 (*shutdown)(struct rendererBackend* BACKEND);
+    void (*shutdown)(struct rendererBackend* BACKEND);
 
     void (*resized)(struct rendererBackend* BACKEND, unsigned short WIDTH, unsigned short HEIGHT);
 

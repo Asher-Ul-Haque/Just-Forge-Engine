@@ -27,13 +27,15 @@ bool8 rendererIntitialize(const char* APPLICATION, struct platformState *PLATFOR
         FORGE_LOG_FATAL("Renderer Backend Failed to Create!");
         return FALSE;
     }
+    FORGE_LOG_INFO("Renderer Backend Initialized!");
     return TRUE;
 }
 
 void rendererShutdown()
 {
-    rendererBackendInstance->shutdown();
+    rendererBackendInstance->shutdown(rendererBackendInstance);
     forgeFreeMemory(rendererBackendInstance, sizeof(rendererBackend), MEMORY_TAG_RENDERER);
+    FORGE_LOG_INFO("Renderer Backend Shutdown!");
 }
 
 bool8 rendererBeginFrame(float DELTA_TIME)
