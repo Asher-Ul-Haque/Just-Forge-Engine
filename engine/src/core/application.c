@@ -8,6 +8,8 @@
 #include "core/memory.h"
 #include "core/event.h"
 #include "core/input.h"
+#include "core/clock.h"
+#include "renderer/renderer_frontend.h"
 
 
 // - - - | Application State | - - -
@@ -22,6 +24,7 @@ typedef struct applicationState
     short width;
     short height;
     double lastTime;
+    clock clock;
 } applicationState;
 
 static bool8 initialized = FALSE;
@@ -74,7 +77,13 @@ bool8 createApplication(game* GAME)
     {
         return FALSE;
     }
-
+    
+    //Initialise the renderer
+    if (!rendererIntitialize(GAME->config.name, &appState.platform))
+    {
+        FORGE_LOG_FATAL("Failed to initialize the renderer");
+        return FALSE;
+    }
     
     //Initialise the game
     if (!appState.gameInstance->init(appState.gameInstance))
@@ -92,7 +101,15 @@ bool8 createApplication(game* GAME)
 // - - - Run Application
 bool8 runApplication()
 {
+    clockStart(&appState.clock);
+    clockUpdate(&appState.clock);
+    appState.lastTime = appState.clock.elapsedTime;
+    double runningTime = 0.0;
+    unsigned char frameCount = 0;
+    double targetFrameTime = 1.0f / 60.0; // 60 fps
+
     FORGE_LOG_INFO(forgeGetMemoryStats());
+
     while (appState.isRunning) 
     {
         if (!platformGiveMessages(&appState.platform))
@@ -100,24 +117,52 @@ bool8 runApplication()
             appState.isRunning = FALSE;
         }
 
+        // TODO: take care of delta time.
         if (!appState.isSuspended)
         {
-            if (!appState.gameInstance->update(appState.gameInstance, 0.0f))
+            clockUpdate(&appState.clock);
+            double currentTime = appState.clock.elapsedTime;
+            double deltaTime = currentTime - appState.lastTime;
+            double frameStartTime = platformGetTime();
+
+            if (!appState.gameInstance->update(appState.gameInstance, deltaTime))
             {
                 FORGE_LOG_FATAL("Failed to update game");
                 appState.isRunning = FALSE;
                 break;
             }
 
-            if (!appState.gameInstance->render(appState.gameInstance, 0.0f))
+            if (!appState.gameInstance->render(appState.gameInstance, deltaTime))
             {
                 FORGE_LOG_FATAL("Failed to render game");
                 appState.isRunning = FALSE;
                 break;
             }
 
+            rendererPacket packet;
+            packet.deltaTime = deltaTime;
+            rendererDrawFrame(&packet);  
+
+            double frameEndTime = platformGetTime();
+            double frameElapsedTime = frameEndTime - frameStartTime;
+            runningTime += frameElapsedTime;
+            double remainingSeconds = targetFrameTime - frameElapsedTime;
+
+            if (remainingSeconds > 0)
+            {
+                unsigned long long remainingMiliseconds = (remainingSeconds * 1000);
+                bool8 limitFrames = FALSE; //give time back to os
+                if (remainingMiliseconds > 0 && limitFrames)
+                {
+                    platformSleep(remainingMiliseconds - 1);
+                }
+                ++frameCount;
+            }
+
             //NOTE: input state should be handled after input recorded or before this line
-            inputUpdate(0);
+            inputUpdate(deltaTime);
+            
+            appState.lastTime = currentTime;
         }
     }
 
@@ -128,8 +173,8 @@ bool8 runApplication()
     eventUnregister(EVENT_CODE_KEY_PRESS, 0, applicationOnKey);
     eventUnregister(EVENT_CODE_KEY_RELEASE, 0, applicationOnKey);
     eventShutdown();
-
     inputShutdown();
+    rendererShutdown();
     platformShutdown(&appState.platform);
     return TRUE;
 }
