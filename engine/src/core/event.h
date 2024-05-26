@@ -51,6 +51,11 @@ typedef enum systemEventCode
       Context: unsigned short width = CONTEXT.data.u16[0] : New width
                unsigned short height = CONTEXT.data.u16[1] : New height
     */
+    EVENT_CODE_MEMORY_STATS = 0x09,
+    /*
+      Request for memory statistics
+      Context: None required
+    */
     MAX_SYSTEM_EVENT_CODE = 0xFF
 } systemEventCode;
 

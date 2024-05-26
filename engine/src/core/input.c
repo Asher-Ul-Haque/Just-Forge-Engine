@@ -52,6 +52,7 @@ void inputShutdown()
 {
     //TODO: Shutdown routines
     isInitialized = FALSE;
+    FORGE_LOG_INFO("Input shutdown");
 }
 
 void inputUpdate(double DELTA_TIME)
@@ -200,7 +201,7 @@ void inputProcessMouseMovement(short X, short Y)
 {
     if (state.mouseCurrent.x != X || state.mouseCurrent.y != Y)
     {
-        FORGE_LOG_DEBUG("Mouse Position: %i, %i", X, Y);
+        FORGE_LOG_TRACE("Mouse Position: %i, %i", X, Y);
 
         state.mouseCurrent.x = X;
         state.mouseCurrent.y = Y;

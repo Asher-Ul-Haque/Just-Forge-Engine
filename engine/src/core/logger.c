@@ -16,11 +16,13 @@
 bool8 initializeLogger()
 {
     // TODO: create log file
+    FORGE_LOG_INFO("Logger Initialized");
     return TRUE;
 }
 
 void shutdownLogger()
 {
+    FORGE_LOG_INFO("Logger Shutdown");
     // TODO: cleanup and write all queued entries
 }
 

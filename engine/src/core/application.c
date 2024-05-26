@@ -40,6 +40,7 @@ bool8 applicationOnEvent(unsigned short CODE, void* SENDER, void* LISTENER, even
 
 bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventContext context);
 
+
 // - - - Create Application
 bool8 createApplication(game* GAME)
 {
@@ -107,8 +108,6 @@ bool8 runApplication()
     double runningTime = 0.0;
     unsigned char frameCount = 0;
     double targetFrameTime = 1.0f / 60.0; // 60 fps
-
-    FORGE_LOG_INFO(forgeGetMemoryStats());
 
     while (appState.isRunning) 
     {
@@ -187,7 +186,7 @@ bool8 applicationOnEvent(unsigned short CODE, void* SENDER, void* LISTENER, even
     switch (CODE)
     {
         case EVENT_CODE_APPLICATION_QUIT:
-            FORGE_LOG_INFO("EVENT_CODE_APPLICATION_QUIT recieved, shutting down.\n");
+            FORGE_LOG_INFO("EVENT_CODE_APPLICATION_QUIT recieved, shutting down");
             appState.isRunning = FALSE;
             return TRUE;
     }
@@ -210,11 +209,7 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
                     return TRUE;
 
                 case KEY_F1:
-                    appState.isSuspended = !appState.isSuspended;
-                    return TRUE;
-
-                case KEY_A:
-                    FORGE_LOG_DEBUG("Key A pressed");
+                    FORGE_LOG_DEBUG(forgeGetMemoryStats());
                     return TRUE;
 
                 default:
@@ -227,10 +222,6 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
             keyCode = CONTEXT.data.u16[0];
             switch (keyCode)
             {
-                case KEY_B:
-                    FORGE_LOG_DEBUG("Key A released");
-                    return TRUE;
-
                 default:
                     FORGE_LOG_DEBUG("Key %i released", keyCode);
                     return FALSE;
@@ -239,3 +230,4 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
     }
     return FALSE;
 }
+

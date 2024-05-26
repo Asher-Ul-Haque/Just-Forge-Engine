@@ -44,11 +44,13 @@ static const char* memoryTagAsStrings[MEMORY_TAG_MAX] = {
 
 void initializeMemory()
 {
+    FORGE_LOG_INFO("Memory Initialized");
     platformZeroMemory(&stats, sizeof(stats));
 }
 
 void shutdownMemory()
 {
+    FORGE_LOG_INFO("Memory Shutdown");
     //TODO: cleanup of memory applications
 }
 

@@ -1,5 +1,6 @@
 #include "core/event.h"
 #include "core/memory.h"
+#include "core/logger.h"
 #include "event.h"
 #include "dataStructures/list.h"
 
@@ -40,6 +41,7 @@ bool8 eventInitialize()
     }
     isInitialized = TRUE;
     forgeZeroMemory(&state, sizeof(state));
+    FORGE_LOG_INFO("Event System Initialized");
     return TRUE;
 }
 
@@ -53,6 +55,8 @@ void eventShutdown()
             state.registry[i].events = 0;
         }
     }
+    isInitialized = FALSE;
+    FORGE_LOG_INFO("Event System Shutdown");
 }
 
 
