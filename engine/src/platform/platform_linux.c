@@ -1,7 +1,7 @@
 #include "platform.h"
+#if FORGE_PLATFORM_LINUX
 #include <X11/X.h>
 #include <xcb/xproto.h>
-#if FORGE_PLATFORM_LINUX
 #include "core/logger.h"
 #include "core/input.h"
 #include "core/event.h"
@@ -351,9 +351,6 @@ double platformGetTime()
     clock_gettime(CLOCK_MONOTONIC, &now);
     return now.tv_sec + now.tv_nsec * 0.000000001; //Seconds in double
 }
-
-#endif
-
 
 keys translateKeycode(unsigned int X_KEYCODE)
 {
@@ -713,3 +710,5 @@ keys translateKeycode(unsigned int X_KEYCODE)
             return 0; 
     }
 }
+
+#endif
