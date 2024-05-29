@@ -27,13 +27,14 @@ For Unix-based systems:
 ```
 For Windows:
 ```sh
-build-all.bat
+./build-all.bat
 ```
 
 ## Usage
-To run the engine, execute the built binary from the `bin` directory:
+To run the engine, execute the built binary from the `build` directory:
 ```sh
-./build/Just_Forge_Tester
+cd build
+./Just_Forge_Tester
 ```
 
 ## Contributing
