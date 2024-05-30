@@ -318,7 +318,7 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
 // - - - Vulkan Functions
 void platformGetRequiredExtensions(const char*** EXTENSIONS)
 {
-    listAppend(EXTENSIONS, &"VK_KHR_win32_surface");
+    listAppend(*EXTENSIONS, &"VK_KHR_win32_surface");
 }
 
 #endif //FORGE_PLATFORM_WINDOWS
