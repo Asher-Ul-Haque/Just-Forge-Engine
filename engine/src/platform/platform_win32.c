@@ -315,9 +315,10 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
     return DefWindowProcA(HANDLE_WINDOW, MESSAGE, WINDOW_PARAMETER, LONG_PARAMETER);
 }
 
+// - - - Vulkan Functions
 void platformGetRequiredExtensions(const char*** EXTENSIONS)
 {
-    listAppend(EXTENSIONS, &"VK_KHR_WIN32_SURFACE_EXTENSION_NAME");
+    listAppend(EXTENSIONS, &"VK_KHR_win32_surface");
 }
 
 #endif //FORGE_PLATFORM_WINDOWS

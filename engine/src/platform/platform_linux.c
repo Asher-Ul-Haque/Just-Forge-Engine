@@ -176,9 +176,7 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
 void platformShutdown(platformState* STATE)
 {
     internalState* state = (internalState*)STATE->internalState;
-
     XAutoRepeatOn(state->display);
-
     xcb_destroy_window(state->connection, state->window);
 }
 
@@ -354,6 +352,8 @@ double platformGetTime()
     return now.tv_sec + now.tv_nsec * 0.000000001; //Seconds in double
 }
 
+
+// - - - Key Translation
 keys translateKeycode(unsigned int X_KEYCODE)
 {
     switch (X_KEYCODE)
@@ -713,9 +713,10 @@ keys translateKeycode(unsigned int X_KEYCODE)
     }
 }
 
+// - - - Vulkan Extensions
 void platformGetRequiredExtensions(const char*** EXTENSIONS)
 {
-    listAppend(EXTENSIONS, &"VK_KHR_xcb_surface");
+    listAppend(*EXTENSIONS, &"VK_KHR_xcb_surface");
 }
 
 #endif
