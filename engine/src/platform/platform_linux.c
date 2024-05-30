@@ -1,5 +1,7 @@
 #include "platform.h"
 #if FORGE_PLATFORM_LINUX
+#include <renderer/vulkan/vulkan_platform.h>
+#include <dataStructures/list.h>
 #include <X11/X.h>
 #include <xcb/xproto.h>
 #include "core/logger.h"
@@ -709,6 +711,11 @@ keys translateKeycode(unsigned int X_KEYCODE)
         default:
             return 0; 
     }
+}
+
+void platformGetRequiredExtensions(const char*** EXTENSIONS)
+{
+    listAppend(EXTENSIONS, &"VK_KHR_xcb_surface");
 }
 
 #endif

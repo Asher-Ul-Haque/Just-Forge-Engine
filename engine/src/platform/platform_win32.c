@@ -3,6 +3,9 @@
 #include <core/logger.h>
 #include <core/input.h>
 #include <stdlib.h>
+#include <string.h>
+#include <renderer/vulkan/vulkan_platform.h>
+#include <dataStructures/list.h>
 #include <windows.h>
 #include <windowsx.h> //This is for the GET_X_LPARAM and GET_Y_LPARAM macros
 
@@ -310,6 +313,11 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
     }
 
     return DefWindowProcA(HANDLE_WINDOW, MESSAGE, WINDOW_PARAMETER, LONG_PARAMETER);
+}
+
+void platformGetRequiredExtensions(const char*** EXTENSIONS)
+{
+    listAppend(EXTENSIONS, &"VK_KHR_WIN32_SURFACE_EXTENSION_NAME");
 }
 
 #endif //FORGE_PLATFORM_WINDOWS
