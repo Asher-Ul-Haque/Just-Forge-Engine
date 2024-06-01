@@ -1,11 +1,16 @@
 #include "vulkan_backend.h"
 #include "vulkan_types.h"
 #include "vulkan_platform.h"
+#include "vulkan_device.h"
 #include "core/logger.h"
 #include "core/asserts.h"
 #include "dataStructures/list.h"
 #include "platform/platform.h" //TODO: remove this
 #include <string.h>
+
+
+// - - - | Vulkan Setup | - - -
+
 
 // - - - Vulkan Context
 static vulkanContext context;
@@ -29,18 +34,18 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
     appInfo.pApplicationName = APPLICATION; 
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); //Version of the application
     appInfo.pEngineName = "Just Forge Engine";
-    appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 0); //Version of the game engine
+    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0); //Version of the game engine
 
     VkInstanceCreateInfo createInfo = {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
     createInfo.pApplicationInfo = &appInfo;
     
     const char** requiredExtensions = listCreate(const char*);
     listAppend(requiredExtensions, &VK_KHR_SURFACE_EXTENSION_NAME); // Required for surface creation
-    platformGetRequiredExtensions(&requiredExtensions); //TODO: make this function platformGetRequiredExtensions
+    platformGetRequiredExtensions(&requiredExtensions);
     #if defined(_DEBUG)
         listAppend(requiredExtensions, &VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // Required for debug utils
         FORGE_LOG_DEBUG("Required extensions: ");
-        for (unsigned long long i = 0; i < _listGetField(requiredExtensions, LIST_LENGTH); ++i)
+        for (unsigned long long i = 0; i < listLength(requiredExtensions); ++i)
         {
             FORGE_LOG_DEBUG("    %s", requiredExtensions[i]);
         }
@@ -116,7 +121,22 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
         FORGE_LOG_DEBUG("Vulkan debugger created.");
     #endif
     
-    FORGE_LOG_INFO("Vulkan Renderer Initialized");
+    //Setup vulkan surface
+    FORGE_LOG_DEBUG("Creating vulkan surface...");
+    if (!platformCreateSurface(PLATFORM, &context))
+    {
+        FORGE_LOG_ERROR("Failed to create vulkan surface");
+        return FALSE;
+    }
+
+    //Setup vulkan device
+    if (!createVulkanDevice(&context))
+    {
+        FORGE_LOG_ERROR("Failed to create vulkan device");
+        return FALSE;
+    }
+    
+    FORGE_LOG_DEBUG("Vulkan Renderer Initialized");
     return TRUE;
 }
 

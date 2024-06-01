@@ -1,12 +1,14 @@
 #include "platform.h"
 #if FORGE_PLATFORM_LINUX
-#include <renderer/vulkan/vulkan_platform.h>
-#include <dataStructures/list.h>
-#include <X11/X.h>
-#include <xcb/xproto.h>
+
 #include "core/logger.h"
 #include "core/input.h"
 #include "core/event.h"
+
+#include <dataStructures/list.h>
+
+#include <X11/X.h>
+#include <xcb/xproto.h>
 #include <xcb/xcb.h>
 #include <X11/XKBlib.h> //sudo apt-get install libx11-xcb-dev
 #include <X11/Xlib.h>
@@ -26,6 +28,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#define VK_USE_PLATFORM_XCB_KHR
+#include <vulkan/vulkan.h>
+#include "renderer/vulkan/vulkan_types.h"
+
 // - - - Key Transaltion
 keys translateKeycode(unsigned int X_KEYCODE);
 
@@ -38,6 +44,7 @@ typedef struct internalState
     xcb_window_t window;
     xcb_atom_t windowProtocols;
     xcb_atom_t windowDelete;
+    VkSurfaceKHR surface;
 } internalState;
 
 
@@ -713,10 +720,29 @@ keys translateKeycode(unsigned int X_KEYCODE)
     }
 }
 
-// - - - Vulkan Extensions
+// - - - Vulkan Functions - - -
+
 void platformGetRequiredExtensions(const char*** EXTENSIONS)
 {
     listAppend(*EXTENSIONS, &"VK_KHR_xcb_surface");
+}
+
+bool8 platformCreateSurface(platformState* STATE, vulkanContext* CONTEXT)
+{
+    internalState* state = (internalState*)STATE->internalState;
+
+    VkXcbSurfaceCreateInfoKHR createInfo = {VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};
+    createInfo.connection = state->connection;
+    createInfo.window = state->window;
+    
+    VkResult result = vkCreateXcbSurfaceKHR(CONTEXT->instance, &createInfo, CONTEXT->allocator, &state->surface);
+    if (result != VK_SUCCESS)
+    {
+        FORGE_LOG_FATAL("Failed to create the surface: %d\n", result);
+        return FALSE;
+    }
+    CONTEXT->surface = state->surface;
+    return TRUE;
 }
 
 #endif

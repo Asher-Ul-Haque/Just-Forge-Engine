@@ -5,6 +5,7 @@
 // - - - | Renderer Backend | - - -
 
 
+// - - - Forward Declaration
 struct platformState;
 
 

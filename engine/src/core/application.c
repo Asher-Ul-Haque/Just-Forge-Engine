@@ -212,7 +212,7 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
                     return TRUE;
 
                 default:
-                    FORGE_LOG_DEBUG("Key %i pressed", keyCode);
+                    FORGE_LOG_TRACE("Key %i pressed", keyCode);
                     return FALSE;
             }
             break;
@@ -222,7 +222,7 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
             switch (keyCode)
             {
                 default:
-                    FORGE_LOG_DEBUG("Key %i released", keyCode);
+                    FORGE_LOG_TRACE("Key %i released", keyCode);
                     return FALSE;
             }
             break;
