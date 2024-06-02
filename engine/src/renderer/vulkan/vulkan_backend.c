@@ -142,6 +142,9 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
 
 void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
 {
+    //Destroy vulkan device
+    destroyVulkanDevice(&context);
+
     #if defined(_DEBUG)
         
     FORGE_LOG_DEBUG("Destroying vulkan debugger...");
@@ -151,6 +154,7 @@ void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
         func(context.instance, context.debugMessenger, context.allocator);
     }
     #endif
+    
 
     FORGE_LOG_DEBUG("Destroying Vulkan Instance...");
     vkDestroyInstance(context.instance, context.allocator);

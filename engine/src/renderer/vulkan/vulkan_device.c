@@ -51,11 +51,128 @@ bool8 createVulkanDevice(vulkanContext* CONTEXT)
     {
         return FALSE;
     }
+    FORGE_LOG_INFO("Creating Logical Device");
+    // NOTE: do not create additional queues for shared indices
+    bool8 presentSharesGraphics = (CONTEXT->device.graphicsQueueIndex == CONTEXT->device.presentQueueIndex);
+    bool8 computeSharesGraphics = (CONTEXT->device.graphicsQueueIndex == CONTEXT->device.computeQueueIndex);
+    bool8 transferSharesGraphics = (CONTEXT->device.graphicsQueueIndex == CONTEXT->device.transferQueueIndex);
+    unsigned int indexCount = 1;
+
+    if (!presentSharesGraphics)
+    {
+        ++indexCount;
+    }
+    if (!computeSharesGraphics)
+    {
+        ++indexCount;
+    }
+    if (!transferSharesGraphics)
+    {
+        ++indexCount;
+    }
+    unsigned int indices[indexCount];
+    unsigned char index = 0;
+    indices[index++] = CONTEXT->device.graphicsQueueIndex;
+    if (!presentSharesGraphics)
+    {
+        indices[index++] = CONTEXT->device.presentQueueIndex;
+    }
+    if (!computeSharesGraphics)
+    {
+        indices[index++] = CONTEXT->device.computeQueueIndex;
+    }
+    if (!transferSharesGraphics)
+    {
+        indices[index++] = CONTEXT->device.transferQueueIndex;
+    }
+
+    VkDeviceQueueCreateInfo queueCreateInfos[indexCount];
+    for (unsigned int i = 0; i < indexCount; ++i)
+    {
+        queueCreateInfos[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfos[i].queueFamilyIndex = indices[i];
+        queueCreateInfos[i].queueCount = 1;
+        if (indices[i] == CONTEXT->device.transferQueueIndex)
+        {
+            queueCreateInfos[i].queueCount = 2;
+        }
+        queueCreateInfos[i].flags = 0;
+        queueCreateInfos[i].pNext = 0;
+        float queuePriority = 1.0f;
+        queueCreateInfos[i].pQueuePriorities = &queuePriority;
+    }
+
+    //Request device features
+    // TODO: make this configurable
+    VkPhysicalDeviceFeatures deviceFeatures = {};
+    deviceFeatures.samplerAnisotropy = VK_TRUE; // Requires a GPU that supports anisotropic filtering
+
+    VkDeviceCreateInfo deviceCreateInfo = {};
+    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCreateInfo.pQueueCreateInfos = queueCreateInfos;
+    deviceCreateInfo.queueCreateInfoCount = indexCount;
+    deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+    deviceCreateInfo.enabledExtensionCount = 1;
+    const char* extensions = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+    deviceCreateInfo.ppEnabledExtensionNames = &extensions;
+
+    //Create the device
+    VK_CHECK(vkCreateDevice(CONTEXT->device.physicalDevice, &deviceCreateInfo, CONTEXT->allocator, &CONTEXT->device.logicalDevice));
+
+    FORGE_LOG_INFO("Logical Device created");
+
+    //Get queues
+    vkGetDeviceQueue(CONTEXT->device.logicalDevice, CONTEXT->device.graphicsQueueIndex, 0, &CONTEXT->device.graphicsQueue);
+    vkGetDeviceQueue(CONTEXT->device.logicalDevice, CONTEXT->device.presentQueueIndex, 0, &CONTEXT->device.presentQueue);
+    vkGetDeviceQueue(CONTEXT->device.logicalDevice, CONTEXT->device.computeQueueIndex, 0, &CONTEXT->device.computeQueue);
+    vkGetDeviceQueue(CONTEXT->device.logicalDevice, CONTEXT->device.transferQueueIndex, 0, &CONTEXT->device.transferQueue);
+
+    FORGE_LOG_INFO("Queues retrieved");
     return TRUE;
 }
 
 void destroyVulkanDevice(vulkanContext* CONTEXT)
 {
+    CONTEXT->device.graphicsQueue = 0;
+    CONTEXT->device.presentQueue = 0;
+    CONTEXT->device.computeQueue = 0;
+    CONTEXT->device.transferQueue = 0;
+    FORGE_LOG_INFO("Queues released");
+
+    FORGE_LOG_INFO("Destroying Logical Device");
+    if (CONTEXT->device.logicalDevice)
+    {
+        vkDestroyDevice(CONTEXT->device.logicalDevice, CONTEXT->allocator);
+        CONTEXT->device.logicalDevice = 0;
+    }
+
+    //Since physical devices are not created, they cant be destroyed
+    FORGE_LOG_INFO("Releasing GPU resources");
+    CONTEXT->device.physicalDevice = 0;
+
+    if (CONTEXT->device.swapchainSupport.formats)
+    {
+        forgeFreeMemory(CONTEXT->device.swapchainSupport.formats, sizeof(VkSurfaceFormatKHR) * CONTEXT->device.swapchainSupport.formatCount, MEMORY_TAG_RENDERER);
+        CONTEXT->device.swapchainSupport.formats = 0;
+        CONTEXT->device.swapchainSupport.formatCount = 0;
+    }
+
+    if (CONTEXT->device.swapchainSupport.presentModes)
+    {
+        forgeFreeMemory(CONTEXT->device.swapchainSupport.presentModes, sizeof(VkPresentModeKHR) * CONTEXT->device.swapchainSupport.presentModeCount, MEMORY_TAG_RENDERER);
+        CONTEXT->device.swapchainSupport.presentModes = 0;
+        CONTEXT->device.swapchainSupport.presentModeCount = 0;
+    }
+
+    forgeZeroMemory(&CONTEXT->device.swapchainSupport, sizeof(CONTEXT->device.swapchainSupport.capabilities));
+
+    CONTEXT->device.graphicsQueueIndex = -1;
+    CONTEXT->device.presentQueueIndex = -1;
+    CONTEXT->device.computeQueueIndex = -1;
+    CONTEXT->device.transferQueueIndex = -1;
+
+    forgeZeroMemory(&CONTEXT->device.properties, sizeof(CONTEXT->device.properties));
+    FORGE_LOG_INFO("GPU resources released");
 }
 
 // - - - Query swapchain support
@@ -156,7 +273,7 @@ bool8 gpuMeetsRequirements(
     }
 
         //print the info
-        FORGE_LOG_INFO("    %d |    %d |    %d |    %d | %s", (INFO->graphicsFamilyIndex != -1), (INFO->presentFamilyIndex != -1), (INFO->computeFamilyIndex != -1), (INFO->transferFamilyIndex != -1), PROPERTIES->deviceName);
+        FORGE_LOG_INFO("    %d    |    %d    |    %d    |    %d    | %s", (INFO->graphicsFamilyIndex != -1), (INFO->presentFamilyIndex != -1), (INFO->computeFamilyIndex != -1), (INFO->transferFamilyIndex != -1), PROPERTIES->deviceName);
 
         //If all the queues are found, return true
         if (
@@ -322,6 +439,7 @@ bool8 selectGPU(vulkanContext* CONTEXT)
             CONTEXT->device.graphicsQueueIndex = queueInfo.graphicsFamilyIndex;
             CONTEXT->device.presentQueueIndex = queueInfo.presentFamilyIndex;
             CONTEXT->device.computeQueueIndex = queueInfo.computeFamilyIndex;
+            CONTEXT->device.transferQueueIndex = queueInfo.transferFamilyIndex;
 
             CONTEXT->device.properties = properties;
             CONTEXT->device.features = features;
@@ -339,7 +457,6 @@ bool8 selectGPU(vulkanContext* CONTEXT)
         return FALSE;
     }
 
-    FORGE_LOG_INFO("GPU selected");
     return TRUE;
 }
 

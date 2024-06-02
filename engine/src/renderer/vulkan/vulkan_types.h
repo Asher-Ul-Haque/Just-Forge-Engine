@@ -30,9 +30,16 @@ typedef struct vulkanDevice
     VkPhysicalDevice physicalDevice;
     VkDevice logicalDevice;
     vulkanSwapchainSupportInfo swapchainSupport;
+
     int graphicsQueueIndex;
     int presentQueueIndex;
     int computeQueueIndex;
+    int transferQueueIndex;
+    VkQueue graphicsQueue;
+    VkQueue presentQueue;
+    VkQueue computeQueue;
+    VkQueue transferQueue;
+
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceFeatures features;
     VkPhysicalDeviceMemoryProperties memory;

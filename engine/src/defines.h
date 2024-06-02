@@ -91,6 +91,13 @@ STATIC_ASSERT(sizeof(double) == 8, "double is not 8 bytes");
 
 // - - - | Forge API | - - -
 
+// - - - Release
+#ifdef _DEBUG
+#define FORGE_RELEASE 0
+#else 
+//#define FORGE_RELEASE 1
+#endif
+
 
 // - - - Export
 #ifdef FORGE_EXPORT
