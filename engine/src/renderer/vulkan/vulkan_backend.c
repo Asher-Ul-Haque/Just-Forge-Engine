@@ -142,10 +142,15 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
 
 void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
 {
-    //Destroy vulkan device
+    FORGE_LOG_DEBUG("Destroying vulkan device...");
     destroyVulkanDevice(&context);
 
-    #if defined(_DEBUG)
+    FORGE_LOG_DEBUG("Destroying vulkan surface...");
+    if (context.surface)
+    {
+        vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
+        context.surface = 0;
+    }
         
     FORGE_LOG_DEBUG("Destroying vulkan debugger...");
     if (context.debugMessenger)
@@ -153,8 +158,6 @@ void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
         PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(context.instance, "vkDestroyDebugUtilsMessengerEXT");
         func(context.instance, context.debugMessenger, context.allocator);
     }
-    #endif
-    
 
     FORGE_LOG_DEBUG("Destroying Vulkan Instance...");
     vkDestroyInstance(context.instance, context.allocator);
