@@ -92,10 +92,12 @@ bool8 createVulkanDevice(vulkanContext* CONTEXT)
         queueCreateInfos[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfos[i].queueFamilyIndex = indices[i];
         queueCreateInfos[i].queueCount = 1;
-        if (indices[i] == CONTEXT->device.transferQueueIndex)
+        // TODO: enable this in future multi-threaded rendering
+        /* if (indices[i] == CONTEXT->device.transferQueueIndex)
         {
             queueCreateInfos[i].queueCount = 2;
         }
+        */
         queueCreateInfos[i].flags = 0;
         queueCreateInfos[i].pNext = 0;
         float queuePriority = 1.0f;
@@ -173,6 +175,37 @@ void destroyVulkanDevice(vulkanContext* CONTEXT)
 
     forgeZeroMemory(&CONTEXT->device.properties, sizeof(CONTEXT->device.properties));
     FORGE_LOG_INFO("GPU resources released");
+}
+
+// - - -  Detect the depth format
+bool8 vulkanDeviceDetectDepthFormat(vulkanDevice *DEVICE)
+{
+    //Format candidates
+    const unsigned long long candidateCount = 3;
+    VkFormat candidates[3] = {
+        VK_FORMAT_D32_SFLOAT, 
+        VK_FORMAT_D32_SFLOAT_S8_UINT, 
+        VK_FORMAT_D24_UNORM_S8_UINT};
+
+    unsigned int flags = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    for (unsigned long long i = 0; i < candidateCount; ++i)
+    {
+        VkFormatProperties properties;
+        vkGetPhysicalDeviceFormatProperties(DEVICE->physicalDevice, candidates[i], &properties);
+
+        if ((properties.linearTilingFeatures & flags) == flags)
+        {
+            DEVICE->depthFormat = candidates[i];
+            return TRUE;
+        }
+        else if ((properties.optimalTilingFeatures & flags) == flags)
+        {
+            DEVICE->depthFormat = candidates[i];
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }
 
 // - - - Query swapchain support
@@ -459,4 +492,5 @@ bool8 selectGPU(vulkanContext* CONTEXT)
 
     return TRUE;
 }
+
 

@@ -116,4 +116,4 @@ STATIC_ASSERT(sizeof(double) == 8, "double is not 8 bytes");
 #endif
 #endif
 
-
+#define FORGE_CLAMP(VALUE, MIN, MAX) ((VALUE) <= (MIN) ? (MIN) : (VALUE) >= (MAX) ? (MAX) : (VALUE))

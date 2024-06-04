@@ -2,6 +2,7 @@
 #include "vulkan_types.h"
 #include "vulkan_platform.h"
 #include "vulkan_device.h"
+#include "vulkan_swapchain.h"
 #include "core/logger.h"
 #include "core/asserts.h"
 #include "dataStructures/list.h"
@@ -18,12 +19,18 @@ static vulkanContext context;
 // - - - Debug Callback
 VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT MESSAGE_SEVERITY, VkDebugUtilsMessageTypeFlagsEXT MESSAGE_TYPES, const VkDebugUtilsMessengerCallbackDataEXT* CALLBACK_DATA, void* USER_DATA);
 
+// - - - FindMemoryIndex
+int findMemoryIndex(unsigned int TYPE_FILTER, VkMemoryPropertyFlags PROPERTIES_FLAGS);
+
 
 // - - - | Vulkan as a Renderer Backend | - - -
 
 
 bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPLICATION, struct platformState* PLATFORM)
 {
+    //Function pointers
+    context.findMemoryIndex = findMemoryIndex;
+
     //TODO: custom allocator
     context.allocator = 0;
 
@@ -135,6 +142,9 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
         FORGE_LOG_ERROR("Failed to create vulkan device");
         return FALSE;
     }
+
+    // Swapchain
+    createVulkanSwapchain(&context, context.framebufferWidth, context.framebufferHeight, &context.swapchain);
     
     FORGE_LOG_DEBUG("Vulkan Renderer Initialized");
     return TRUE;
@@ -142,6 +152,11 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
 
 void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
 {
+    //Destroy in the opposite order of creation
+
+    FORGE_LOG_DEBUG("Destroying vulkan swapchain...");
+    destroyVulkanSwapchain(&context, &context.swapchain);
+
     FORGE_LOG_DEBUG("Destroying vulkan device...");
     destroyVulkanDevice(&context);
 
@@ -200,4 +215,21 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugCallback(VkDebugUtilsMessageSeverityFlagBi
             break;
     }
     return VK_FALSE;
+}
+
+int findMemoryIndex(unsigned int TYPE_FILTER, unsigned int PROPERTY_FLAGS)
+{
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    vkGetPhysicalDeviceMemoryProperties(context.device.physicalDevice, &memoryProperties);
+
+    for (unsigned int i = 0; i < memoryProperties.memoryTypeCount; ++i)
+    {
+        if ((TYPE_FILTER & (1 << i)) && (memoryProperties.memoryTypes[i].propertyFlags & PROPERTY_FLAGS) == PROPERTY_FLAGS)
+        {
+            return i;
+        }
+    }
+
+    FORGE_LOG_WARNING("Failed to find suitable memory type");
+    return -1;
 }

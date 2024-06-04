@@ -43,15 +43,46 @@ typedef struct vulkanDevice
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceFeatures features;
     VkPhysicalDeviceMemoryProperties memory;
+
+    VkFormat depthFormat;
 } vulkanDevice;
+
+// - - - Vulkan Image
+typedef struct vulkanImage
+{
+    VkImage handle;
+    VkDeviceMemory memory;
+    VkImageView view;
+    unsigned int width;
+    unsigned int height;
+} vulkanImage;
+
+// - - - Vulkan Swapchain
+typedef struct vulkanSwapchain 
+{
+    VkSurfaceFormatKHR imageFormat; // Vulkan requires us to know the format of the images in the swapchain
+    unsigned char maxFramesInFlight; // Maximum number of images in the swapchain
+    VkSwapchainKHR handle;
+    VkImage* images;
+    unsigned int imageCount;
+    VkImageView* imageViews; // Image views are required to use the images in the swapchain. Image views describe how to access an image and which part of the image to access
+    vulkanImage depthAttachment;
+} vulkanSwapchain;
 
 // - - - Vulkan Context
 typedef struct vulkanContext
 {
+    unsigned int framebufferHeight;
+    unsigned int framebufferWidth;
     VkInstance instance;
     VkAllocationCallbacks* allocator;
     VkSurfaceKHR surface;
     vulkanDevice device;
+    vulkanSwapchain swapchain;
+    unsigned int imageIndex;
+    unsigned int currentFrame;
+    bool8 recreateSwapchain;
+    int (*findMemoryIndex)(unsigned int TYPE_FILTER, VkMemoryPropertyFlags PROPERTY_FLAGS);
     #if defined(_DEBUG)
         VkDebugUtilsMessengerEXT debugMessenger;
     #endif
