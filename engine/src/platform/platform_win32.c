@@ -1,13 +1,16 @@
-#include "platform.h"
+#include "platform/platform.h"
 #if FORGE_PLATFORM_WINDOWS
 
 #include <core/logger.h>
 #include <core/input.h>
-#include <stdlib.h>
-#include <string.h>
-#include <renderer/vulkan/vulkan_platform.h>
-#include <vulkan/vulkan_win32.h>
+
 #include <dataStructures/list.h>
+
+#include <string.h>
+#include "renderer/vulkan/vulkan_platform.h"
+#include <vulkan/vulkan_win32.h>
+
+#include <stdlib.h>
 #include <windows.h>
 #include <windowsx.h> //This is for the GET_X_LPARAM and GET_Y_LPARAM macros
 
