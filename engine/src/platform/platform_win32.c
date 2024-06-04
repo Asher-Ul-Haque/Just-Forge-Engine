@@ -1,8 +1,13 @@
-#include "platform/platform.h"
+#include "platform.h"
 #if FORGE_PLATFORM_WINDOWS
+
 #include <core/logger.h>
 #include <core/input.h>
 #include <stdlib.h>
+#include <string.h>
+#include <renderer/vulkan/vulkan_platform.h>
+#include <vulkan/vulkan_win32.h>
+#include <dataStructures/list.h>
 #include <windows.h>
 #include <windowsx.h> //This is for the GET_X_LPARAM and GET_Y_LPARAM macros
 
@@ -11,6 +16,7 @@ typedef struct internalState
 {
     HINSTANCE hInstance; //HISTANCE = HANDLE OF INSTANCE
     HWND hwnd; //HWND = HANDLE OF WINDOW
+    VkSurfaceKHR surface;
 } internalState;
 
 // - - - Clock
@@ -310,6 +316,30 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
     }
 
     return DefWindowProcA(HANDLE_WINDOW, MESSAGE, WINDOW_PARAMETER, LONG_PARAMETER);
+}
+
+// - - - Vulkan Functions - - -
+
+void platformGetRequiredExtensions(const char*** EXTENSIONS)
+{
+    listAppend(*EXTENSIONS, &"VK_KHR_win32_surface");
+}
+
+bool8 platformCreateVulkanSurface(platformState* PLATFORM_STATE, vulkanContext* CONTEXT)
+{
+    internalState* state = (internalState*)PLATFORM_STATE->internalState;
+
+    VkWin32SurfaceCreateInfoKHR createInfo = {VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
+    createInfo.hinstance = state->hInstance;
+    createInfo.hwnd = state->hwnd;
+
+    VkResult result = vkCreateWin32SurfaceKHR(CONTEXT->instance, &createInfo, CONTEXT->allocator, &state->surface);
+    if (result != VK_SUCCESS)
+    {
+        FORGE_LOG_FATAL("Failed to create Vulkan surface!");
+        return FALSE;
+    }
+    return TRUE;
 }
 
 #endif //FORGE_PLATFORM_WINDOWS

@@ -9,8 +9,8 @@ bool8 createGame(game* OUTPUT_GAME)
 {
     OUTPUT_GAME->config.startPositionX = 100;
     OUTPUT_GAME->config.startPositionY = 100;
-    OUTPUT_GAME->config.startWidth = 1280;
-    OUTPUT_GAME->config.startHeight = 720;
+    OUTPUT_GAME->config.startWidth = 500;
+    OUTPUT_GAME->config.startHeight = 500;
     OUTPUT_GAME->config.name = "Just Forge Tester";
     OUTPUT_GAME->init = gameInit;
     OUTPUT_GAME->update = gameUpdate;

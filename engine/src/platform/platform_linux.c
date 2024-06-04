@@ -1,10 +1,14 @@
 #include "platform.h"
-#include <X11/X.h>
-#include <xcb/xproto.h>
 #if FORGE_PLATFORM_LINUX
+
 #include "core/logger.h"
 #include "core/input.h"
 #include "core/event.h"
+
+#include <dataStructures/list.h>
+
+#include <X11/X.h>
+#include <xcb/xproto.h>
 #include <xcb/xcb.h>
 #include <X11/XKBlib.h> //sudo apt-get install libx11-xcb-dev
 #include <X11/Xlib.h>
@@ -24,6 +28,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#define VK_USE_PLATFORM_XCB_KHR
+#include <vulkan/vulkan.h>
+#include "renderer/vulkan/vulkan_types.h"
+
 // - - - Key Transaltion
 keys translateKeycode(unsigned int X_KEYCODE);
 
@@ -36,6 +44,7 @@ typedef struct internalState
     xcb_window_t window;
     xcb_atom_t windowProtocols;
     xcb_atom_t windowDelete;
+    VkSurfaceKHR surface;
 } internalState;
 
 
@@ -174,9 +183,7 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
 void platformShutdown(platformState* STATE)
 {
     internalState* state = (internalState*)STATE->internalState;
-
     XAutoRepeatOn(state->display);
-
     xcb_destroy_window(state->connection, state->window);
 }
 
@@ -352,9 +359,8 @@ double platformGetTime()
     return now.tv_sec + now.tv_nsec * 0.000000001; //Seconds in double
 }
 
-#endif
 
-
+// - - - Key Translation
 keys translateKeycode(unsigned int X_KEYCODE)
 {
     switch (X_KEYCODE)
@@ -713,3 +719,30 @@ keys translateKeycode(unsigned int X_KEYCODE)
             return 0; 
     }
 }
+
+// - - - Vulkan Functions - - -
+
+void platformGetRequiredExtensions(const char*** EXTENSIONS)
+{
+    listAppend(*EXTENSIONS, &"VK_KHR_xcb_surface");
+}
+
+bool8 platformCreateSurface(platformState* STATE, vulkanContext* CONTEXT)
+{
+    internalState* state = (internalState*)STATE->internalState;
+
+    VkXcbSurfaceCreateInfoKHR createInfo = {VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};
+    createInfo.connection = state->connection;
+    createInfo.window = state->window;
+    
+    VkResult result = vkCreateXcbSurfaceKHR(CONTEXT->instance, &createInfo, CONTEXT->allocator, &state->surface);
+    if (result != VK_SUCCESS)
+    {
+        FORGE_LOG_FATAL("Failed to create the surface: %d\n", result);
+        return FALSE;
+    }
+    CONTEXT->surface = state->surface;
+    return TRUE;
+}
+
+#endif

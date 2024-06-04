@@ -24,7 +24,6 @@ static const char* memoryTagAsStrings[MEMORY_TAG_MAX] = {
     "DICTIONARY     ",
     "CIRCULAR_QUEUE ",
     "BST            ",
-    "STRING         ",
     "APPLICATION    ",
     "TASK           ",
     "TEXTURE        ",
@@ -119,16 +118,19 @@ char* forgeGetMemoryStats()
         if (stats.taggedAllocated[i] >= gb)
         {
             unit[0] = 'G';
+            unit[1] = 'B';
             amount = stats.taggedAllocated[i] / (float) gb;
         }
         else if (stats.taggedAllocated[i] >= mb)
         {
             unit[0] = 'M';
+            unit[1] = 'B';
             amount = stats.taggedAllocated[i] / (float) mb;
         }
         else if (stats.taggedAllocated[i] >= kb)
         {
             unit[0] = 'K';
+            unit[1] = 'B';
             amount = stats.taggedAllocated[i] / (float) kb;
         }
         else
@@ -147,16 +149,19 @@ char* forgeGetMemoryStats()
     if (total >= gb)
     {
         unit[0] = 'G';
+        unit[1] = 'B';
         amount = total / (float) gb;
     }
     else if (total >= mb)
     {
         unit[0] = 'M';
+        unit[1] = 'B';
         amount = total / (float) mb;
     }
     else if (total >= kb)
     {
         unit[0] = 'K';
+        unit[1] = 'B';
         amount = total / (float) kb;
     }
     else
