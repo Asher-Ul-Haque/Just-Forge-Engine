@@ -82,7 +82,7 @@ typedef struct vulkanContext
     unsigned int imageIndex;
     unsigned int currentFrame;
     bool8 recreateSwapchain;
-    int (*findMemoryIndex)(unsigned int TYPE_FILTER, VkMemoryPropertyFlags PROPERTY_FLAGS);
+    int (*findMemoryIndex)(unsigned int TYPE_FILTER, unsigned int PROPERTY_FLAGS);
     #if defined(_DEBUG)
         VkDebugUtilsMessengerEXT debugMessenger;
     #endif

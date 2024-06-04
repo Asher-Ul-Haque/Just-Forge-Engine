@@ -20,7 +20,7 @@ static vulkanContext context;
 VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT MESSAGE_SEVERITY, VkDebugUtilsMessageTypeFlagsEXT MESSAGE_TYPES, const VkDebugUtilsMessengerCallbackDataEXT* CALLBACK_DATA, void* USER_DATA);
 
 // - - - FindMemoryIndex
-int findMemoryIndex(unsigned int TYPE_FILTER, VkMemoryPropertyFlags PROPERTIES_FLAGS);
+int findMemoryIndex(unsigned int TYPE_FILTER, unsigned int PROPERTIES_FLAGS);
 
 
 // - - - | Vulkan as a Renderer Backend | - - -

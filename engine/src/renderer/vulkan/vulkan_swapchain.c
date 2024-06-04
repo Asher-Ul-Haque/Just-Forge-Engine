@@ -59,7 +59,8 @@ void create(vulkanContext* CONTEXT, unsigned int WIDTH, unsigned int HEIGHT, vul
     {
         imageCount = CONTEXT->device.swapchainSupport.capabilities.maxImageCount;
     }
-
+    
+    // Swapchain create info
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = CONTEXT->surface;
@@ -99,9 +100,14 @@ void create(vulkanContext* CONTEXT, unsigned int WIDTH, unsigned int HEIGHT, vul
     CONTEXT->currentFrame = 0;
     SWAPCHAIN->imageCount = 0;
     VK_CHECK(vkGetSwapchainImagesKHR(CONTEXT->device.logicalDevice, SWAPCHAIN->handle, &SWAPCHAIN->imageCount, 0));
+
     if (!SWAPCHAIN->images)
     {
         SWAPCHAIN->images = forgeAllocateMemory(SWAPCHAIN->imageCount * sizeof(VkImage), MEMORY_TAG_RENDERER);
+    }
+    if (!SWAPCHAIN->imageViews)
+    {
+        SWAPCHAIN->imageViews = forgeAllocateMemory(SWAPCHAIN->imageCount * sizeof(VkImageView), MEMORY_TAG_RENDERER);
     }
     VK_CHECK(vkGetSwapchainImagesKHR(CONTEXT->device.logicalDevice, SWAPCHAIN->handle, &SWAPCHAIN->imageCount, SWAPCHAIN->images));
 
