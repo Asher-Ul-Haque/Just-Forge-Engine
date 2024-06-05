@@ -1,18 +1,21 @@
 #include "platform/platform.h"
+
+// Windows platform layer.
 #if FORGE_PLATFORM_WINDOWS
 
-#include <core/logger.h>
-#include <core/input.h>
+#include "core/logger.h"
+#include "core/input.h"
 
-#include <dataStructures/list.h>
+#include "dataStructures/list.h"
 
-#include <string.h>
-#include "renderer/vulkan/vulkan_platform.h"
-#include <vulkan/vulkan_win32.h>
-
-#include <stdlib.h>
 #include <windows.h>
-#include <windowsx.h> //This is for the GET_X_LPARAM and GET_Y_LPARAM macros
+#include <windowsx.h>  // param input extraction
+#include <stdlib.h>
+
+// For surface creation
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_win32.h>
+#include "renderer/vulkan/vulkan_types.h"
 
 // - - - Platform state 
 typedef struct internalState
@@ -328,7 +331,7 @@ void platformGetRequiredExtensions(const char*** EXTENSIONS)
     listAppend(*EXTENSIONS, &"VK_KHR_win32_surface");
 }
 
-bool8 platformCreateVulkanSurface(platformState* PLATFORM_STATE, vulkanContext* CONTEXT)
+bool8 platformCreateSurface(platformState* PLATFORM_STATE, vulkanContext* CONTEXT)
 {
     internalState* state = (internalState*)PLATFORM_STATE->internalState;
 
@@ -342,6 +345,8 @@ bool8 platformCreateVulkanSurface(platformState* PLATFORM_STATE, vulkanContext* 
         FORGE_LOG_FATAL("Failed to create Vulkan surface!");
         return FALSE;
     }
+
+    CONTEXT->surface = state->surface;
     return TRUE;
 }
 
