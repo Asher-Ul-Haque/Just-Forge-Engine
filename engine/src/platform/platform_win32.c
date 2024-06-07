@@ -5,6 +5,7 @@
 
 #include "core/logger.h"
 #include "core/input.h"
+#include "core/event.h"
 
 #include "dataStructures/list.h"
 
@@ -243,8 +244,9 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
             //Yo Windows, Erasing is upon us.
 
         case WM_CLOSE:
-            //TODO: fire an event for window close
-            return 0;
+            eventContext data = {};
+            eventTrigger(EVENT_CODE_APPLICATION_QUIT, 0, data);
+            return TRUE;
 
         case WM_DESTROY:
             PostQuitMessage(0);
