@@ -130,6 +130,15 @@ bool8 createVulkanDevice(vulkanContext* CONTEXT)
     vkGetDeviceQueue(CONTEXT->device.logicalDevice, CONTEXT->device.transferQueueIndex, 0, &CONTEXT->device.transferQueue);
 
     FORGE_LOG_INFO("Queues retrieved");
+
+    //Create a command pool for the graphics queue
+    VkCommandPoolCreateInfo commandPoolCreateInfo = {};
+    commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    commandPoolCreateInfo.queueFamilyIndex = CONTEXT->device.graphicsQueueIndex;
+    commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    VK_CHECK(vkCreateCommandPool(CONTEXT->device.logicalDevice, &commandPoolCreateInfo, CONTEXT->allocator, &CONTEXT->device.graphicsCommandPool));
+    FORGE_LOG_INFO("Command Pool created for graphics queue");
+
     return TRUE;
 }
 
@@ -140,6 +149,9 @@ void destroyVulkanDevice(vulkanContext* CONTEXT)
     CONTEXT->device.computeQueue = 0;
     CONTEXT->device.transferQueue = 0;
     FORGE_LOG_INFO("Queues released");
+
+    FORGE_LOG_INFO("Destroying command pool");
+    vkDestroyCommandPool(CONTEXT->device.logicalDevice, CONTEXT->device.graphicsCommandPool, CONTEXT->allocator);
 
     FORGE_LOG_INFO("Destroying Logical Device");
     if (CONTEXT->device.logicalDevice)

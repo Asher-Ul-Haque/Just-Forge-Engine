@@ -4,8 +4,10 @@
 #include "vulkan_device.h"
 #include "vulkan_swapchain.h"
 #include "vulkan_renderpass.h"
+#include "vulkan_command_buffer.h"
 #include "core/logger.h"
 #include "core/asserts.h"
+#include "core/memory.h"
 #include "dataStructures/list.h"
 #include "platform/platform.h" //TODO: remove this
 #include <string.h>
@@ -19,6 +21,9 @@ static vulkanContext context;
 
 // - - - Debug Callback
 VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT MESSAGE_SEVERITY, VkDebugUtilsMessageTypeFlagsEXT MESSAGE_TYPES, const VkDebugUtilsMessengerCallbackDataEXT* CALLBACK_DATA, void* USER_DATA);
+
+// - - - Command Buffer Creation
+void createCommandBuffers(rendererBackend* BACKEND);
 
 // - - - FindMemoryIndex
 int findMemoryIndex(unsigned int TYPE_FILTER, unsigned int PROPERTIES_FLAGS);
@@ -149,6 +154,9 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
 
     // Renderpass
     createRenderpass(&context, &context.mainRenderpass, 0, 0, context.framebufferWidth, context.framebufferHeight, (float[4]){1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0);
+
+    // Command buffer
+    createCommandBuffers(BACKEND);
     
     FORGE_LOG_DEBUG("Vulkan Renderer Initialized");
     return TRUE;
@@ -157,6 +165,16 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
 void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
 {
     //Destroy in the opposite order of creation
+    
+    for (unsigned int i = 0; i < context.swapchain.imageCount; ++i)
+    {
+        if (context.graphicsCommandBuffers[i].handle)
+        {
+            commandBufferFree(&context, context.device.graphicsCommandPool, &context.graphicsCommandBuffers[i]);
+            context.graphicsCommandBuffers[i].handle = 0;
+        }
+    }
+    listDestroy(context.graphicsCommandBuffers);
 
     FORGE_LOG_DEBUG("Destroying vulkan renderpass...");
     destroyRenderpass(&context, &context.mainRenderpass);  
@@ -239,4 +257,28 @@ int findMemoryIndex(unsigned int TYPE_FILTER, unsigned int PROPERTY_FLAGS)
 
     FORGE_LOG_WARNING("Failed to find suitable memory type");
     return -1;
+}
+
+void createCommandBuffers(rendererBackend* BACKEND)
+{
+    if (!context.graphicsCommandBuffers)
+    {
+        context.graphicsCommandBuffers = listReserve(vulkanCommandBuffer, context.swapchain.imageCount);
+        for (unsigned int i = 0; i < context.swapchain.imageCount; ++i)
+        {
+            forgeZeroMemory(&context.graphicsCommandBuffers[i], sizeof(vulkanCommandBuffer));
+        }
+    }
+
+    for (unsigned int i = 0; i < context.swapchain.imageCount; ++i)
+    {
+        if (context.graphicsCommandBuffers[i].handle)
+        {
+            commandBufferFree(&context, context.device.graphicsCommandPool, &context.graphicsCommandBuffers[i]);
+        }
+        forgeZeroMemory(&context.graphicsCommandBuffers[i], sizeof(vulkanCommandBuffer));
+        commandBufferAllocate(&context, context.device.graphicsCommandPool, TRUE, &context.graphicsCommandBuffers[i]);
+    }
+
+    FORGE_LOG_DEBUG("Command buffers created");
 }

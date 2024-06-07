@@ -4,6 +4,12 @@
 #include "core/memory.h"
 #include "vulkan_types.h"
 
+
+// - - - | Rendperass functions | - - -
+
+
+// - - - Creation - - -
+
 void createRenderpass(vulkanContext* CONTEXT, vulkanRenderpass* RENDERPASS, float X, float Y, float WIDTH, float HEIGHT, float CLEAR_COLOR[4], float DEPTH, unsigned int PENCIL)
 {
     //Main subpasss
@@ -99,6 +105,9 @@ void destroyRenderpass(vulkanContext* CONTEXT, vulkanRenderpass* RENDERPASS)
         FORGE_LOG_INFO("Renderpass destroyed");
     }
 }
+
+
+// - - - Usage - - -
 
 void beginRenderpass(vulkanCommandBuffer* COMMAND_BUFFER, vulkanRenderpass* RENDERPASS, VkFramebuffer FRAMEBUFFER)
 {

@@ -55,10 +55,13 @@ typedef struct vulkanDevice
     int presentQueueIndex;
     int computeQueueIndex;
     int transferQueueIndex;
+
     VkQueue graphicsQueue;
     VkQueue presentQueue;
     VkQueue computeQueue;
     VkQueue transferQueue;
+
+    VkCommandPool graphicsCommandPool;
 
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceFeatures features;
@@ -126,6 +129,7 @@ typedef struct vulkanContext
     vulkanRenderpass mainRenderpass;
     unsigned int imageIndex;
     unsigned int currentFrame;
+    vulkanCommandBuffer* graphicsCommandBuffers;
     bool8 recreateSwapchain;
     int (*findMemoryIndex)(unsigned int TYPE_FILTER, unsigned int PROPERTY_FLAGS);
     #if defined(_DEBUG)
