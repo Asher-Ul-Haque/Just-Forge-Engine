@@ -3,6 +3,7 @@
 #include "vulkan_platform.h"
 #include "vulkan_device.h"
 #include "vulkan_swapchain.h"
+#include "vulkan_renderpass.h"
 #include "core/logger.h"
 #include "core/asserts.h"
 #include "dataStructures/list.h"
@@ -145,6 +146,9 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
 
     // Swapchain
     createVulkanSwapchain(&context, context.framebufferWidth, context.framebufferHeight, &context.swapchain);
+
+    // Renderpass
+    createRenderpass(&context, &context.mainRenderpass, 0, 0, context.framebufferWidth, context.framebufferHeight, (float[4]){1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0);
     
     FORGE_LOG_DEBUG("Vulkan Renderer Initialized");
     return TRUE;
@@ -153,6 +157,9 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
 void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
 {
     //Destroy in the opposite order of creation
+
+    FORGE_LOG_DEBUG("Destroying vulkan renderpass...");
+    destroyRenderpass(&context, &context.mainRenderpass);  
 
     FORGE_LOG_DEBUG("Destroying vulkan swapchain...");
     destroyVulkanSwapchain(&context, &context.swapchain);

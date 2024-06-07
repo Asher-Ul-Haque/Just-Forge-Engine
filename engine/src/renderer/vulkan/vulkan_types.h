@@ -24,6 +24,26 @@ typedef struct vulkanSwapchainSupportInfo
     VkPresentModeKHR* presentModes;
 } vulkanSwapchainSupportInfo; 
 
+// - - - Vulkan Command buffer - - -
+
+// - - - Vulkan Command buffer States
+typedef enum vulkanCommandBufferState
+{
+    COMMAND_BUFFER_STATE_READY, // Command buffer is ready to be recorded
+    COMMAND_BUFFER_STATE_RECORDING, // Command buffer is currently being recorded
+    COMMAND_BUFFER_STATE_IN_RENDERPASS, // Command buffer is currently in a renderpass
+    COMMAND_BUFFER_STATE_FINISHED, // Command buffer has been recorded and is ready to be submitted
+    COMMAND_BUFFER_STATE_SUBMITTED, // Command buffer has been submitted to the GPU
+    COMMAND_BUFFER_STATE_NONE // Command buffer is not in a valid state
+} vulkanCommandBufferState; 
+
+// - - - Vulkan Command buffer
+typedef struct vulkanCommandBuffer
+{
+    VkCommandBuffer handle;
+    vulkanCommandBufferState state;
+} vulkanCommandBuffer;
+
 // - - - Vulkan Device
 typedef struct vulkanDevice
 {
@@ -57,6 +77,30 @@ typedef struct vulkanImage
     unsigned int height;
 } vulkanImage;
 
+
+// - - - Vulkan Renderpass - - - 
+
+// - - - Vulkan Renderpass States
+typedef enum vulkanRenderpassState
+{
+    RENDERPASS_STATE_READY, // Renderpass is ready to be recorded
+    RENDERPASS_STATE_RECORDING, // Renderpass is currently being recorded
+    RENDERPASS_STATE_FINISHED, // Renderpass has been recorded and is ready to be submitted
+    RENDERPASS_STATE_SUBMITTED, // Renderpass has been submitted to the GPU
+    RENDERPASS_STATE_NONE // Renderpass is not in a valid state
+} vulkanRenderpassState;
+
+// - - - Vulkan Renderpass
+typedef struct vulkanRenderpass
+{
+    VkRenderPass handle;
+    float x, y, width, height;
+    float clearColor[4];
+    float depth;
+    unsigned int pencil;
+    vulkanRenderpassState state;
+} vulkanRenderpass;
+
 // - - - Vulkan Swapchain
 typedef struct vulkanSwapchain 
 {
@@ -79,6 +123,7 @@ typedef struct vulkanContext
     VkSurfaceKHR surface;
     vulkanDevice device;
     vulkanSwapchain swapchain;
+    vulkanRenderpass mainRenderpass;
     unsigned int imageIndex;
     unsigned int currentFrame;
     bool8 recreateSwapchain;
