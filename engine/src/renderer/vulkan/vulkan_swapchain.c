@@ -210,4 +210,7 @@ void vulkanSwapchainPresentImage(vulkanContext* CONTEXT, vulkanSwapchain* SWAPCH
     {
         FORGE_LOG_FATAL("Failed to present swapchain image");
     }
+
+    //Increment the frame index
+    CONTEXT->currentFrame = (CONTEXT->currentFrame + 1) % SWAPCHAIN->maxFramesInFlight;
 }
