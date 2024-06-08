@@ -6,6 +6,7 @@
 #include "vulkan_renderpass.h"
 #include "vulkan_command_buffer.h"
 #include "vulkan_frame_buffer.h"
+#include "vulkan_fence.h"
 #include "core/logger.h"
 #include "core/asserts.h"
 #include "core/memory.h"
@@ -174,6 +175,30 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
 
     // Command buffer
     createCommandBuffers(BACKEND);
+
+    // Sync
+    context.imageAvailableSemaphores = listReserve(VkSemaphore, context.swapchain.maxFramesInFlight);
+    context.renderFinishedSemaphores = listReserve(VkSemaphore, context.swapchain.maxFramesInFlight);
+    context.inFlightFences = listReserve(vulkanFence, context.swapchain.maxFramesInFlight);
+
+    for (unsigned char i = 0; i < context.swapchain.maxFramesInFlight; ++i)
+    {
+        VkSemaphoreCreateInfo semaphoreInfo = {};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        VK_CHECK(vkCreateSemaphore(context.device.logicalDevice, &semaphoreInfo, context.allocator, &context.imageAvailableSemaphores[i]));
+        VK_CHECK(vkCreateSemaphore(context.device.logicalDevice, &semaphoreInfo, context.allocator, &context.renderFinishedSemaphores[i]));
+
+        //Create the fence signalled, indicating that the first frame has already been rendered
+        //This prevents the application to wait for the first frame to be rendered becuase no frame is rendered before a frame before it has been rendered.
+        createFence(&context, TRUE, &context.inFlightFences[i]);
+    }
+
+    // In flight fences should not yet exist at this point, so clear the list. These are stored in pointers because the initial state should be 0, and will be 0 when not used. Actual fences are owned by this list
+    context.imagesInFlight = listReserve(vulkanFence, context.swapchain.imageCount);
+    for (unsigned int i = 0; i < context.swapchain.imageCount; ++i)
+    {
+        context.imagesInFlight[i] = 0;
+    }
     
     FORGE_LOG_DEBUG("Vulkan Renderer Initialized");
     return TRUE;
@@ -182,6 +207,29 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
 void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
 {
     //Destroy in the opposite order of creation
+    vkDeviceWaitIdle(context.device.logicalDevice);
+    for (unsigned char i = 0; i < context.swapchain.maxFramesInFlight; ++i)
+    {
+        if (context.imageAvailableSemaphores[i])
+        {
+            vkDestroySemaphore(context.device.logicalDevice, context.imageAvailableSemaphores[i], context.allocator);
+            context.imageAvailableSemaphores[i] = 0;
+        }
+        if (context.renderFinishedSemaphores[i])
+        {
+            vkDestroySemaphore(context.device.logicalDevice, context.renderFinishedSemaphores[i], context.allocator);
+            context.renderFinishedSemaphores[i] = 0;
+        }
+        destroyFence(&context, &context.inFlightFences[i]);
+    }
+    listDestroy(context.imageAvailableSemaphores);
+    listDestroy(context.renderFinishedSemaphores);
+    listDestroy(context.inFlightFences);
+    listDestroy(context.imagesInFlight);
+    context.imageAvailableSemaphores = 0;
+    context.renderFinishedSemaphores = 0;
+    context.inFlightFences = 0;
+    context.imagesInFlight = 0;
     
     for (unsigned int i = 0; i < context.swapchain.imageCount; ++i)
     {

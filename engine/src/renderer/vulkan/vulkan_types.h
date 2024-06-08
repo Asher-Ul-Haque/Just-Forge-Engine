@@ -126,6 +126,13 @@ typedef struct vulkanSwapchain
     vulkanFramebuffer* framebuffers;
 } vulkanSwapchain;
 
+// - - - Vulkan Fence
+typedef struct vulkanFence
+{
+    VkFence handle;
+    bool8 isSignaled;
+} vulkanFence;
+
 // - - - Vulkan Context
 typedef struct vulkanContext
 {
@@ -142,6 +149,11 @@ typedef struct vulkanContext
     vulkanCommandBuffer* graphicsCommandBuffers;
     bool8 recreateSwapchain;
     int (*findMemoryIndex)(unsigned int TYPE_FILTER, unsigned int PROPERTY_FLAGS);
+    VkSemaphore* imageAvailableSemaphores;
+    VkSemaphore* renderFinishedSemaphores;
+    unsigned int inFlightFencesCount;
+    vulkanFence* inFlightFences;
+    vulkanFence** imagesInFlight;
     #if defined(_DEBUG)
         VkDebugUtilsMessengerEXT debugMessenger;
     #endif
