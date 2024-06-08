@@ -12,7 +12,6 @@
 #include "core/memory.h"
 #include "core/application.h"
 #include "dataStructures/list.h"
-#include "platform/platform.h" //TODO: remove this
 #include <string.h>
 
 

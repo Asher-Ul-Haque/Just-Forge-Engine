@@ -147,6 +147,7 @@ typedef struct vulkanContext
     unsigned int imageIndex;
     unsigned int currentFrame;
     vulkanCommandBuffer* graphicsCommandBuffers;
+
     bool8 recreateSwapchain;
     int (*findMemoryIndex)(unsigned int TYPE_FILTER, unsigned int PROPERTY_FLAGS);
     VkSemaphore* imageAvailableSemaphores;
