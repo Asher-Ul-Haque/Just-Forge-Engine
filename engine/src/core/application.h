@@ -24,3 +24,5 @@ typedef struct applicationConfig
 FORGE_API bool8 createApplication(struct game* GAME);
 
 FORGE_API bool8 runApplication();
+
+void applicationGetFrameBufferSize(unsigned int* WIDTH, unsigned int* HEIGHT);

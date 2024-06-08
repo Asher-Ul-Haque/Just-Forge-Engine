@@ -5,9 +5,11 @@
 #include "vulkan_swapchain.h"
 #include "vulkan_renderpass.h"
 #include "vulkan_command_buffer.h"
+#include "vulkan_frame_buffer.h"
 #include "core/logger.h"
 #include "core/asserts.h"
 #include "core/memory.h"
+#include "core/application.h"
 #include "dataStructures/list.h"
 #include "platform/platform.h" //TODO: remove this
 #include <string.h>
@@ -18,12 +20,17 @@
 
 // - - - Vulkan Context
 static vulkanContext context;
+static unsigned int frameBufferWidth = 0;
+static unsigned int frameBufferHeight = 0;
 
 // - - - Debug Callback
 VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT MESSAGE_SEVERITY, VkDebugUtilsMessageTypeFlagsEXT MESSAGE_TYPES, const VkDebugUtilsMessengerCallbackDataEXT* CALLBACK_DATA, void* USER_DATA);
 
 // - - - Command Buffer Creation
 void createCommandBuffers(rendererBackend* BACKEND);
+
+// - - - Generate framebuffers
+void regenerateFramebuffers(rendererBackend* BACKEND, vulkanSwapchain* SWAPCHAIN, vulkanRenderpass* RENDERPASS);
 
 // - - - FindMemoryIndex
 int findMemoryIndex(unsigned int TYPE_FILTER, unsigned int PROPERTIES_FLAGS);
@@ -39,6 +46,12 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
 
     //TODO: custom allocator
     context.allocator = 0;
+
+    applicationGetFrameBufferSize(&frameBufferWidth, &frameBufferHeight);
+    context.framebufferWidth = frameBufferWidth != 0 ? frameBufferWidth : 800;
+    context.framebufferHeight = frameBufferHeight != 0 ? frameBufferHeight : 600;
+    frameBufferWidth = 0;
+    frameBufferHeight = 0;
 
 
     //Setup vulkan instance
@@ -155,6 +168,10 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
     // Renderpass
     createRenderpass(&context, &context.mainRenderpass, 0, 0, context.framebufferWidth, context.framebufferHeight, (float[4]){1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0);
 
+    // Framebuffers
+    context.swapchain.framebuffers = listReserve(vulkanFramebuffer, context.swapchain.imageCount);
+    regenerateFramebuffers(BACKEND, &context.swapchain, &context.mainRenderpass);
+
     // Command buffer
     createCommandBuffers(BACKEND);
     
@@ -175,6 +192,11 @@ void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
         }
     }
     listDestroy(context.graphicsCommandBuffers);
+
+    for (unsigned int i = 0; i < context.swapchain.imageCount; ++i)
+    {
+        destroyFrameBuffer(&context, &context.swapchain.framebuffers[i]);
+    }
 
     FORGE_LOG_DEBUG("Destroying vulkan renderpass...");
     destroyRenderpass(&context, &context.mainRenderpass);  
@@ -281,4 +303,16 @@ void createCommandBuffers(rendererBackend* BACKEND)
     }
 
     FORGE_LOG_DEBUG("Command buffers created");
+}
+
+void regenerateFramebuffers(rendererBackend* BACKEND, vulkanSwapchain* SWAPCHAIN, vulkanRenderpass* RENDERPASS)
+{
+    for (unsigned int i = 0; i < SWAPCHAIN->imageCount; ++i)
+    {
+        // TODO: make this dynamic based on config of attachments
+        unsigned int attachmentCount = 2;
+        VkImageView attachments[2] = {SWAPCHAIN->imageViews[i], SWAPCHAIN->depthAttachment.view};
+
+        createFrameBuffer(&context, RENDERPASS, context.framebufferWidth, context.framebufferHeight, attachmentCount, attachments, &context.swapchain.framebuffers[i]);
+    }
 }

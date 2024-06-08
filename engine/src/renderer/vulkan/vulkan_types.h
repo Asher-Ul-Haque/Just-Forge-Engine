@@ -104,6 +104,15 @@ typedef struct vulkanRenderpass
     vulkanRenderpassState state;
 } vulkanRenderpass;
 
+// - - - Vulkan Framebuffer
+typedef struct vulkanFramebuffer
+{
+    VkFramebuffer handle;
+    unsigned int attachmentCount;
+    VkImageView* attachments;
+    vulkanRenderpass* renderpass;
+} vulkanFramebuffer;
+
 // - - - Vulkan Swapchain
 typedef struct vulkanSwapchain 
 {
@@ -114,6 +123,7 @@ typedef struct vulkanSwapchain
     unsigned int imageCount;
     VkImageView* imageViews; // Image views are required to use the images in the swapchain. Image views describe how to access an image and which part of the image to access
     vulkanImage depthAttachment;
+    vulkanFramebuffer* framebuffers;
 } vulkanSwapchain;
 
 // - - - Vulkan Context

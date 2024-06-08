@@ -177,6 +177,13 @@ bool8 runApplication()
     return TRUE;
 }
 
+// - - - Get Frame Buffer Size
+void applicationGetFrameBufferSize(unsigned int* WIDTH, unsigned int* HEIGHT)
+{
+    *WIDTH = appState.width;
+    *HEIGHT = appState.height;
+}
+
 
 // - - - Event Handlers - - -
 
