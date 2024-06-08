@@ -1,3 +1,4 @@
+#include <vulkan/vulkan_core.h>
 #include "vulkan_backend.h"
 #include "vulkan_types.h"
 #include "vulkan_platform.h"
@@ -7,10 +8,13 @@
 #include "vulkan_command_buffer.h"
 #include "vulkan_frame_buffer.h"
 #include "vulkan_fence.h"
+#include "vulkan_utils.h"
+
 #include "core/logger.h"
 #include "core/asserts.h"
 #include "core/memory.h"
 #include "core/application.h"
+
 #include "dataStructures/list.h"
 #include <string.h>
 
@@ -34,6 +38,9 @@ void regenerateFramebuffers(rendererBackend* BACKEND, vulkanSwapchain* SWAPCHAIN
 
 // - - - FindMemoryIndex
 int findMemoryIndex(unsigned int TYPE_FILTER, unsigned int PROPERTIES_FLAGS);
+
+// - - - Recreate Swapchain
+bool8 recreateSwapchain(rendererBackend* BACKEND);
 
 
 // - - - | Vulkan as a Renderer Backend | - - -
@@ -274,15 +281,148 @@ void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
 
 void vulkanRendererBackendResized(rendererBackend* BACKEND, unsigned short WIDTH, unsigned short HEIGHT)
 {
+    // update the frambuffer size generation, a counter which indicates when the framebuffer size is updated
+    frameBufferWidth = WIDTH;
+    frameBufferHeight = HEIGHT;
+    context.framebufferSizeGeneration++;
+    FORGE_LOG_DEBUG("Framebuffer resized to %dx%d with generation %d", WIDTH, HEIGHT, context.framebufferSizeGeneration);
 }
 
 bool8 vulkanRendrerBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME)
 {
+    vulkanDevice* gpu = &context.device;
+    
+    //Check if recreating swapchain and boot out
+    if (context.recreateSwapchain)
+    {
+        VkResult result = vkDeviceWaitIdle(gpu->logicalDevice);
+        if (result == VK_SUCCESS)
+        {
+            FORGE_LOG_ERROR("vulkan_render_backend : vulkanRenderBackendBeginFrame : Failed to wait for device idle(1) : '%s'", vulkanResultToString(result, TRUE));
+            return FALSE;
+        }
+        FORGE_LOG_INFO("Recreating swapchain... booting");
+        return FALSE;
+    }
+    return TRUE;
+
+    //Check if framebuffer has been resized. If so, a recreation of the swapchain is needed
+    if (context.framebufferSizeGeneration != context.framebufferSizeLastGeneration)
+    {
+        VkResult result = vkDeviceWaitIdle(gpu->logicalDevice);
+        if (result == VK_SUCCESS)
+        {
+            FORGE_LOG_ERROR("vulkan_render_backend : vulkanRenderBackendBeginFrame : Failed to wait for device idle(2) : '%s'", vulkanResultToString(result, TRUE));
+            return FALSE;
+        }
+        if (!recreateSwapchain(BACKEND))
+        {
+            return FALSE;
+        }
+
+        FORGE_LOG_INFO("Framebuffer resized, booting...");
+        return FALSE;
+    }
+    
+    //Wait for the next image to be available
+    if (!waitForFence(&context, &context.inFlightFences[context.currentFrame], UINT64_MAX))
+    {
+        FORGE_LOG_WARNING("vulkan_render_backend : vulkanRenderBackendBeginFrame : Failed to wait for in flight fence");
+        return FALSE;
+    }
+    
+    //Acquire the next image
+    if (!vulkanSwapchainAquireNextImageIndex(&context, &context.swapchain, 0, context.imageAvailableSemaphores[context.currentFrame], 0, &context.imageIndex))
+    {
+        FORGE_LOG_WARNING("vulkan_render_backend : vulkanRenderBackendBeginFrame : Failed to acquire next image");
+        return FALSE;
+    }
+
+    vulkanCommandBuffer* commandBuffer = &context.graphicsCommandBuffers[context.imageIndex];
+    commandBufferReset(commandBuffer);
+    commandBufferBegin(commandBuffer, FALSE, FALSE, FALSE);
+
+    //Dynamic state (consistent with OpenGL)
+    VkViewport viewport = {};
+    viewport.x = 0.0f;
+    viewport.y = (float)context.framebufferHeight;
+    viewport.width = (float)context.framebufferWidth;
+    viewport.height = -(float)context.framebufferHeight;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    //Scissor
+    VkRect2D scissor;
+    scissor.offset.x = scissor.offset.y = 0;
+    scissor.extent.width = context.framebufferWidth;
+    scissor.extent.height = context.framebufferHeight;
+
+    vkCmdSetViewport(commandBuffer->handle, 0, 1, &viewport);
+    vkCmdSetScissor(commandBuffer->handle, 0, 1, &scissor);
+
+    context.mainRenderpass.width = context.framebufferWidth;
+    context.mainRenderpass.height = context.framebufferHeight;
+
+    //Begin renderpass
+    beginRenderpass(commandBuffer, &context.mainRenderpass, context.swapchain.framebuffers[context.imageIndex].handle);
+
     return TRUE;
 }
 
 bool8 vulkanRendererBackendEndFrame(rendererBackend* BACKEND, float DELTA_TIME)
 {
+    vulkanCommandBuffer* commandBuffer = &context.graphicsCommandBuffers[context.imageIndex];
+
+    //End renderpass
+    endRenderpass(commandBuffer, &context.mainRenderpass);
+
+    //End command buffer
+    commandBufferEnd(commandBuffer);
+
+    // Make sure the previous frame is not using this image (i.e., its fence is being waited on)
+    if (context.imagesInFlight[context.imageIndex] != VK_NULL_HANDLE)
+    {
+        if (!waitForFence(&context, context.imagesInFlight[context.imageIndex], UINT64_MAX))
+        {
+            FORGE_LOG_WARNING("vulkan_render_backend : vulkanRenderBackendEndFrame : Failed to wait for in flight fence");
+            return FALSE;
+        }
+    }
+
+    // Mark the image fence as now being in use by this frame
+    context.imagesInFlight[context.imageIndex] = &context.inFlightFences[context.currentFrame];
+
+    //Reset the fence for use in the next frame
+    resetFence(&context, &context.inFlightFences[context.currentFrame]);
+
+    //Submit the queue and wait for the operation to complete
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer->handle;
+
+    //Semaphores to be signalled when the queue is complete
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &context.renderFinishedSemaphores[context.currentFrame];
+
+    //Semaphores to wait on before the queue is executed
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = &context.imageAvailableSemaphores[context.currentFrame];
+
+    //Each semaphoree waits on the corresponding pipeline stages to complete 1:1 ratio
+    // VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT is the stage where the color attachment is written to. It prevents subsequent color attachment
+    // Writes from executing until the semaphore signals (i.e., one frame is submitted at a time)
+    VkPipelineStageFlags flags[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.pWaitDstStageMask = flags;
+
+    VK_CHECK(vkQueueSubmit(context.device.graphicsQueue, 1, &submitInfo, context.inFlightFences[context.currentFrame].handle));
+
+    commandBufferUpdateSubmits(commandBuffer);
+    //End of queue submission
+
+    //Present the image
+    vulkanSwapchainPresentImage(&context, &context.swapchain, context.device.graphicsQueue, context.device.presentQueue, context.renderFinishedSemaphores[context.currentFrame], context.imageIndex);
+
     return TRUE;
 }
 
@@ -362,4 +502,78 @@ void regenerateFramebuffers(rendererBackend* BACKEND, vulkanSwapchain* SWAPCHAIN
 
         createFrameBuffer(&context, RENDERPASS, context.framebufferWidth, context.framebufferHeight, attachmentCount, attachments, &context.swapchain.framebuffers[i]);
     }
+}
+
+bool8 recreateSwapchain(rendererBackend* BACKEND)
+{
+    //If already recreating swapchain, boot out
+    if (context.recreateSwapchain)
+    {
+        FORGE_LOG_WARNING("vulkan_render_backend : recreateSwapchain : Already recreating swapchain");
+        return FALSE;
+    }
+
+    //Detect if the window is too smol to be rendered
+    if (context.framebufferWidth == 0 || context.framebufferHeight == 0)
+    {
+        FORGE_LOG_WARNING("vulkan_render_backend : recreateSwapchain : Framebuffer too small to render");
+        return FALSE;
+    }
+
+    //Mark as recreating swapchain
+    context.recreateSwapchain = TRUE;
+
+    //Wait for any operations to complete
+    vkDeviceWaitIdle(context.device.logicalDevice);
+
+    //Clear out
+    for (unsigned int i = 0; i < context.swapchain.imageCount; ++i)
+    {
+        context.imagesInFlight[i] = 0;
+    }
+
+    //Requery support
+    vulkanDeviceQuerySwapchainSupport(context.device.physicalDevice, context.surface, &context.device.swapchainSupport);
+    vulkanDeviceDetectDepthFormat(&context.device);
+
+    recreateVulkanSwapchain(&context, frameBufferWidth, frameBufferHeight, &context.swapchain);
+
+    //Sync the frambuffer size 
+    context.framebufferWidth = frameBufferWidth;
+    context.framebufferHeight = frameBufferHeight;
+    context.mainRenderpass.width = frameBufferWidth;
+    context.mainRenderpass.height = frameBufferHeight;
+    context.mainRenderpass.width = context.framebufferWidth;
+    context.mainRenderpass.height = context.framebufferHeight;
+    frameBufferWidth = 0;
+    frameBufferHeight = 0;
+
+    //Updat frambuffer size generation
+    context.framebufferSizeLastGeneration = context.framebufferSizeGeneration;
+
+    //cleanup swapchain
+    for (unsigned int i = 0; i < context.swapchain.imageCount; ++i)
+    {
+        commandBufferFree(&context, context.device.graphicsCommandPool, &context.graphicsCommandBuffers[i]);
+    }
+
+    //Recreate framebuffers
+    for (unsigned int i = 0; i < context.swapchain.imageCount; ++i)
+    {
+        destroyFrameBuffer(&context, &context.swapchain.framebuffers[i]);
+    }
+
+    context.mainRenderpass.x = 0;
+    context.mainRenderpass.y = 0;
+    context.mainRenderpass.width = context.framebufferWidth;
+    context.mainRenderpass.height = context.framebufferHeight;
+
+    regenerateFramebuffers(BACKEND, &context.swapchain, &context.mainRenderpass);
+
+    createCommandBuffers(BACKEND);
+
+    //Cleaeet the recreating flag
+    context.recreateSwapchain = FALSE;
+
+    return TRUE;
 }

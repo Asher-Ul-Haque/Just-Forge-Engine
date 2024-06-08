@@ -155,6 +155,8 @@ typedef struct vulkanContext
     unsigned int inFlightFencesCount;
     vulkanFence* inFlightFences;
     vulkanFence** imagesInFlight;
+    unsigned long long framebufferSizeGeneration;
+    unsigned long long framebufferSizeLastGeneration;
     #if defined(_DEBUG)
         VkDebugUtilsMessengerEXT debugMessenger;
     #endif

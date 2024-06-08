@@ -49,6 +49,11 @@ bool8 rendererEndFrame(float DELTA_TIME)
     return rendererBackendInstance->endFrame(rendererBackendInstance, DELTA_TIME); 
 }
 
+void rendererResized(unsigned short WIDTH, unsigned short HEIGHT)
+{
+    rendererBackendInstance->resized(rendererBackendInstance, WIDTH, HEIGHT);
+}
+
 bool8 rendererDrawFrame(rendererPacket *PACKET)
 {
     if (rendererBeginFrame(PACKET->deltaTime))

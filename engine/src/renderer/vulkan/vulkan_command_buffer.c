@@ -55,7 +55,7 @@ void commandBufferBegin(vulkanCommandBuffer* COMMAND_BUFFER, bool8 IS_SINGLE_USE
     COMMAND_BUFFER->state = COMMAND_BUFFER_STATE_RECORDING;
 }
 
-void vulkanCommandBufferEnd(vulkanCommandBuffer* COMMAND_BUFFER)
+void commandBufferEnd(vulkanCommandBuffer* COMMAND_BUFFER)
 {
     VK_CHECK(vkEndCommandBuffer(COMMAND_BUFFER->handle));
     COMMAND_BUFFER->state = COMMAND_BUFFER_STATE_FINISHED;
@@ -81,7 +81,7 @@ void commandBufferBeginSingleUse(vulkanContext* CONTEXT, VkCommandPool POOL, vul
 
 void commandBufferEndSingleUse(vulkanContext* CONTEXT, VkCommandPool POOL, vulkanCommandBuffer* COMMAND_BUFFER, VkQueue QUEUE)
 {
-    vulkanCommandBufferEnd(COMMAND_BUFFER);
+    commandBufferEnd(COMMAND_BUFFER);
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

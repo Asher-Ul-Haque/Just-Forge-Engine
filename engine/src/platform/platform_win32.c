@@ -253,11 +253,14 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
             return 0;
 
         case WM_SIZE:
-            // RECT r;
-            // GetClientRect(HANDLE_WINDOW, &r);
-            // unsigned int width = r.right - r.left;
-            // unsigned int height = r.bottom - r.top;
-            // TODO: fire an event for window resize
+            RECT r;
+            GetClientRect(HANDLE_WINDOW, &r);
+            unsigned int width = r.right - r.left;
+            unsigned int height = r.bottom - r.top;
+            eventContext context;
+            context.data.u16[0] = (unsigned short)width;
+            context.data.u16[1] = (unsigned short)height;
+            eventTrigger(EVENT_CODE_WINDOW_RESIZE, 0, context);
             break;
 
         case WM_KEYDOWN:

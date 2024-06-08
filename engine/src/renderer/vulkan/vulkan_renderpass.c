@@ -12,6 +12,18 @@
 
 void createRenderpass(vulkanContext* CONTEXT, vulkanRenderpass* RENDERPASS, float X, float Y, float WIDTH, float HEIGHT, float CLEAR_COLOR[4], float DEPTH, unsigned int PENCIL)
 {
+    RENDERPASS->x = X;
+    RENDERPASS->y = Y;
+    RENDERPASS->width = WIDTH;
+    RENDERPASS->height = HEIGHT;
+    RENDERPASS->clearColor[0] = CLEAR_COLOR[0];
+    RENDERPASS->clearColor[1] = CLEAR_COLOR[1];
+    RENDERPASS->clearColor[2] = CLEAR_COLOR[2];
+    RENDERPASS->clearColor[3] = CLEAR_COLOR[3];
+    RENDERPASS->depth = DEPTH;
+    RENDERPASS->pencil = PENCIL;
+    RENDERPASS->state = RENDERPASS_STATE_READY;
+
     //Main subpasss
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;

@@ -35,9 +35,11 @@ static applicationState appState;
 
 // - - - Event Handlers - - -
 
-bool8 applicationOnEvent(unsigned short CODE, void* SENDER, void* LISTENER, eventContext context);
+bool8 applicationOnEvent(unsigned short CODE, void* SENDER, void* LISTENER, eventContext CONTEXT);
 
-bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventContext context);
+bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventContext CONTEXT);
+
+bool8 applicationOnResize(unsigned short CODE, void* SENDER, void* LISTENER, eventContext CONTEXT);
 
 
 // - - - Create Application
@@ -71,6 +73,7 @@ bool8 createApplication(game* GAME)
     eventRegister(EVENT_CODE_APPLICATION_QUIT, 0, applicationOnEvent);
     eventRegister(EVENT_CODE_KEY_PRESS, 0, applicationOnKey);
     eventRegister(EVENT_CODE_KEY_RELEASE, 0, applicationOnKey);
+    eventRegister(EVENT_CODE_RESIZE, 0, applicationOnResize);
 
     //Intitialise the platform
     if(!platformInit(&appState.platform, GAME->config.name, GAME->config.startPositionX, GAME->config.startPositionY, GAME->config.startWidth, GAME->config.startHeight)) 
@@ -237,3 +240,40 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
     return FALSE;
 }
 
+
+bool8 applicationOnResize(unsigned short CODE, void* SENDER, void* LISTENER, eventContext CONTEXT)
+{
+    switch (CODE)
+    {
+        case EVENT_CODE_WINDOW_RESIZE:
+            unsigned short width = CONTEXT.data.u16[0];
+            unsigned short height = CONTEXT.data.u16[1];
+
+            if (width != appState.width || height != appState.height)
+            {
+                appState.width = width;
+                appState.height = height;
+
+                FORGE_LOG_DEBUG("Window resized to %i x %i", width, height);
+
+                //Minimization
+                if (width == 0 || height == 0)
+                {
+                    FORGE_LOG_INFO("Window minimized...Suspending game instance");
+                    appState.isSuspended = TRUE;
+                    return TRUE;
+                }
+                else
+                {
+                    if (appState.isSuspended)
+                    {
+                        FORGE_LOG_INFO("Window restored...Resuming game instance");
+                        appState.isSuspended = FALSE;
+                    }
+                    appState.gameInstance->onResize(appState.gameInstance, width, height);
+                    rendererResized(width, height);
+                }
+            }
+    }
+    return FALSE;
+}
