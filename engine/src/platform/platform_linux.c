@@ -265,7 +265,6 @@ bool8 platformGiveMessages(platformState* STATE)
                 }
                 break;
                 
-
             case XCB_CLIENT_MESSAGE:
                 clientMessage = (xcb_client_message_event_t*)event;
 

@@ -217,7 +217,7 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
                     return TRUE;
 
                 case KEY_F1:
-                    FORGE_LOG_INFO(forgeGetMemoryStats());
+                    FORGE_LOG_DEBUG(forgeGetMemoryStats());
                     return TRUE;
 
                 default:

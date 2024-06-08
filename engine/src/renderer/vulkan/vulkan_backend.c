@@ -296,7 +296,7 @@ bool8 vulkanRendererBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME
     if (context.recreateSwapchain)
     {
         VkResult result = vkDeviceWaitIdle(gpu->logicalDevice);
-        if (result == VK_SUCCESS)
+        if (resultSuccess(result))
         {
             FORGE_LOG_ERROR("vulkan_render_backend : vulkanRenderBackendBeginFrame : Failed to wait for device idle(1) : '%s'", vulkanResultToString(result, TRUE));
             return FALSE;
@@ -304,17 +304,18 @@ bool8 vulkanRendererBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME
         FORGE_LOG_DEBUG("Recreating swapchain... booting");
         return FALSE;
     }
-    return TRUE;
 
     //Check if framebuffer has been resized. If so, a recreation of the swapchain is needed
     if (context.framebufferSizeGeneration != context.framebufferSizeLastGeneration)
     {
         VkResult result = vkDeviceWaitIdle(gpu->logicalDevice);
-        if (result == VK_SUCCESS)
+        if (!resultSuccess(result))
         {
             FORGE_LOG_ERROR("vulkan_render_backend : vulkanRenderBackendBeginFrame : Failed to wait for device idle(2) : '%s'", vulkanResultToString(result, TRUE));
             return FALSE;
         }
+        // If the swapchain recreation failed (because, for example, the window was minimized).
+        // Boot out before unsetting the flag
         if (!recreateSwapchain(BACKEND))
         {
             return FALSE;
@@ -324,7 +325,7 @@ bool8 vulkanRendererBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME
         return FALSE;
     }
     
-    //Wait for the next image to be available
+    //Wait for the execution of the current frame to be complete. The fence being free will allow this one to move on
     if (!waitForFence(&context, &context.inFlightFences[context.currentFrame], UINT64_MAX))
     {
         FORGE_LOG_WARNING("vulkan_render_backend : vulkanRenderBackendBeginFrame : Failed to wait for in flight fence");
@@ -332,7 +333,7 @@ bool8 vulkanRendererBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME
     }
     
     //Acquire the next image
-    if (!vulkanSwapchainAquireNextImageIndex(&context, &context.swapchain, 0, context.imageAvailableSemaphores[context.currentFrame], 0, &context.imageIndex))
+    if (!vulkanSwapchainAquireNextImageIndex(&context, &context.swapchain, UINT64_MAX, context.imageAvailableSemaphores[context.currentFrame], 0, &context.imageIndex))
     {
         FORGE_LOG_WARNING("vulkan_render_backend : vulkanRenderBackendBeginFrame : Failed to acquire next image");
         return FALSE;

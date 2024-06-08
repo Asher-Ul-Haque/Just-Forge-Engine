@@ -318,7 +318,7 @@ bool8 gpuMeetsRequirements(
     }
 
         //print the info
-        FORGE_LOG_INFO("       %d    |       %d    |        %d    |        %d    | %s", (INFO->graphicsFamilyIndex != -1), (INFO->presentFamilyIndex != -1), (INFO->computeFamilyIndex != -1), (INFO->transferFamilyIndex != -1), PROPERTIES->deviceName);
+        FORGE_LOG_INFO("      %d     |      %d      |      %d       |      %d      \n%s", (INFO->graphicsFamilyIndex != -1), (INFO->presentFamilyIndex != -1), (INFO->computeFamilyIndex != -1), (INFO->transferFamilyIndex != -1), PROPERTIES->deviceName);
 
         //If all the queues are found, return true
         if (

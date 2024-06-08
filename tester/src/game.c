@@ -10,13 +10,13 @@ bool8 gameInit(game* GAME)
 
 bool8 gameUpdate(game* GAME, float DELTA_TIME)
 {
-    FORGE_LOG_TRACE("Game updated");
+//    FORGE_LOG_TRACE("Game updated");
     return TRUE;
 }
 
 bool8 gameRender(game* GAME, float DELTA_TIME)
 {
-    FORGE_LOG_TRACE("Game rendered");
+//    FORGE_LOG_TRACE("Game rendered");
     return TRUE;
 }
 
