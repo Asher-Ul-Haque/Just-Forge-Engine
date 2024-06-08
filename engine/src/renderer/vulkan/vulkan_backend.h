@@ -14,5 +14,5 @@ void vulkanRendererBackendShutdown(rendererBackend* BACKEND);
 void vulkanRendererBackendResized(rendererBackend* BACKEND, unsigned short WIDTH, unsigned short HEIGHT);
 
 // - - - Frame - - -
-bool8 vulkanRendrerBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME);
+bool8 vulkanRendererBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME);
 bool8 vulkanRendererBackendEndFrame(rendererBackend* BACKEND, float DELTA_TIME);

@@ -2,7 +2,6 @@
 #include "event.h"
 #include "input.h"
 #include "logger.h"
-#include "memory.h"
 #include "platform/platform.h"
 #include "game_types.h"
 #include "core/memory.h"
@@ -65,7 +64,7 @@ bool8 createApplication(game* GAME)
     //Initialise the event system
     if (!eventInitialize())
     {
-        FORGE_LOG_FATAL("Event system failed initialisation");
+        FORGE_LOG_ERROR("Event system failed initialisation");
         return FALSE;
     }
     
@@ -218,7 +217,7 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
                     return TRUE;
 
                 case KEY_F1:
-                    FORGE_LOG_DEBUG(forgeGetMemoryStats());
+                    FORGE_LOG_INFO(forgeGetMemoryStats());
                     return TRUE;
 
                 default:
@@ -245,7 +244,8 @@ bool8 applicationOnResize(unsigned short CODE, void* SENDER, void* LISTENER, eve
 {
     switch (CODE)
     {
-        case EVENT_CODE_WINDOW_RESIZE:
+        case EVENT_CODE_RESIZE:
+        {
             unsigned short width = CONTEXT.data.u16[0];
             unsigned short height = CONTEXT.data.u16[1];
 
@@ -274,6 +274,7 @@ bool8 applicationOnResize(unsigned short CODE, void* SENDER, void* LISTENER, eve
                     rendererResized(width, height);
                 }
             }
+        }
     }
     return FALSE;
 }

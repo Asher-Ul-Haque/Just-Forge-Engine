@@ -134,7 +134,7 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
     createInfo.ppEnabledLayerNames = requiredValidationLayerNames;
 
     VK_CHECK(vkCreateInstance(&createInfo, context.allocator, &context.instance));
-    FORGE_LOG_DEBUG("Vulkan instance created");
+    FORGE_LOG_INFO("Vulkan instance created");
 
 
     //Setup debug messenger
@@ -155,7 +155,7 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
     #endif
     
     //Setup vulkan surface
-    FORGE_LOG_DEBUG("Creating vulkan surface...");
+    FORGE_LOG_INFO("Creating vulkan surface");
     if (!platformCreateSurface(PLATFORM, &context))
     {
         FORGE_LOG_ERROR("Failed to create vulkan surface");
@@ -206,7 +206,7 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
         context.imagesInFlight[i] = 0;
     }
     
-    FORGE_LOG_DEBUG("Vulkan Renderer Initialized");
+    FORGE_LOG_INFO("Vulkan Renderer Initialized");
     return TRUE;
 }
 
@@ -252,30 +252,30 @@ void vulkanRendererBackendShutdown(rendererBackend* BACKEND)
         destroyFrameBuffer(&context, &context.swapchain.framebuffers[i]);
     }
 
-    FORGE_LOG_DEBUG("Destroying vulkan renderpass...");
+    FORGE_LOG_INFO("Destroying vulkan renderpass");
     destroyRenderpass(&context, &context.mainRenderpass);  
 
-    FORGE_LOG_DEBUG("Destroying vulkan swapchain...");
+    FORGE_LOG_INFO("Destroying vulkan swapchain");
     destroyVulkanSwapchain(&context, &context.swapchain);
 
-    FORGE_LOG_DEBUG("Destroying vulkan device...");
+    FORGE_LOG_INFO("Destroying vulkan device");
     destroyVulkanDevice(&context);
 
-    FORGE_LOG_DEBUG("Destroying vulkan surface...");
+    FORGE_LOG_INFO("Destroying vulkan surface");
     if (context.surface)
     {
         vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
         context.surface = 0;
     }
         
-    FORGE_LOG_DEBUG("Destroying vulkan debugger...");
+    FORGE_LOG_INFO("Destroying vulkan debugger");
     if (context.debugMessenger)
     {
         PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(context.instance, "vkDestroyDebugUtilsMessengerEXT");
         func(context.instance, context.debugMessenger, context.allocator);
     }
 
-    FORGE_LOG_DEBUG("Destroying Vulkan Instance...");
+    FORGE_LOG_INFO("Destroying Vulkan Instance");
     vkDestroyInstance(context.instance, context.allocator);
 }
 
@@ -285,10 +285,10 @@ void vulkanRendererBackendResized(rendererBackend* BACKEND, unsigned short WIDTH
     frameBufferWidth = WIDTH;
     frameBufferHeight = HEIGHT;
     context.framebufferSizeGeneration++;
-    FORGE_LOG_DEBUG("Framebuffer resized to %dx%d with generation %d", WIDTH, HEIGHT, context.framebufferSizeGeneration);
+    FORGE_LOG_DEBUG("Framebuffer resized to %d x %d with generation %d", WIDTH, HEIGHT, context.framebufferSizeGeneration);
 }
 
-bool8 vulkanRendrerBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME)
+bool8 vulkanRendererBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME)
 {
     vulkanDevice* gpu = &context.device;
     
@@ -301,7 +301,7 @@ bool8 vulkanRendrerBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME)
             FORGE_LOG_ERROR("vulkan_render_backend : vulkanRenderBackendBeginFrame : Failed to wait for device idle(1) : '%s'", vulkanResultToString(result, TRUE));
             return FALSE;
         }
-        FORGE_LOG_INFO("Recreating swapchain... booting");
+        FORGE_LOG_DEBUG("Recreating swapchain... booting");
         return FALSE;
     }
     return TRUE;
@@ -320,7 +320,7 @@ bool8 vulkanRendrerBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME)
             return FALSE;
         }
 
-        FORGE_LOG_INFO("Framebuffer resized, booting...");
+        FORGE_LOG_DEBUG("Framebuffer resized, booting...");
         return FALSE;
     }
     
@@ -343,7 +343,7 @@ bool8 vulkanRendrerBackendBeginFrame(rendererBackend* BACKEND, float DELTA_TIME)
     commandBufferBegin(commandBuffer, FALSE, FALSE, FALSE);
 
     //Dynamic state (consistent with OpenGL)
-    VkViewport viewport = {};
+    VkViewport viewport;
     viewport.x = 0.0f;
     viewport.y = (float)context.framebufferHeight;
     viewport.width = (float)context.framebufferWidth;
@@ -382,11 +382,7 @@ bool8 vulkanRendererBackendEndFrame(rendererBackend* BACKEND, float DELTA_TIME)
     // Make sure the previous frame is not using this image (i.e., its fence is being waited on)
     if (context.imagesInFlight[context.imageIndex] != VK_NULL_HANDLE)
     {
-        if (!waitForFence(&context, context.imagesInFlight[context.imageIndex], UINT64_MAX))
-        {
-            FORGE_LOG_WARNING("vulkan_render_backend : vulkanRenderBackendEndFrame : Failed to wait for in flight fence");
-            return FALSE;
-        }
+        waitForFence(&context, context.imagesInFlight[context.imageIndex], UINT64_MAX);
     }
 
     // Mark the image fence as now being in use by this frame
@@ -415,7 +411,7 @@ bool8 vulkanRendererBackendEndFrame(rendererBackend* BACKEND, float DELTA_TIME)
     VkPipelineStageFlags flags[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.pWaitDstStageMask = flags;
 
-    VK_CHECK(vkQueueSubmit(context.device.graphicsQueue, 1, &submitInfo, context.inFlightFences[context.currentFrame].handle));
+    VkResult result = vkQueueSubmit(context.device.graphicsQueue, 1, &submitInfo, context.inFlightFences[context.currentFrame].handle);
 
     commandBufferUpdateSubmits(commandBuffer);
     //End of queue submission
@@ -489,7 +485,7 @@ void createCommandBuffers(rendererBackend* BACKEND)
         commandBufferAllocate(&context, context.device.graphicsCommandPool, TRUE, &context.graphicsCommandBuffers[i]);
     }
 
-    FORGE_LOG_DEBUG("Command buffers created");
+    FORGE_LOG_INFO("Command buffers created");
 }
 
 void regenerateFramebuffers(rendererBackend* BACKEND, vulkanSwapchain* SWAPCHAIN, vulkanRenderpass* RENDERPASS)
@@ -509,14 +505,14 @@ bool8 recreateSwapchain(rendererBackend* BACKEND)
     //If already recreating swapchain, boot out
     if (context.recreateSwapchain)
     {
-        FORGE_LOG_WARNING("vulkan_render_backend : recreateSwapchain : Already recreating swapchain");
+        FORGE_LOG_DEBUG("vulkan_render_backend : recreateSwapchain : Already recreating swapchain");
         return FALSE;
     }
 
     //Detect if the window is too smol to be rendered
     if (context.framebufferWidth == 0 || context.framebufferHeight == 0)
     {
-        FORGE_LOG_WARNING("vulkan_render_backend : recreateSwapchain : Framebuffer too small to render");
+        FORGE_LOG_DEBUG("vulkan_render_backend : recreateSwapchain : Framebuffer too small to render");
         return FALSE;
     }
 

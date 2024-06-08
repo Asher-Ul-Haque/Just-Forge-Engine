@@ -27,7 +27,7 @@ bool8 rendererIntitialize(const char* APPLICATION, struct platformState *PLATFOR
         FORGE_LOG_FATAL("Renderer Backend Failed to Create!");
         return FALSE;
     }
-    FORGE_LOG_INFO("Renderer Backend Initialized!");
+    FORGE_LOG_INFO("Renderer Backend Initialized");
     return TRUE;
 }
 
@@ -35,7 +35,7 @@ void rendererShutdown()
 {
     rendererBackendInstance->shutdown(rendererBackendInstance);
     forgeFreeMemory(rendererBackendInstance, sizeof(rendererBackend), MEMORY_TAG_RENDERER);
-    FORGE_LOG_INFO("Renderer Backend Shutdown!");
+    FORGE_LOG_INFO("Renderer Backend Shutdown");
 }
 
 bool8 rendererBeginFrame(float DELTA_TIME)
@@ -51,7 +51,14 @@ bool8 rendererEndFrame(float DELTA_TIME)
 
 void rendererResized(unsigned short WIDTH, unsigned short HEIGHT)
 {
-    rendererBackendInstance->resized(rendererBackendInstance, WIDTH, HEIGHT);
+    if (rendererBackendInstance)
+    {
+        rendererBackendInstance->resized(rendererBackendInstance, WIDTH, HEIGHT);
+    }
+    else 
+    {
+        FORGE_LOG_WARNING("Renderer Backend not initialized to accept resize event: %i %i", WIDTH, HEIGHT);
+    }
 }
 
 bool8 rendererDrawFrame(rendererPacket *PACKET)

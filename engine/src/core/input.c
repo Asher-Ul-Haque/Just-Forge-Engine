@@ -45,14 +45,14 @@ void inputInitialize()
 {
     forgeZeroMemory(&state, sizeof(inputState));
     isInitialized = TRUE;
-    FORGE_LOG_INFO("Input initialized");
+    FORGE_LOG_INFO("Input system initialized");
 }
 
 void inputShutdown()
 {
     //TODO: Shutdown routines
     isInitialized = FALSE;
-    FORGE_LOG_INFO("Input shutdown");
+    FORGE_LOG_INFO("Input system shutdown");
 }
 
 void inputUpdate(double DELTA_TIME)

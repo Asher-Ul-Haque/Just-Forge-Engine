@@ -267,7 +267,7 @@ bool8 gpuMeetsRequirements(
 
     if (REQUIREMENTS->dedicated && PROPERTIES->deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
     {
-        FORGE_LOG_INFO("Device is not a discrete GPU, skipping it.");
+        FORGE_LOG_DEBUG("Device is not a discrete GPU, skipping it.");
         return FALSE;
     }
 
@@ -318,7 +318,7 @@ bool8 gpuMeetsRequirements(
     }
 
         //print the info
-        FORGE_LOG_INFO("    %d    |    %d    |    %d    |    %d    | %s", (INFO->graphicsFamilyIndex != -1), (INFO->presentFamilyIndex != -1), (INFO->computeFamilyIndex != -1), (INFO->transferFamilyIndex != -1), PROPERTIES->deviceName);
+        FORGE_LOG_INFO("       %d    |       %d    |        %d    |        %d    | %s", (INFO->graphicsFamilyIndex != -1), (INFO->presentFamilyIndex != -1), (INFO->computeFamilyIndex != -1), (INFO->transferFamilyIndex != -1), PROPERTIES->deviceName);
 
         //If all the queues are found, return true
         if (
@@ -328,7 +328,7 @@ bool8 gpuMeetsRequirements(
             (!REQUIREMENTS->transfer || (REQUIREMENTS->transfer && INFO->transferFamilyIndex != -1))
            )
         {
-            FORGE_LOG_INFO("%s meets requirements", PROPERTIES->deviceName);
+            FORGE_LOG_DEBUG("%s meets requirements", PROPERTIES->deviceName);
             FORGE_LOG_TRACE("Graphics Family Index: %d, Present Family Index: %d, Compute Family Index: %d, Transfer Family Index: %d", INFO->graphicsFamilyIndex, INFO->presentFamilyIndex, INFO->computeFamilyIndex, INFO->transferFamilyIndex);
         
             //Query swapchain support
@@ -346,7 +346,7 @@ bool8 gpuMeetsRequirements(
                     forgeFreeMemory(SWAPCHAIN_SUPPORT->presentModes, sizeof(VkPresentModeKHR) * SWAPCHAIN_SUPPORT->presentModeCount, MEMORY_TAG_RENDERER);
                 }
 
-                FORGE_LOG_INFO("Required swapchain support not found, skipping device");
+                FORGE_LOG_DEBUG("Required swapchain support not found, skipping device");
                 return FALSE;
             }
 
@@ -377,7 +377,7 @@ bool8 gpuMeetsRequirements(
 
                     if (!extensionFound)
                     {
-                        FORGE_LOG_INFO("Required extension not found: %s", REQUIREMENTS->gpuExtensionNames[i]);
+                        FORGE_LOG_DEBUG("Required extension not found: %s", REQUIREMENTS->gpuExtensionNames[i]);
                         forgeFreeMemory(availableExtensions, sizeof(VkExtensionProperties) * extensionCount, MEMORY_TAG_RENDERER);
                         return FALSE;
                     }
@@ -389,7 +389,7 @@ bool8 gpuMeetsRequirements(
         //Sampler anisotropy
         if (REQUIREMENTS->samplerAnisotropy && !FEATURES->samplerAnisotropy)
         {
-            FORGE_LOG_INFO("Device does not support sampler anisotropy, skipping it");
+            FORGE_LOG_DEBUG("Device does not support sampler anisotropy, skipping it");
             return FALSE;
         }
 
@@ -472,11 +472,11 @@ bool8 selectGPU(vulkanContext* CONTEXT)
 
                 if (memory.memoryHeaps[j].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
                 {
-                    FORGE_LOG_INFO("GPU local memory: %.2f GB", memorySize);
+                    FORGE_LOG_DEBUG("GPU local memory: %.2f GB", memorySize);
                 }
                 else
                 {
-                    FORGE_LOG_INFO("GPU-CPU shared memory: %.2f GB", memorySize);
+                    FORGE_LOG_DEBUG("GPU-CPU shared memory: %.2f GB", memorySize);
                 }
             }
 

@@ -255,13 +255,13 @@ bool8 platformGiveMessages(platformState* STATE)
             case XCB_CONFIGURE_NOTIFY:
                 //Note that this also happens in window moving
                 {
-                    xcb_configure_notify_event_t* configureEvent = (xcb_configure_notify_event_t*)event;
+                    xcb_configure_notify_event_t* configureEvent = (xcb_configure_notify_event_t*) event;
 
                     //Fire the event. The application layer should pick this up but not handle it to let it be visible to the game
                     eventContext context;
                     context.data.u16[0] = configureEvent->width;
                     context.data.u16[1] = configureEvent->height;
-                    eventTrigger(EVENT_CODE_WINDOW_RESIZE, 0, context);
+                    eventTrigger(EVENT_CODE_RESIZE, 0, context);
                 }
                 break;
                 

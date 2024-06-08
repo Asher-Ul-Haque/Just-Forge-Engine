@@ -138,7 +138,7 @@ void create(vulkanContext* CONTEXT, unsigned int WIDTH, unsigned int HEIGHT, vul
     // Create depth image and its view
     createVulkanImage(CONTEXT, VK_IMAGE_TYPE_2D, swapchainExtent.width, swapchainExtent.height, CONTEXT->device.depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, TRUE, VK_IMAGE_ASPECT_DEPTH_BIT, &SWAPCHAIN->depthAttachment);
 
-    FORGE_LOG_DEBUG("Swapchain created");
+    FORGE_LOG_INFO("Swapchain created");
 }
 
 void destroy(vulkanContext* CONTEXT, vulkanSwapchain* SWAPCHAIN)

@@ -79,7 +79,7 @@ bool8 eventRegister(unsigned short CODE,  void* LISTENER, eventCallback CALLBACK
     {
         if (state.registry[CODE].events[i].listener == LISTENER)
         {
-            // TODO: warn
+            FORGE_LOG_WARNING("Listener already registered for event code %i", CODE);
             return FALSE;
         }
     }
@@ -102,7 +102,7 @@ bool8 eventUnregister(unsigned short CODE, void* LISTENER, eventCallback CALLBAC
 
     if (state.registry[CODE].events == 0)
     {
-        // TODO: warn
+        FORGE_LOG_WARNING("No listeners registered for event code %i", CODE);
         return FALSE;
     }
 

@@ -29,7 +29,7 @@ bool8 rendererBackendCreate(rendererBackendType TYPE, struct platformState* PLAT
             BACKEND->initialize = vulkanRendererBackendInitialize;
             BACKEND->shutdown = vulkanRendererBackendShutdown;
             BACKEND->resized = vulkanRendererBackendResized;
-            BACKEND->beginFrame = vulkanRendrerBackendBeginFrame;
+            BACKEND->beginFrame = vulkanRendererBackendBeginFrame;
             BACKEND->endFrame = vulkanRendererBackendEndFrame;
             return TRUE;
     }
