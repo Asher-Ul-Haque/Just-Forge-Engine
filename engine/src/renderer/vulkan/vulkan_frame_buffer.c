@@ -10,6 +10,15 @@ void createFrameBuffer(vulkanContext* CONTEXT, vulkanRenderpass* RENDERPASS, uns
         FRAMEBUFFER->attachments[i] = ATTACHMENTS[i];
     }
     FRAMEBUFFER->renderpass = RENDERPASS;
+    //Add 0.1 to rgb and 1 to alpha, make sure it is between 0 and 1
+    for (int i = 0; i < 3; ++i)
+    {
+        FRAMEBUFFER->renderpass->clearColor[i] = FRAMEBUFFER->renderpass->clearColor[i] + rand() % 10 / 10.0f;
+        if (FRAMEBUFFER->renderpass->clearColor[i] > 1.0f)
+        {
+            FRAMEBUFFER->renderpass->clearColor[i] = 0.0f;
+        }
+    }
     FRAMEBUFFER->attachmentCount = ATTACHMENT_COUNT;
 
     // Create the framebuffer

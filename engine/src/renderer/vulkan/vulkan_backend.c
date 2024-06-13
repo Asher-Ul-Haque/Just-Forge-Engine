@@ -18,6 +18,7 @@
 #include "dataStructures/list.h"
 #include <string.h>
 
+#include <stdlib.h>
 
 // - - - | Vulkan Setup | - - -
 
@@ -173,7 +174,7 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
     createVulkanSwapchain(&context, context.framebufferWidth, context.framebufferHeight, &context.swapchain);
 
     // Renderpass
-    createRenderpass(&context, &context.mainRenderpass, 0, 0, context.framebufferWidth, context.framebufferHeight, (float[4]){1.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0);
+    createRenderpass(&context, &context.mainRenderpass, 0, 0, context.framebufferWidth, context.framebufferHeight, (float[4]){(float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, 1.0f}, 1.0f, 0);
 
     // Framebuffers
     context.swapchain.framebuffers = listReserve(vulkanFramebuffer, context.swapchain.imageCount);
@@ -438,7 +439,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugCallback(VkDebugUtilsMessageSeverityFlagBi
             break;
 
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-            FORGE_LOG_INFO(CALLBACK_DATA->pMessage);
+            FORGE_LOG_DEBUG(CALLBACK_DATA->pMessage);
             break;
 
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
@@ -542,6 +543,14 @@ bool8 recreateSwapchain(rendererBackend* BACKEND)
     context.mainRenderpass.height = frameBufferHeight;
     context.mainRenderpass.width = context.framebufferWidth;
     context.mainRenderpass.height = context.framebufferHeight;
+    for (int i = 0; i < 3; ++i)
+    {
+        context.mainRenderpass.clearColor[i] += rand() % 10 / 10.0f;
+        if (context.mainRenderpass.clearColor[i] > 1.0f)
+        {
+            context.mainRenderpass.clearColor[i] = 0.0f;
+        }
+    }
     frameBufferWidth = 0;
     frameBufferHeight = 0;
 
