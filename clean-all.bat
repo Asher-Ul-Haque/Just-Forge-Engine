@@ -1,6 +1,6 @@
-ECHO "Building everything..."
+ECHO "Rebuilding everything..."
 
-PUSHD engine
+PUSHD Just_Forge_Engine
 CALL build.bat
 POPD
 @REM PUSHD engine
@@ -8,21 +8,21 @@ POPD
 @REM POPD
 @REM IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
 
-@REM PUSHD testbed
+@REM PUSHD tes
 @REM CALL build.bat
 @REM POPD
 @REM IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
 
 REM Engine
-make -f "Makefile.engine.windows.mak" all
+make -f "Makefile.engine.windows.mak" clean
 IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
 
-PUSHD testbed
+PUSHD Just_Forge_Tester
 CALL build.bat
 POPD
 REM Testbed
-make -f "Makefile.testbed.windows.mak" all
+make -f "Makefile.testbed.windows.mak" clean
 IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
 
 
-ECHO "Built everything!"
+ECHO "Rebuilt everything!"

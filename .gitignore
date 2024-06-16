@@ -1,7 +1,8 @@
 /.oldWiki/
 /build/
+/obj/
 /*.key
 /*.dll
 /*.so
 /*.exe
-**/*.[!a-zA-Z0-9]*
+ **/*.[!a-zA-Z0-9]*

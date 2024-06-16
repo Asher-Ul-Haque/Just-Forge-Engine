@@ -257,7 +257,7 @@ bool8 applicationOnResize(unsigned short CODE, void* SENDER, void* LISTENER, eve
                 FORGE_LOG_DEBUG("Window resized to %i x %i", width, height);
 
                 //Minimization
-                if (width == 0 || height == 0)
+                if (width <= 1 || height <= 1)
                 {
                     FORGE_LOG_INFO("Window minimized...Suspending game instance");
                     appState.isSuspended = TRUE;

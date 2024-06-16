@@ -1,5 +1,6 @@
 #include "vulkan_frame_buffer.h"
 #include "core/memory.h"
+#include <stdlib.h>
 
 void createFrameBuffer(vulkanContext* CONTEXT, vulkanRenderpass* RENDERPASS, unsigned int WIDTH, unsigned int HEIGHT, unsigned int ATTACHMENT_COUNT, VkImageView* ATTACHMENTS, vulkanFramebuffer* FRAMEBUFFER)
 {

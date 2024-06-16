@@ -2,7 +2,7 @@
 # Build script for rebuilding all the Just Forge Engine projects
 set echo on
 
-echo "Building everything..."
+echo "Rebuilding everything..."
 
 make -f Makefile.engine.linux.mak all
 
