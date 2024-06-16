@@ -2,13 +2,19 @@
 #include "event.h"
 #include "input.h"
 #include "logger.h"
+
 #include "platform/platform.h"
+
 #include "game_types.h"
+
 #include "core/memory.h"
 #include "core/event.h"
 #include "core/input.h"
 #include "core/clock.h"
+
 #include "renderer/renderer_frontend.h"
+// Test comment
+
 
 // - - - | Application State | - - -
 

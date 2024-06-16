@@ -1,6 +1,8 @@
 #!/bin/bash
 # Build script for rebuilding all the Just Forge Engine projects
 set echo on
+mkdir -p build/
+touch build/Just_Forge_Engine.so
 
 echo "Building everything..."
 
