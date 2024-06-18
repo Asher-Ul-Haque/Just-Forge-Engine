@@ -117,3 +117,12 @@ STATIC_ASSERT(sizeof(double) == 8, "double is not 8 bytes");
 #endif
 
 #define FORGE_CLAMP(VALUE, MIN, MAX) ((VALUE) <= (MIN) ? (MIN) : (VALUE) >= (MAX) ? (MAX) : (VALUE))
+
+// - - - Inlining
+#ifdef _MSC_VER
+#define FORGE_INLINE __forceinline
+#define FORGE_NO_INLINE __declspec(noinline)
+#else 
+#define FORGE_INLINE static inline
+#define FORGE_NO_INLINE
+#endif

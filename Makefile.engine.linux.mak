@@ -5,7 +5,7 @@ EXTENSION := .so
 COMPILER_FLAGS := -g -fdeclspec -fPIC
 INCLUDE_FLAGS := -IJust_Forge_Engine/src -I$(VULKAN_SDK)/include
 LINKER_FLAGS := -g -shared -lvulkan -lxcb -lX11 -lX11-xcb -lxkbcommon -L$(VULKAN_SDK)/lib -L/usr/X11R6/lib
-DEFINES := -D_DEBUG -DFORGE_EXPORT
+DEFINES := -DFORGE_EXPORT -D_DEBUG
 
 # Make does not offer a recursive wildcard function, so here's one:
 #rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
@@ -42,13 +42,12 @@ $(OBJ_DIR)/%.c.o: %.c # compile .c to .o object
 	@clang $< $(COMPILER_FLAGS) -c -o $@ $(DEFINES) $(INCLUDE_FLAGS)
 BUILD_DIR := build
 OBJ_DIR := obj
-VULKAN_SDK = VulkanHeadersLinux/1.3.283.0/x86_64
 ASSEMBLY := Just_Forge_Engine
 EXTENSION := .so
 COMPILER_FLAGS := -g -fdeclspec -fPIC
 INCLUDE_FLAGS := -IJust_Forge_Engine/src -I$(VULKAN_SDK)/include
 LINKER_FLAGS := -g -shared -lvulkan -lxcb -lX11 -lX11-xcb -lxkbcommon -L$(VULKAN_SDK)/lib -L/usr/X11R6/lib
-DEFINES := -D_DEBUG -DFORGE_EXPORT
+DEFINES := -DFORGE_EXPORT -D_DEBUG
 
 # Make does not offer a recursive wildcard function, so here's one:
 #rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))

@@ -6,7 +6,7 @@ EXTENSION :=
 COMPILER_FLAGS := -g -fdeclspec -fPIC
 INCLUDE_FLAGS := -IJust_Forge_Engine/src -I$(VULKAN_SDK)\include
 LINKER_FLAGS := -L./$(BUILD_DIR)/ -lJust_Forge_Engine -Wl,-rpath,.
-DEFINES := -D_DEBUG -DFORGE_IMPORT
+DEFINES := -DFORGE_IMPORT -D_DEBUG
 
 # Make does not offer a recursive wildcard function, so here's one:
 #rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))

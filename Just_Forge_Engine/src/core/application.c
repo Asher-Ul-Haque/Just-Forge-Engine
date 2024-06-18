@@ -13,7 +13,6 @@
 #include "core/clock.h"
 
 #include "renderer/renderer_frontend.h"
-// Test comment
 
 
 // - - - | Application State | - - -

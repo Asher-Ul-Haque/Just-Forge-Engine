@@ -22,3 +22,6 @@ then
 fi
 
 echo "Successfully built everything!"
+echo "Running engine-tester..."
+cd build/
+./Just_Forge_Tester
