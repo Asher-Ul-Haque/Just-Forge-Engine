@@ -1,4 +1,5 @@
 #!/bin/bash
+# Written by chatGPT 4-o
 
 # Function to determine the appropriate shell configuration file
 get_shell_config_file() {
@@ -15,57 +16,26 @@ get_shell_config_file() {
     fi
 }
 
-# Function to install Vulkan SDK from GitHub repositories
+# Function to install Vulkan SDK from the tarball
 install_vulkan_sdk() {
-    echo "Installing Vulkan SDK from GitHub repositories..."
+    echo "Installing Vulkan SDK from tarball..."
 
-    # Clone necessary Vulkan repositories
-    git clone https://github.com/KhronosGroup/Vulkan-Headers.git
-    git clone https://github.com/KhronosGroup/Vulkan-Loader.git
-    git clone https://github.com/KhronosGroup/Vulkan-ValidationLayers.git
+    # Extract the tarball into the user's home directory
+    tar -xvf vulkan_sdk.tar.gz -C "$HOME"
 
-    # Build and install Vulkan-Headers
-    cd Vulkan-Headers
-    mkdir build
-    cd build
-    cmake ..
-    sudo make install
-    cd ../..
+    # Assume the tarball extracts to a directory named VulkanSDK in the user's home directory
+    VULKAN_SDK_DIR="$HOME/Vulkan"
 
-    # Build and install Vulkan-Loader
-    cd Vulkan-Loader
-    mkdir build
-    cd build
-    cmake ..
-    sudo make install
-    cd ../..
-
-    # Build and install Vulkan-ValidationLayers
-    cd Vulkan-ValidationLayers
-    mkdir build
-    cd build
-    cmake ..
-    sudo make install
-    cd ../..
-
-    VULKAN_SDK_DIR="/usr/local"
-
-    CONFIG_FILE=$(get_shell_config_file)
-
-    echo "export VULKAN_SDK=\"$VULKAN_SDK_DIR\"" >> "$CONFIG_FILE"
-    echo 'export PATH=$VULKAN_SDK/bin:$PATH' >> "$CONFIG_FILE"
-    echo 'export LD_LIBRARY_PATH=$VULKAN_SDK/lib:$LD_LIBRARY_PATH' >> "$CONFIG_FILE"
-    echo 'export VK_ICD_FILENAMES=$VULKAN_SDK/etc/vulkan/icd.d/nvidia_icd.json:$VULKAN_SDK/etc/vulkan/icd.d/intel_icd.x86_64.json' >> "$CONFIG_FILE"
-    echo 'export VK_LAYER_PATH=$VULKAN_SDK/etc/vulkan/explicit_layer.d' >> "$CONFIG_FILE"
-
-    source "$CONFIG_FILE"
+    # Navigate into the extracted Vulkan SDK directory and run setup-env.sh
+    cd "$VULKAN_SDK_DIR" || { echo "Failed to enter the VulkanSDK directory"; exit 1; }
+    source setup-env.sh
 }
 
 # Function to install required packages for Debian-based systems
 install_packages_debian() {
     echo "Updating package list and installing required packages for Debian-based systems..."
     sudo apt-get update
-    sudo apt-get install -y git clang make cmake libx11-xcb-dev libxkbcommon-x11-dev wget libvulkan-dev vulkan-tools
+    sudo apt-get install -y git clang make cmake libx11-xcb-dev libxkbcommon-x11-dev wget libvulkan-dev vulkan-tools vulkan-validationlayers
     sudo apt-get autoremove
 }
 
@@ -73,7 +43,7 @@ install_packages_debian() {
 install_packages_arch() {
     echo "Updating package list and installing required packages for Arch-based systems..."
     sudo pacman -Syu --noconfirm
-    sudo pacman -S --noconfirm git clang make cmake libx11-xcb libxkbcommon-x11 wget libvulkan vulkan-tools
+    sudo pacman -S --noconfirm git clang make cmake libx11-xcb libxkbcommon-x11 wget libvulkan vulkan-tools vulkan-validationlayers
 }
 
 # Determine the package manager and install required packages
@@ -86,7 +56,7 @@ else
     exit 1
 fi
 
-# Install Vulkan SDK from GitHub repositories
+# Install Vulkan SDK from tarball
 install_vulkan_sdk
 
 # Clone the specified GitHub repository
