@@ -580,6 +580,30 @@ FORGE_INLINE Matrix4 inverseMatrix4(Matrix4 MATRIX)
     return output;
 }
 
+FORGE_INLINE transposeMatrix4(Matrix4 MATRIX)
+{
+    Matrix4 output = identityMatrix4();
+
+    output.data[0] = MATRIX.data[0];
+    output.data[1] = MATRIX.data[4];
+    output.data[2] = MATRIX.data[08;
+    output.data[3] = MATRIX.data[12];
+    output.data[4] = MATRIX.data[1];
+    output.data[5] = MATRIX.data[5];
+    output.data[6] = MATRIX.data[9];
+    output.data[7] = MATRIX.data[13];
+    output.data[8] = MATRIX.data[2];
+    output.data[9] = MATRIX.data[6];
+    output.data[10] = MATRIX.data[10];
+    output.data[11] = MATRIX.data[14];
+    output.data[12] = MATRIX.data[3];
+    output.data[13] = MATRIX.data[7];
+    output.data[14] = MATRIX.data[11];
+    output.data[15] = MATRIX.data[15];
+
+    return output;
+}
+
 FORGE_INLINE Matrix4 translationMatrix4(Vector3D POSITION)
 {
     Matrix[4] output = identityMatrix4();
@@ -603,3 +627,215 @@ FORGE_INLINE Matrix4 scaleMatrix4(Vector3D SCALE)
 
     return output;
 }
+
+FORGE_INLINE eulerXMatrix4(float ANGLE)
+{
+    Matrix 4 output = identityMatrix4();
+    float c = forgeCos(ANGLE);
+    float s = forgeSin(ANGLE);
+
+    output.data[5] = c;
+    output.data[6] = s;
+    output.data[9] = -s;
+    output.data[10] = c;
+
+    return output;
+}
+
+FORGE_INLINE eulerXMatrix4(float ANGLE)
+{
+    Matrix 4 output = identityMatrix4();
+    float c = forgeCos(ANGLE);
+    float s = forgeSin(ANGLE);
+
+    output.data[5] = c;
+    output.data[6] = s;
+    output.data[9] = -s;
+    output.data[10] = c;
+
+    return output;
+}
+
+FORGE_INLINE eulerYMatrix4(float ANGLE)
+{
+    Matrix 4 output = identityMatrix4();
+    float c = forgeCos(ANGLE);
+    float s = forgeSin(ANGLE);
+
+    output.data[0] = c;
+    output.data[2] = s;
+    output.data[8] = -s;
+    output.data[10] = c;
+
+    return output;
+}
+
+FORGE_INLINE eulerZMatrix4(float ANGLE)
+{
+    Matrix4 output = identityMatrix4();
+    float c = forgeCos(ANGLE);
+    float s = forgeSin(ANGLE);
+
+    output.data[0] = c;
+    output.data[1] = s;
+    output.data[4] = -s;
+    output.data[5] = c;
+
+    return output;
+}
+
+FORGE_INLINE eulerXYZMatrix4(float X, float Y, float Z)
+{
+    Matrix4 resultX = eulerXMatrix4(X);
+    Matrix4 resultY = eulerYMatrix4(Y);
+    Matrix4 resultZ = eulerZMatrix4(Z);
+
+    Matrix4 output = multiplyMatrix4D(resultX, resultY);
+    output = multiplyMatrix4D(output, resultZ);
+
+    return output;
+}
+
+FORGE_INLINE Vector3D forwardMatrix4(Matrix4 MATRIX)
+{
+    Vector3D forward;
+
+    forward.x = -MATRIX.data[2];
+    forward.y = -MATRIX.data[6];
+    forward.z = -MATRIX.data[10];
+    normalizeVector3D(&forward);
+
+    return forward;
+}
+FORGE_INLINE Vector3D backwardMatrix4(Matrix4 MATRIX)
+{
+    Vector3D backward;
+
+    backward.x = MATRIX.data[2];
+    backward.y = MATRIX.data[6];
+    backward.z = MATRIX.data[10];
+    normalizeVector3D(&backward);
+
+    return backward;
+}
+
+FORGE_INLINE Vector3D upwardMatrix4(Matrix4 MATRIX)
+{
+    Vector3D upward;
+
+    upward.x = MATRIX.data[1];
+    upward.y = MATRIX.data[5];
+    upward.z = MATRIX.data[9];
+    normalizeVector3D(&upward);
+
+    return upward;
+}
+
+FORGE_INLINE Vector3D downwardMatrix4(Matrix4 MATRIX)
+{
+    Vector3D downward;
+
+    downward.x = -MATRIX.data[1];
+    downward.y = -MATRIX.data[5];
+    downward.z = -MATRIX.data[9];
+    normalizeVector3D(&downward);
+
+    return downward;
+}
+
+FORGE_INLINE Vector3D rightwardMatrix4(Matrix4 MATRIX)
+{
+    Vector3D rightward;
+
+    rightward.x = MATRIX.data[0];
+    rightward.y = MATRIX.data[4];
+    rightward.z = MATRIX.data[8];
+    normalizeVector3D(&rightward);
+
+    return rightward;
+}
+
+FORGE_INLINE Vector3D leftwardMatrix4(Matrix4 MATRIX)
+{
+    Vector3D leftward;
+
+    leftward.x = MATRIX.data[0];
+    leftward.y = MATRIX.data[4];
+    leftward.z = MATRIX.data[8];
+    normalizeVector3D(&leftward);
+
+    return leftward;
+}
+
+
+// - - - | Quaternion | - - -
+
+
+FORGE_INLINE Quaternion identityQuaternion()
+{
+    return (Quaternion){0, 0, 0, 1.0f};
+}
+
+FORGE_INLINE float normalQuaternion(Quaternion QUAT)
+{
+    return forgeSqrt(
+        QUAT.x * QUAT.x + 
+        QUAT.y * QUAT.y + 
+        QUAT.z * QUAT.z + 
+        QUAT.w * QUAT.w);
+}
+
+FORGE_INLINE Quaternion normalizeQuaternion(Quaternion QUAT)
+{
+    float normal = normalQuaternion(QUAT);
+    return (Quaternion){
+        QUAT.x / normal,
+        QUAT.y / normal,
+        QUAT.z / normal,
+        QUAT.w / normal};
+    };
+}
+
+FORGE_INLINE Quaternion conjugateQuaternion(Quaternion QUAT)
+{
+    return (Quaternion){
+        -QUAT.x,
+        -QUAT.y,
+        -QUAT.z,
+        QUAT.w,
+    }
+}
+
+FORGE_INLINE Quaternion inverseQuaternion(Quaternion QUAT)
+{
+    return normalizeQuaternion(conjugateQuaternion(QUAT));
+}
+
+FORGE_INLINE Quaternion multiplyQuaternion(Quaternion QUAT_0, Quaternion QUAT_1)
+{
+    Quaternion output;
+
+    output.x = QUAT_0.x * QUAT_1.w +
+               QUAT_0.y * QUAT_1.z -
+               QUAT_0.z * QUAT_1.y +
+               QUAT_0.w * QUAT_1.x;
+    
+    output.y = -QUAT_0.x * QUAT_1.z +
+               QUAT_0.y * QUAT_1.w +
+               QUAT_0.z * QUAT_1.x +
+               QUAT_0.w * QUAT_1.y;
+
+    output.z = QUAT_0.x * QUAT_1.y -
+               QUAT_0.y * QUAT_1.x +
+               QUAT_0.z * QUAT_1.w +
+               QUAT_0.w * QUAT_1.z;
+    
+    output.w = -QUAT_0.x * QUAT_1.x -
+               QUAT_0.y * QUAT_1.y -
+               QUAT_0.z * QUAT_1.z +
+               QUAT_0.w * QUAT_1.w;
+
+    return output;
+}
+
+FORGE_INLINE float dotProductQuaternion
