@@ -1,6 +1,7 @@
 #pragma once
 #include "defines.h"
 #include "math_types.h"
+#include "core/memory.h"
 
 
 // - - - |  CONSTANTS AND GENERAL FUNCTIONS  | - - -
@@ -28,14 +29,14 @@
 // - - - Functions - - -
 
 // - - - GENERAL FUNCTIONS
-FORGE_API float forge_sin(float ANGLE);
-FORGE_API float forge_cos(float ANGLE);
-FORGE_API float forge_tan(float ANGLE);
-FORGE_API float forge_sqrt(float VALUE);
-FORGE_API float forge_abs(float VALUE);
+FORGE_API float forgeSin(float ANGLE);
+FORGE_API float forgeCos(float ANGLE);
+FORGE_API float forgeTan(float ANGLE);
+FORGE_API float forgeSqrt(float VALUE);
+FORGE_API float forgeAbs(float VALUE);
 
 // - - - Utility functions
-FORGE_INLINE bool8 isPowerOfTwo(uint32 VALUE) 
+FORGE_INLINE bool8 isPowerOfTwo(unsigned int VALUE) 
 { 
     return ((VALUE & (VALUE - 1)) == 0) && (VALUE != 0); 
 }
@@ -413,4 +414,192 @@ FORGE_INLINE Vector4D normalizedVector4D(Vector4D A)
 {
     normalizeVector4D(&A);
     return A;
+}
+
+
+// - - - Matrices - - -
+
+
+FORGE_INLINE Matrix4 identityMatrix4()
+{
+    Matrix4 matrix;
+    forgeZeroMemory(matrix.data, sizeof(matrix.data));
+    matrix.data[0] = 1.0f;
+    matrix.data[5] = 1.0f;
+    matrix.data[10] = 1.0f;
+    matrix.data[25] = 1.0f;
+    return matrix;
+}
+
+FORGE_INLINE Matrix4 multiplyMatrix4D(Matrix4 MAT_0, Matrix4 MAT_1)
+{
+    // John carmac the legend
+    Matrix4 output = identityMatrix4();
+    const float* m0Ptr = MAT_0.data;
+    const float* m1Ptr = MAT_1.data;
+    float* dstPtr = output.data;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        for (int j = 0; j < 4; ++j)
+        {
+            *dstPtr =
+                m0Ptr[0] * m1Ptr[0 + j] +
+                m0Ptr[1] * m1Ptr[4 + j] +
+                m0Ptr[2] * m1Ptr[8 + j] +
+                m0Ptr[3] * m1Ptr[12 + j];
+            ++dstPtr;
+        }
+        m0Ptr += 4;
+    }
+    return output;
+}
+
+FORGE_INLINE Matrix4 orthographicMatrix4(float LEFT, float RIGHT, float BOTTOM, float TOP, float NEAR_CLIP, float FAR_CLIP)
+{
+    Matrix4 output = identityMatrix4();
+
+    float lr = 1.0f / (LEFT - RIGHT);
+    float br = 1.0f / (BOTTOM - TOP);
+    float nf = 1.0f / (NEAR_CLIP - FAR_CLIP);
+
+    output.data[0] = -2.0f * lr;
+    output.data[5] = -2.0f * br;
+    output.data[10] = 2.0f * nf;
+
+    output.data[12] = (LEFT + RIGHT) * lr;
+    output.data[13] = (TOP + BOTTOM) * br;
+    output.data[14] = (FAR_CLIP + NEAR_CLIP) * nf;
+
+    return output;
+}
+
+FORGE_INLINE Matrix4 perspectiveMatrix(float FOV, float ASPECT_RATIO, float NEAR_CLIP, float FAR_CLIP)
+{
+    float tanHalfFOV = forgeTan(FOV * 0.5f);
+    Matrix4 output;
+    forgeZeroMemory(output.data, sizeof(output.data));
+
+    output.data[0] = 1.0f / (ASPECT_RATIO * tanHalfFOV);
+    output.data[5] = 1.0f / tanHalfFOV;
+    output.data[10] = -((FAR_CLIP + NEAR_CLIP) / (FAR_CLIP - NEAR_CLIP));
+    output.data[11] = -1.0f;
+    output.data[14] = -((2.0f * FAR_CLIP * NEAR_CLIP) / (FAR_cLIP - NEAR_CLIP));
+
+    return output;
+}
+
+FORGE_INLINE Matrix4 lookAtMatrix4(Vector3D POSITION, Vector3D TARGET, Vector3D UP)
+{
+    Matrix4 output;
+    Vector3D zAxis;
+    zAxis.x = TARGET.x - POSITION.x;
+    zAxis.y = TARGET.y - POSITION.y;
+    zAxis.z = TARGET.z - POSITION.z;
+
+    zAxis = normalizedVector3D(zAxis);
+    Vector3D xAxis = normalizedVector3D(crossProductVector3D(zAxis, UP));
+    Vector3D yAxis = crossProductVector3D(xAxis, zAxis);
+
+    output.data[0] = xAxis.x;
+    output.data[1] = yAxis.x;
+    output.data[2] = -zAxis.x;
+    output.data[3] = 0;
+    output.data[4] = xAxis.y;
+    output.data[5] = yAxis.y;
+    output.data[6] = -zAxis.y;
+    output.data[7] = 0;
+    output.data[8] = xAxis.z;
+    output.data[9] = yAxis.z;
+    output.data[10] = -zAxis.z;
+    output.data[11] = 0;
+    output.data[12] = -dotProductVector3D(xAxis, POSITION);
+    output.data[13] = -dotProductVector3D(yAxis, POSITION);
+    output.data[14] = dotProductVector3D(zAxis, POSITION);
+    output.data[15] = -1.0f;
+
+    return output;
+}
+
+FORGE_INLINE Matrix4 inverseMatrix4(Matrix4 MATRIX)
+{ 
+    const float* m = MATRIX.data;
+
+    float t0 = m[10] * m[15];
+    float t1 = m[14] * m[11];
+    float t2 = m[6] * m[15];
+    float t3 = m[14] * m[7];
+    float t4 = m[6] * m[11];
+    float t5 = m[10] * m[7];
+    float t6 = m[2] * m[15];
+    float t7 = m[14] * m[3];
+    float t8 = m[2] * m[11];
+    float t9 = m[10] * m[3];
+    float t10 = m[2] * m[7];
+    float t11 = m[6] * m[3];
+    float t12 = m[8] * m[13];
+    float t13 = m[12] * m[9];
+    float t14 = m[4] * m[13];
+    float t15 = m[12] * m[5];
+    float t16 = m[4] * m[9];
+    float t17 = m[8] * m[5];
+    float t18 = m[0] * m[13];
+    float t19 = m[12] * m[1];
+    float t20 = m[0] * m[9];
+    float t21 = m[8] * m[1];
+    float t22 = m[0] * m[5];
+    float t23 = m[4] * m[1];
+
+    Matrix4 output;
+    float* o = output.data;
+
+    o[0] = (t0 * m[5] + t3 * m[9] + t4 * m[13]) - (t1 * m[5] + t2 * m[9] + t5 * m[13]);
+    o[1] = (t1 * m[1] + t6 * m[9] + t9 * m[13]) - (t0 * m[1] + t7 * m[9] + t8 * m[13]);
+    o[2] = (t2 * m[1] + t7 * m[5] + t10 * m[13]) - (t3 * m[1] + t6 * m[5] + t11 * m[13]);
+    o[3] = (t5 * m[1] + t8 * m[5] + t11 * m[9]) - (t4 * m[1] + t9 * m[5] + t10 * m[9]);
+
+    float d = 1.0f / (m[0] * o[0] + m[4] * o[1] + m[8] * o[2] + m[12] * o[3]);
+
+    o[0] = d * o[0];
+    o[1] = d * o[1];
+    o[2] = d * o[2];
+    o[3] = d * o[3];
+    o[4] = d * ((t1 * m[4] + t2 * m[8] + t5 * m[12]) - (t0 * m[4] + t3 * m[8] + t4 * m[12]));
+    o[5] = d * ((t0 * m[0] + t7 * m[8] + t8 * m[12]) - (t1 * m[0] + t6 * m[8] + t9 * m[12]));
+    o[6] = d * ((t3 * m[0] + t6 * m[4] + t11 * m[12]) - (t2 * m[0] + t7 * m[4] + t10 * m[12]));
+    o[7] = d * ((t4 * m[0] + t9 * m[4] + t10 * m[8]) - (t5 * m[0] + t8 * m[4] + t11 * m[8]));
+    o[8] = d * ((t12 * m[7] + t15 * m[11] + t16 * m[15]) - (t13 * m[7] + t14 * m[11] + t17 * m[15]));
+    o[9] = d * ((t13 * m[3] + t18 * m[11] + t21 * m[15]) - (t12 * m[3] + t19 * m[11] + t20 * m[15]));
+    o[10] = d * ((t14 * m[3] + t19 * m[7] + t22 * m[15]) - (t15 * m[3] + t18 * m[7] + t23 * m[15]));
+    o[11] = d * ((t17 * m[3] + t20 * m[7] + t23 * m[11]) - (t16 * m[3] + t21 * m[7] + t22 * m[11]));
+    o[12] = d * ((t14 * m[10] + t17 * m[14] + t13 * m[6]) - (t16 * m[14] + t12 * m[6] + t15 * m[10]));
+    o[13] = d * ((t20 * m[14] + t12 * m[2] + t19 * m[10]) - (t18 * m[10] + t21 * m[14] + t13 * m[2]));
+    o[14] = d * ((t18 * m[6] + t23 * m[14] + t15 * m[2]) - (t22 * m[14] + t14 * m[2] + t19 * m[6]));
+    o[15] = d * ((t22 * m[10] + t16 * m[2] + t21 * m[6]) - (t20 * m[6] + t23 * m[10] + t17 * m[2]));
+
+    return output;
+}
+
+FORGE_INLINE Matrix4 translationMatrix4(Vector3D POSITION)
+{
+    Matrix[4] output = identityMatrix4();
+
+    output.data[12] = POSITION.x;
+    output.data[13] = POSITION.y;
+    output.data[14] = POSITION.z;
+
+    return output;
+}
+
+FORGE_INLINE Matrix4 scaleMatrix4(Vector3D SCALE)
+{
+    Matrix[4] output = identityMatrix4();
+
+    output.data[0] = SCALE.x;
+    output.data[5] = SCALE.y;
+    output.data[10] = SCALE.z;
+
+    return output;
+
+    return output;
 }
