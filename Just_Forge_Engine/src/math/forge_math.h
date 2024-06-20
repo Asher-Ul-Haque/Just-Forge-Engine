@@ -31,6 +31,7 @@
 // - - - GENERAL FUNCTIONS
 FORGE_API float forgeSin(float ANGLE);
 FORGE_API float forgeCos(float ANGLE);
+FORGE_API float forgeAcos(float ANGLE);
 FORGE_API float forgeTan(float ANGLE);
 FORGE_API float forgeSqrt(float VALUE);
 FORGE_API float forgeAbs(float VALUE);
@@ -42,7 +43,7 @@ FORGE_INLINE bool8 isPowerOfTwo(unsigned int VALUE)
 }
 
 FORGE_API int forgeRandom();
-FORGE_API int forgeRandomRange(float MIN, float MAX);
+FORGE_API int forgeRandomRange(int MIN, int MAX);
 FORGE_API float forgeFloatRandom();
 FORGE_API float forgeFloatRandomRange(float MIN, float MAX);
 
@@ -142,7 +143,7 @@ FORGE_INLINE float lengthSquaredVector2D(Vector2D A)
 
 FORGE_INLINE float lengthVector2D(Vector2D A)
 {
-    return forge_sqrt(lengthSquaredVector2D(A));
+    return forgeSqrt(lengthSquaredVector2D(A));
 }
 
 FORGE_INLINE void normalizeVector2D(Vector2D* A)
@@ -160,11 +161,11 @@ FORGE_INLINE Vector2D normalizedVector2D(Vector2D A)
 
 FORGE_INLINE bool8 compareVector2D(Vector2D A, Vector2D B, float TOLERANCE)
 {
-    if (forge_abs(A.x - B.x) > TOLERANCE) 
+    if (forgeAbs(A.x - B.x) > TOLERANCE) 
     {
         return FALSE;
     }
-    if (forge_abs(A.y - B.y) > TOLERANCE) 
+    if (forgeAbs(A.y - B.y) > TOLERANCE) 
     {
         return FALSE;
     }
@@ -178,7 +179,7 @@ FORGE_INLINE float distanceSquaredVector2D(Vector2D A, Vector2D B)
 
 FORGE_INLINE float distanceVector2D(Vector2D A, Vector2D B)
 {
-    return forge_sqrt(distanceSquaredVector2D(A, B));
+    return forgeSqrt(distanceSquaredVector2D(A, B));
 }
 
 
@@ -198,7 +199,7 @@ FORGE_INLINE Vector3D createVector3D(float X, float Y, float Z)
 // - - - Conversion
 FORGE_INLINE Vector4D vector3DToVector4D(Vector3D A, float W)
 {
-    return createVector4D(A.x, A.y, A.z, W);
+    return (Vector4D){A.x, A.y, A.z, W};
 }
 
 // - - - Common Vectors
@@ -299,7 +300,7 @@ FORGE_INLINE float lengthSquaredVector3D(Vector3D A)
 
 FORGE_INLINE float lengthVector3D(Vector3D A)
 {
-    return forge_sqrt(lengthSquaredVector3D(A));
+    return forgeSqrt(lengthSquaredVector3D(A));
 }
 
 FORGE_INLINE void normalizeVector3D(Vector3D* A)
@@ -398,7 +399,7 @@ FORGE_INLINE float lengthSquaredVector4D(Vector4D A)
 
 FORGE_INLINE float lengthVector4D(Vector4D A)
 {
-    return forge_sqrt(lengthSquaredVector4D(A));
+    return forgeSqrt(lengthSquaredVector4D(A));
 }
 
 FORGE_INLINE void normalizeVector4D(Vector4D* A)
@@ -427,7 +428,7 @@ FORGE_INLINE Matrix4 identityMatrix4()
     matrix.data[0] = 1.0f;
     matrix.data[5] = 1.0f;
     matrix.data[10] = 1.0f;
-    matrix.data[25] = 1.0f;
+    matrix.data[15] = 1.0f;
     return matrix;
 }
 
@@ -484,7 +485,7 @@ FORGE_INLINE Matrix4 perspectiveMatrix(float FOV, float ASPECT_RATIO, float NEAR
     output.data[5] = 1.0f / tanHalfFOV;
     output.data[10] = -((FAR_CLIP + NEAR_CLIP) / (FAR_CLIP - NEAR_CLIP));
     output.data[11] = -1.0f;
-    output.data[14] = -((2.0f * FAR_CLIP * NEAR_CLIP) / (FAR_cLIP - NEAR_CLIP));
+    output.data[14] = -((2.0f * FAR_CLIP * NEAR_CLIP) / (FAR_CLIP - NEAR_CLIP));
 
     return output;
 }
@@ -580,13 +581,13 @@ FORGE_INLINE Matrix4 inverseMatrix4(Matrix4 MATRIX)
     return output;
 }
 
-FORGE_INLINE transposeMatrix4(Matrix4 MATRIX)
+FORGE_INLINE Matrix4 transposeMatrix4(Matrix4 MATRIX)
 {
     Matrix4 output = identityMatrix4();
 
     output.data[0] = MATRIX.data[0];
     output.data[1] = MATRIX.data[4];
-    output.data[2] = MATRIX.data[08;
+    output.data[2] = MATRIX.data[8];
     output.data[3] = MATRIX.data[12];
     output.data[4] = MATRIX.data[1];
     output.data[5] = MATRIX.data[5];
@@ -606,7 +607,7 @@ FORGE_INLINE transposeMatrix4(Matrix4 MATRIX)
 
 FORGE_INLINE Matrix4 translationMatrix4(Vector3D POSITION)
 {
-    Matrix[4] output = identityMatrix4();
+    Matrix4 output = identityMatrix4();
 
     output.data[12] = POSITION.x;
     output.data[13] = POSITION.y;
@@ -617,20 +618,18 @@ FORGE_INLINE Matrix4 translationMatrix4(Vector3D POSITION)
 
 FORGE_INLINE Matrix4 scaleMatrix4(Vector3D SCALE)
 {
-    Matrix[4] output = identityMatrix4();
+    Matrix4 output = identityMatrix4();
 
     output.data[0] = SCALE.x;
     output.data[5] = SCALE.y;
     output.data[10] = SCALE.z;
 
     return output;
-
-    return output;
 }
 
-FORGE_INLINE eulerXMatrix4(float ANGLE)
+FORGE_INLINE Matrix4 eulerXMatrix4(float ANGLE)
 {
-    Matrix 4 output = identityMatrix4();
+    Matrix4 output = identityMatrix4();
     float c = forgeCos(ANGLE);
     float s = forgeSin(ANGLE);
 
@@ -642,23 +641,9 @@ FORGE_INLINE eulerXMatrix4(float ANGLE)
     return output;
 }
 
-FORGE_INLINE eulerXMatrix4(float ANGLE)
+FORGE_INLINE Matrix4 eulerYMatrix4(float ANGLE)
 {
-    Matrix 4 output = identityMatrix4();
-    float c = forgeCos(ANGLE);
-    float s = forgeSin(ANGLE);
-
-    output.data[5] = c;
-    output.data[6] = s;
-    output.data[9] = -s;
-    output.data[10] = c;
-
-    return output;
-}
-
-FORGE_INLINE eulerYMatrix4(float ANGLE)
-{
-    Matrix 4 output = identityMatrix4();
+    Matrix4 output = identityMatrix4();
     float c = forgeCos(ANGLE);
     float s = forgeSin(ANGLE);
 
@@ -670,7 +655,7 @@ FORGE_INLINE eulerYMatrix4(float ANGLE)
     return output;
 }
 
-FORGE_INLINE eulerZMatrix4(float ANGLE)
+FORGE_INLINE Matrix4 eulerZMatrix4(float ANGLE)
 {
     Matrix4 output = identityMatrix4();
     float c = forgeCos(ANGLE);
@@ -684,7 +669,7 @@ FORGE_INLINE eulerZMatrix4(float ANGLE)
     return output;
 }
 
-FORGE_INLINE eulerXYZMatrix4(float X, float Y, float Z)
+FORGE_INLINE Matrix4 eulerXYZMatrix4(float X, float Y, float Z)
 {
     Matrix4 resultX = eulerXMatrix4(X);
     Matrix4 resultY = eulerYMatrix4(Y);
@@ -793,7 +778,6 @@ FORGE_INLINE Quaternion normalizeQuaternion(Quaternion QUAT)
         QUAT.y / normal,
         QUAT.z / normal,
         QUAT.w / normal};
-    };
 }
 
 FORGE_INLINE Quaternion conjugateQuaternion(Quaternion QUAT)
@@ -803,7 +787,7 @@ FORGE_INLINE Quaternion conjugateQuaternion(Quaternion QUAT)
         -QUAT.y,
         -QUAT.z,
         QUAT.w,
-    }
+    };
 }
 
 FORGE_INLINE Quaternion inverseQuaternion(Quaternion QUAT)
@@ -838,4 +822,134 @@ FORGE_INLINE Quaternion multiplyQuaternion(Quaternion QUAT_0, Quaternion QUAT_1)
     return output;
 }
 
-FORGE_INLINE float dotProductQuaternion
+FORGE_INLINE float dotProductQuaternion(Quaternion QUAT_0, Quaternion QUAT_1)
+{
+    return QUAT_0.x * QUAT_1.x +
+           QUAT_0.y * QUAT_1.y + 
+           QUAT_0.z * QUAT_1.z + 
+           QUAT_0.w * QUAT_1.w; 
+}
+
+FORGE_INLINE Matrix4 quaternionToMatrix4(Quaternion QUAT)
+{
+    Matrix4 output = identityMatrix4();
+    //https://stackoverflow.com/questions/1556260/convert-quaternion-rotation-to-rotation-matrix
+    Quaternion n = normalizeQuaternion(QUAT);
+
+    output.data[0] = 1.0f - 2.0f * n.y * n.y - 2.0f * n.z * n.z;
+    output.data[1] = 2.0f * n.x * n.y - 2.0f * n.z * n.w;
+    output.data[2] = 2.0f * n.x * n.z - 2.0f * n.z * n.w;
+
+    output.data[4] = 2.0f * n.x * n.y + 2.0f * n.z * n.w;
+    output.data[5] = 1.0f - 2.0f * n.x * n.x - 2.0f * n.z * n.z;
+    output.data[6] = 2.0f * n.y * n.z - 2.0f * n.x * n.w;
+
+    output.data[8] = 2.0f * n.x * n.z - 2.0f * n.y * n.w;
+    output.data[9] = 2.0f * n.y * n.z + 2.0f * n.x * n.w;
+    output.data[10] = 1.0f - 2.0f * n.x * n.x - 2.0f * n.y * n.y;
+
+    return output;
+}
+
+FORGE_INLINE Matrix4 quaternionToRotationMatrix(Quaternion QUAT, Vector3D CENTER)
+{
+    Matrix4 output;
+
+    float* o = output.data;
+    o[0] = (QUAT.x * QUAT.x) - (QUAT.y * QUAT.y) - (QUAT.z * QUAT.z) + (QUAT.w * QUAT.w);
+    o[1] = 2.0f * ((QUAT.x * QUAT.y) + (QUAT.z * QUAT.w));
+    o[2] = 2.0f * ((QUAT.x * QUAT.z) - (QUAT.y * QUAT.w));
+    o[3] = CENTER.x - CENTER.x * o[0] - CENTER.y * o[1] - CENTER.z * o[2];
+
+    o[4] = 2.0f * ((QUAT.x * QUAT.y) - (QUAT.z * QUAT.w));
+    o[5] = -(QUAT.x * QUAT.x) + (QUAT.y * QUAT.y) - (QUAT.z * QUAT.z) + (QUAT.w * QUAT.w);
+    o[6] = 2.0f * ((QUAT.y * QUAT.z) + (QUAT.x * QUAT.w));
+    o[7] = CENTER.y - CENTER.x * o[4] - CENTER.y * o[5] - CENTER.z * o[6];
+
+    o[8] = 2.0f * ((QUAT.x * QUAT.z) + (QUAT.y * QUAT.w));
+    o[9] = 2.0f * ((QUAT.y * QUAT.z) - (QUAT.x * QUAT.w));
+    o[10] = -(QUAT.x * QUAT.x) - (QUAT.y * QUAT.y) + (QUAT.z * QUAT.z) + (QUAT.w * QUAT.w);
+    o[11] = CENTER.z - CENTER.x * o[8] - CENTER.y * o[9] - CENTER.z * o[10];
+
+    o[12] = 0.0f;
+    o[13] = 0.0f;
+    o[14] = 0.0f;
+    o[15] = 1.0f;
+    return output;
+}
+
+FORGE_INLINE Quaternion quaternionFromAxisAngle(Vector3D AXIS, float ANGLE, bool8 NORMALIZE)
+{
+    const float halfAngle = 0.5f * ANGLE;
+    float s = forgeSin(halfAngle); 
+    float c = forgeCos(halfAngle);
+
+    Quaternion q = (Quaternion){s * AXIS.x, s * AXIS.y, s * AXIS.z, c};
+    if (NORMALIZE) 
+    {
+        return normalizeQuaternion(q);
+    }
+    return q;
+}
+
+FORGE_INLINE Quaternion quaternionSlerp(Quaternion QUAT_0, Quaternion QUAT_1, float PERCENTAGE)
+{
+    Quaternion output;
+    // Source: https://en.wikipedia.org/wiki/Slerp
+    // Only unit quaternions are valid rotations.
+    // Normalize to avoid undefined behavior.
+    
+    Quaternion v0 = normalizeQuaternion(QUAT_0);
+    Quaternion v1 = normalizeQuaternion(QUAT_1);
+
+    float dot = dotProductQuaternion(v0, v1);
+
+    if (dot < 0.0f)
+    {
+        v1.x = -v1.x;
+        v1.y = -v1.y;
+        v1.z = -v1.z;
+        v1.w = -v1.w;
+        dot = -dot;
+    }
+
+    const float DOT_THRESHOLD = 0.9995f;
+    if (dot > DOT_THRESHOLD)
+    {
+        // If the inputs are too close for comfort, linearly interpolate
+        // and normalize the result.
+        output = (Quaternion)
+            {
+                v0.x + ((v1.x - v0.x) * PERCENTAGE),
+                v0.y + ((v1.y - v0.y) * PERCENTAGE),
+                v0.z + ((v1.z - v0.z) * PERCENTAGE),
+                v0.w + ((v1.w - v0.w) * PERCENTAGE)};
+            
+        return normalizeQuaternion(output);
+    }
+
+    // Since dot is in range [0, DOT_THRESHOLD], acos is safe
+    float theta0 = forgeAcos(dot);          // theta0 = angle between input vectors
+    float theta = theta0 * PERCENTAGE;  // theta = angle between v0 and result
+    float sinTheta = forgeSin(theta);       // compute this value only once
+    float sinTheta0 = forgeSin(theta0);   // compute this value only once
+
+    float s0 = forgeCos(theta) - dot * sinTheta / sinTheta0;  // == sin(theta0 - theta) / sin(theta0)
+    float s1 = sinTheta / sinTheta0;
+
+    return (Quaternion){
+        (v0.x * s0) + (v1.x * s1),
+        (v0.y * s0) + (v1.y * s1),
+        (v0.z * s0) + (v1.z * s1),
+        (v0.w * s0) + (v1.w * s1)};
+}
+
+FORGE_INLINE float degreeToRadian(float DEGREES)
+{
+    return DEGREES * FORGE_DEG_TO_RAD;
+}
+
+FORGE_INLINE float radiansToDegree(float RADIANS)
+{
+    return RADIANS * FORGE_RAD_TO_DEG;
+}
