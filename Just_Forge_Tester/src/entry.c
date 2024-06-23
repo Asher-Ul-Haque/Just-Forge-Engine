@@ -18,8 +18,9 @@ bool8 createGame(game* OUTPUT_GAME)
     OUTPUT_GAME->onResize = gameOnResize;
 
     OUTPUT_GAME->state = forgeAllocateMemory(sizeof(gameState), MEMORY_TAG_GAME);
+    OUTPUT_GAME->applicationState = 0;
 
-    return TRUE;
+    return true;
 }
 
 

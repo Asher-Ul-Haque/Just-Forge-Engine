@@ -1,16 +1,17 @@
 #include "application.h"
-#include "event.h"
-#include "input.h"
-#include "logger.h"
+#include "game_types.h"
+
+#include "core/logger.h"
 
 #include "platform/platform.h"
 
-#include "game_types.h"
 
 #include "core/memory.h"
 #include "core/event.h"
 #include "core/input.h"
 #include "core/clock.h"
+
+#include "memory/pile_alloc.h"
 
 #include "renderer/renderer_frontend.h"
 
@@ -28,10 +29,16 @@ typedef struct applicationState
     short height;
     double lastTime;
     clock clock;
+    PileAllocator systemsAllocator;
+
+    unsigned long long loggerSystemMemoryRequirement;
+    void* loggerSystemState;
+
+    unsigned long long memorySystemMemoryRequirement;
+    void* memorySystemState;
 } applicationState;
 
-static bool8 initialized = FALSE;
-static applicationState appState;
+static applicationState* appState;
 
 
 // - - - | Application Functions | - - -
@@ -49,28 +56,44 @@ bool8 applicationOnResize(unsigned short CODE, void* SENDER, void* LISTENER, eve
 // - - - Create Application
 bool8 createApplication(game* GAME)
 {
-    if (initialized)
+    if (GAME->applicationState)
     {
         FORGE_LOG_ERROR("Application cannot be created more than once");
-        return FALSE;
+        return false;
     }
+    
+    GAME->applicationState = forgeAllocateMemory(sizeof(applicationState), MEMORY_TAG_APPLICATION);
+    appState = GAME->applicationState;
+    appState->gameInstance = GAME;
+    appState->isRunning = false;
+    appState->isSuspended = false;
 
-    appState.gameInstance = GAME;
+    //Initialize pile allocator
+    unsigned long long systemAllocTotalSize = 24; // 1 mb
+    createPileAllocator(systemAllocTotalSize, 0, &appState->systemsAllocator);
+
+    //Initialize memory system
+    initializeMemory(&appState->memorySystemMemoryRequirement, 0);
+    appState->memorySystemState = pileAlloc(&appState->systemsAllocator, appState->memorySystemMemoryRequirement);
+    initializeMemory(&appState->memorySystemMemoryRequirement, appState->memorySystemState);
 
     //Initialise logging system
-    initializeLogger();
+    initializeLogger(&appState->loggerSystemMemoryRequirement, 0);
+    appState->loggerSystemState = pileAlloc(&appState->systemsAllocator, appState->loggerSystemMemoryRequirement);
+    if (!initializeLogger(&appState->loggerSystemMemoryRequirement, appState->loggerSystemState))
+    {
+        FORGE_LOG_ERROR("Failed to initialize logging system, shutting down!");
+        return false;
+    }
 
     //Intialise input system
     inputInitialize();
-
-    appState.isRunning = TRUE;
-    appState.isSuspended = FALSE;
 
     //Initialise the event system
     if (!eventInitialize())
     {
         FORGE_LOG_ERROR("Event system failed initialisation");
-        return FALSE;
+        return false;
     }
     
     //Register event listeners
@@ -80,67 +103,67 @@ bool8 createApplication(game* GAME)
     eventRegister(EVENT_CODE_RESIZE, 0, applicationOnResize);
 
     //Intitialise the platform
-    if(!platformInit(&appState.platform, GAME->config.name, GAME->config.startPositionX, GAME->config.startPositionY, GAME->config.startWidth, GAME->config.startHeight)) 
+    if(!platformInit(&appState->platform, GAME->config.name, GAME->config.startPositionX, GAME->config.startPositionY, GAME->config.startWidth, GAME->config.startHeight)) 
     {
-        return FALSE;
+        return false;
     }
     
     //Initialise the renderer
-    if (!rendererIntitialize(GAME->config.name, &appState.platform))
+    if (!rendererIntitialize(GAME->config.name, &appState->platform))
     {
         FORGE_LOG_FATAL("Failed to initialize the renderer");
-        return FALSE;
+        return false;
     }
     
     //Initialise the game
-    if (!appState.gameInstance->init(appState.gameInstance))
+    if (!appState->gameInstance->init(appState->gameInstance))
     {
         FORGE_LOG_FATAL("Failed to initialise game");
-        return FALSE;
+        return false;
     }
 
-    appState.gameInstance->onResize(appState.gameInstance, appState.width, appState.height);
+    appState->gameInstance->onResize(appState->gameInstance, appState->width, appState->height);
 
-    initialized = TRUE;
-    return TRUE;
+    return true;
 }
 
 // - - - Run Application
 bool8 runApplication()
 {
-    clockStart(&appState.clock);
-    clockUpdate(&appState.clock);
-    appState.lastTime = appState.clock.elapsedTime;
+    appState->isRunning = true;
+    clockStart(&appState->clock);
+    clockUpdate(&appState->clock);
+    appState->lastTime = appState->clock.elapsedTime;
     double runningTime = 0.0;
     unsigned char frameCount = 0;
     double targetFrameTime = 1.0f / 60.0; // 60 fps
 
-    while (appState.isRunning) 
+    while (appState->isRunning) 
     {
-        if (!platformGiveMessages(&appState.platform))
+        if (!platformGiveMessages(&appState->platform))
         {
-            appState.isRunning = FALSE;
+            appState->isRunning = false;
         }
 
         // TODO: take care of delta time.
-        if (!appState.isSuspended)
+        if (!appState->isSuspended)
         {
-            clockUpdate(&appState.clock);
-            double currentTime = appState.clock.elapsedTime;
-            double deltaTime = currentTime - appState.lastTime;
+            clockUpdate(&appState->clock);
+            double currentTime = appState->clock.elapsedTime;
+            double deltaTime = currentTime - appState->lastTime;
             double frameStartTime = platformGetTime();
 
-            if (!appState.gameInstance->update(appState.gameInstance, deltaTime))
+            if (!appState->gameInstance->update(appState->gameInstance, deltaTime))
             {
                 FORGE_LOG_FATAL("Failed to update game");
-                appState.isRunning = FALSE;
+                appState->isRunning = false;
                 break;
             }
 
-            if (!appState.gameInstance->render(appState.gameInstance, deltaTime))
+            if (!appState->gameInstance->render(appState->gameInstance, deltaTime))
             {
                 FORGE_LOG_FATAL("Failed to render game");
-                appState.isRunning = FALSE;
+                appState->isRunning = false;
                 break;
             }
 
@@ -156,7 +179,7 @@ bool8 runApplication()
             if (remainingSeconds > 0)
             {
                 unsigned long long remainingMiliseconds = (remainingSeconds * 1000);
-                bool8 limitFrames = FALSE; //give time back to os
+                bool8 limitFrames = false; //give time back to os
                 if (remainingMiliseconds > 0 && limitFrames)
                 {
                     platformSleep(remainingMiliseconds - 1);
@@ -167,11 +190,11 @@ bool8 runApplication()
             //NOTE: input state should be handled after input recorded or before this line
             inputUpdate(deltaTime);
             
-            appState.lastTime = currentTime;
+            appState->lastTime = currentTime;
         }
     }
 
-    appState.isRunning = FALSE;
+    appState->isRunning = false;
 
     //Unregister event listeners
     eventUnregister(EVENT_CODE_APPLICATION_QUIT, 0, applicationOnEvent);
@@ -180,15 +203,16 @@ bool8 runApplication()
     eventShutdown();
     inputShutdown();
     rendererShutdown();
-    platformShutdown(&appState.platform);
-    return TRUE;
+    platformShutdown(&appState->platform);
+    shutdownMemory();
+    return true;
 }
 
 // - - - Get Frame Buffer Size
 void applicationGetFrameBufferSize(unsigned int* WIDTH, unsigned int* HEIGHT)
 {
-    *WIDTH = appState.width;
-    *HEIGHT = appState.height;
+    *WIDTH = appState->width;
+    *HEIGHT = appState->height;
 }
 
 
@@ -200,11 +224,14 @@ bool8 applicationOnEvent(unsigned short CODE, void* SENDER, void* LISTENER, even
     {
         case EVENT_CODE_APPLICATION_QUIT:
             FORGE_LOG_INFO("EVENT_CODE_APPLICATION_QUIT recieved, shutting down");
-            appState.isRunning = FALSE;
-            return TRUE;
+            appState->isRunning = false;
+            return true;
+
+        default:
+            return false;
     }
 
-    return FALSE;
+    return false;
 }
 
 bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventContext CONTEXT)
@@ -219,15 +246,15 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
             {
                 case KEY_ESCAPE:
                     eventTrigger(EVENT_CODE_APPLICATION_QUIT, 0, context);
-                    return TRUE;
+                    return true;
 
                 case KEY_F1:
                     FORGE_LOG_DEBUG(forgeGetMemoryStats());
-                    return TRUE;
+                    return true;
 
                 default:
                     FORGE_LOG_TRACE("Key %i pressed", keyCode);
-                    return FALSE;
+                    return false;
             }
             break;
 
@@ -237,11 +264,11 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
             {
                 default:
                     FORGE_LOG_TRACE("Key %i released", keyCode);
-                    return FALSE;
+                    return false;
             }
             break;
     }
-    return FALSE;
+    return false;
 }
 
 
@@ -254,32 +281,32 @@ bool8 applicationOnResize(unsigned short CODE, void* SENDER, void* LISTENER, eve
             unsigned short width = CONTEXT.data.u16[0];
             unsigned short height = CONTEXT.data.u16[1];
 
-            if (width != appState.width || height != appState.height)
+            if (width != appState->width || height != appState->height)
             {
-                appState.width = width;
-                appState.height = height;
+                appState->width = width;
+                appState->height = height;
 
                 FORGE_LOG_DEBUG("Window resized to %i x %i", width, height);
 
                 //Minimization
-                if (width <= 1 || height <= 1)
+                if (width <= 10 || height <= 10)
                 {
                     FORGE_LOG_INFO("Window minimized...Suspending game instance");
-                    appState.isSuspended = TRUE;
-                    return TRUE;
+                    appState->isSuspended = true;
+                    return true;
                 }
                 else
                 {
-                    if (appState.isSuspended)
+                    if (appState->isSuspended)
                     {
                         FORGE_LOG_INFO("Window restored...Resuming game instance");
-                        appState.isSuspended = FALSE;
+                        appState->isSuspended = false;
                     }
-                    appState.gameInstance->onResize(appState.gameInstance, width, height);
+                    appState->gameInstance->onResize(appState->gameInstance, width, height);
                     rendererResized(width, height);
                 }
             }
         }
     }
-    return FALSE;
+    return false;
 }

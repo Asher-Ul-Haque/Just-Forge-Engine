@@ -49,7 +49,7 @@ bool8 createVulkanDevice(vulkanContext* CONTEXT)
 {
     if (!selectGPU(CONTEXT))
     {
-        return FALSE;
+        return false;
     }
     FORGE_LOG_INFO("Creating Logical Device");
     // NOTE: do not create additional queues for shared indices
@@ -139,7 +139,7 @@ bool8 createVulkanDevice(vulkanContext* CONTEXT)
     VK_CHECK(vkCreateCommandPool(CONTEXT->device.logicalDevice, &commandPoolCreateInfo, CONTEXT->allocator, &CONTEXT->device.graphicsCommandPool));
     FORGE_LOG_INFO("Command Pool created for graphics queue");
 
-    return TRUE;
+    return true;
 }
 
 void destroyVulkanDevice(vulkanContext* CONTEXT)
@@ -208,16 +208,16 @@ bool8 vulkanDeviceDetectDepthFormat(vulkanDevice *DEVICE)
         if ((properties.linearTilingFeatures & flags) == flags)
         {
             DEVICE->depthFormat = candidates[i];
-            return TRUE;
+            return true;
         }
         else if ((properties.optimalTilingFeatures & flags) == flags)
         {
             DEVICE->depthFormat = candidates[i];
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 // - - - Query swapchain support
@@ -247,7 +247,7 @@ bool8 vulkanDeviceQuerySwapchainSupport(VkPhysicalDevice GPU, VkSurfaceKHR SURFA
         }
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(GPU, SURFACE, &INFO->presentModeCount, INFO->presentModes));
     }
-    return TRUE;
+    return true;
 }
 
 // - - - Check if the GPU meets the requirements
@@ -268,7 +268,7 @@ bool8 gpuMeetsRequirements(
     if (REQUIREMENTS->dedicated && PROPERTIES->deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
     {
         FORGE_LOG_DEBUG("Device is not a discrete GPU, skipping it.");
-        return FALSE;
+        return false;
     }
 
     unsigned int queueFamilyCount = 0;
@@ -347,7 +347,7 @@ bool8 gpuMeetsRequirements(
                 }
 
                 FORGE_LOG_DEBUG("Required swapchain support not found, skipping device");
-                return FALSE;
+                return false;
             }
 
             //Device extensions
@@ -365,12 +365,12 @@ bool8 gpuMeetsRequirements(
                 unsigned int requiredExtensionCount = listLength(REQUIREMENTS->gpuExtensionNames);
                 for (unsigned int i = 0; i < requiredExtensionCount; ++i)
                 {
-                    bool8 extensionFound = FALSE;
+                    bool8 extensionFound = false;
                     for (unsigned int j = 0; j < extensionCount; ++j)
                     {
                         if (strcmp(REQUIREMENTS->gpuExtensionNames[i], availableExtensions[j].extensionName) == 0)
                         {
-                            extensionFound = TRUE;
+                            extensionFound = true;
                             break;
                         }
                     }
@@ -379,7 +379,7 @@ bool8 gpuMeetsRequirements(
                     {
                         FORGE_LOG_DEBUG("Required extension not found: %s", REQUIREMENTS->gpuExtensionNames[i]);
                         forgeFreeMemory(availableExtensions, sizeof(VkExtensionProperties) * extensionCount, MEMORY_TAG_RENDERER);
-                        return FALSE;
+                        return false;
                     }
                 }
             }
@@ -390,12 +390,12 @@ bool8 gpuMeetsRequirements(
         if (REQUIREMENTS->samplerAnisotropy && !FEATURES->samplerAnisotropy)
         {
             FORGE_LOG_DEBUG("Device does not support sampler anisotropy, skipping it");
-            return FALSE;
+            return false;
         }
 
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 // - - - Select the GPU
@@ -406,7 +406,7 @@ bool8 selectGPU(vulkanContext* CONTEXT)
     if (gpuCount == 0)
     {
         FORGE_LOG_FATAL("No Graphics Cards or GPUs found");
-        return FALSE;
+        return false;
     }
 
     VkPhysicalDevice gpus[gpuCount];
@@ -425,12 +425,12 @@ bool8 selectGPU(vulkanContext* CONTEXT)
         // TODO: the requirements should be driven by game dev
         // Configuration
         gpuRequirements requirements = {};
-        requirements.graphics = TRUE;
-        requirements.present = TRUE;
-        requirements.transfer = TRUE;
-        requirements.compute = TRUE;
-        requirements.dedicated = FALSE; //Integrated GPUs are allowed
-        requirements.samplerAnisotropy = TRUE;
+        requirements.graphics = true;
+        requirements.present = true;
+        requirements.transfer = true;
+        requirements.compute = true;
+        requirements.dedicated = false; //Integrated GPUs are allowed
+        requirements.samplerAnisotropy = true;
         requirements.gpuExtensionNames = listCreate(const char*);
         listAppend(requirements.gpuExtensionNames, &VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
@@ -499,10 +499,10 @@ bool8 selectGPU(vulkanContext* CONTEXT)
     if (!CONTEXT->device.physicalDevice)
     {
         FORGE_LOG_ERROR("No GPU was found that meets the requirements");
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 

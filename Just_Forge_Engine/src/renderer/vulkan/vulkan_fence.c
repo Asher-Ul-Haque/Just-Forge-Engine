@@ -16,20 +16,20 @@ void destroyFence(vulkanContext* CONTEXT, vulkanFence* FENCE)
         vkDestroyFence(CONTEXT->device.logicalDevice, FENCE->handle, CONTEXT->allocator);
     FENCE->handle = 0;
     }
-    FENCE->isSignaled = FALSE;
+    FENCE->isSignaled = false;
 }
 
 bool8 waitForFence(vulkanContext *CONTEXT, vulkanFence *FENCE, unsigned long long TIMEOUT)
 {
     if (!FENCE->isSignaled)
     {
-        VkResult result = vkWaitForFences(CONTEXT->device.logicalDevice, 1, &FENCE->handle, TRUE, TIMEOUT);
+        VkResult result = vkWaitForFences(CONTEXT->device.logicalDevice, 1, &FENCE->handle, true, TIMEOUT);
 
         switch (result)
         {
             case VK_SUCCESS:
-                FENCE->isSignaled = TRUE;
-                return TRUE;
+                FENCE->isSignaled = true;
+                return true;
 
             case VK_TIMEOUT:
                 FORGE_LOG_WARNING("Fence wait timed out");
@@ -54,9 +54,9 @@ bool8 waitForFence(vulkanContext *CONTEXT, vulkanFence *FENCE, unsigned long lon
     }
     else
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 void resetFence(vulkanContext *CONTEXT, vulkanFence *FENCE)
@@ -64,6 +64,6 @@ void resetFence(vulkanContext *CONTEXT, vulkanFence *FENCE)
     if (FENCE->isSignaled)
     {
         VK_CHECK(vkResetFences(CONTEXT->device.logicalDevice, 1, &FENCE->handle));
-        FENCE->isSignaled = FALSE;
+        FENCE->isSignaled = false;
     }
 }

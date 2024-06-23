@@ -24,7 +24,7 @@ typedef struct eventSystemState
     eventCodeEntry registry[MAX_MESSAGE_CODES];
 } eventSystemState;
 
-static bool8 isInitialized = FALSE;
+static bool8 isInitialized = false;
 static eventSystemState state;
 
 
@@ -35,14 +35,14 @@ static eventSystemState state;
 
 bool8 eventInitialize()
 {
-    if (isInitialized == TRUE)
+    if (isInitialized == true)
     {
-        return FALSE;
+        return false;
     }
-    isInitialized = TRUE;
+    isInitialized = true;
     forgeZeroMemory(&state, sizeof(state));
     FORGE_LOG_INFO("Event System Initialized");
-    return TRUE;
+    return true;
 }
 
 void eventShutdown()
@@ -55,7 +55,7 @@ void eventShutdown()
             state.registry[i].events = 0;
         }
     }
-    isInitialized = FALSE;
+    isInitialized = false;
     FORGE_LOG_INFO("Event System Shutdown");
 }
 
@@ -64,9 +64,9 @@ void eventShutdown()
 
 bool8 eventRegister(unsigned short CODE,  void* LISTENER, eventCallback CALLBACK)
 {
-    if (isInitialized == FALSE)
+    if (isInitialized == false)
     {
-        return FALSE;
+        return false;
     }
 
     if (state.registry[CODE].events == 0)
@@ -80,7 +80,7 @@ bool8 eventRegister(unsigned short CODE,  void* LISTENER, eventCallback CALLBACK
         if (state.registry[CODE].events[i].listener == LISTENER)
         {
             FORGE_LOG_WARNING("Listener already registered for event code %i", CODE);
-            return FALSE;
+            return false;
         }
     }
 
@@ -90,20 +90,20 @@ bool8 eventRegister(unsigned short CODE,  void* LISTENER, eventCallback CALLBACK
     event.callback = CALLBACK;
     listAppend(state.registry[CODE].events, event);
 
-    return TRUE;
+    return true;
 }
 
 bool8 eventUnregister(unsigned short CODE, void* LISTENER, eventCallback CALLBACK)
 {
-    if (isInitialized == FALSE)
+    if (isInitialized == false)
     {
-        return FALSE;
+        return false;
     }
 
     if (state.registry[CODE].events == 0)
     {
         FORGE_LOG_WARNING("No listeners registered for event code %i", CODE);
-        return FALSE;
+        return false;
     }
 
     unsigned long long registeredCount = listLength(state.registry[CODE].events);
@@ -115,24 +115,24 @@ bool8 eventUnregister(unsigned short CODE, void* LISTENER, eventCallback CALLBAC
         {
             registeredEvent poppedEvent;
             listRemove(state.registry[CODE].events, i, &poppedEvent);
-            return TRUE;
+            return true;
         }
     }
 
     //Not found
-    return FALSE;
+    return false;
 }
 
 bool8 eventTrigger(unsigned short CODE, void* SENDER, eventContext CONTEXT)
 {
-    if (isInitialized == FALSE)
+    if (isInitialized == false)
     {
-        return FALSE;
+        return false;
     }
 
     if (state.registry[CODE].events == 0)
     {
-        return FALSE;
+        return false;
     }
 
     unsigned long long registeredCount = listLength(state.registry[CODE].events);
@@ -142,10 +142,10 @@ bool8 eventTrigger(unsigned short CODE, void* SENDER, eventContext CONTEXT)
         if (event.callback(CODE, SENDER, event.listener, CONTEXT))
         {
             //Message has been handled, no need to send for other listeners
-            return TRUE;
+            return true;
         }
     }
     
     //Not found
-    return FALSE;
+    return false;
 }

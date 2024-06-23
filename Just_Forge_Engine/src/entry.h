@@ -15,8 +15,7 @@ extern bool8 createGame(game* OUPUT_GAME);
 // - - - Main Function
 int main(void)
 {
-    initializeMemory();
-
+    FORGE_LOG_INFO("Starting game...");
     game gameInstance;
     if (!createGame(&gameInstance))
     {
@@ -45,6 +44,5 @@ int main(void)
         return 2;
     }
 
-    shutdownMemory();
     return 0;
 }

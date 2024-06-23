@@ -32,7 +32,7 @@ typedef struct inputState
 } inputState;
 
 // - - - Input State
-static bool8 isInitialized =  FALSE;
+static bool8 isInitialized =  false;
 static inputState state;
 
 
@@ -44,14 +44,14 @@ static inputState state;
 void inputInitialize()
 {
     forgeZeroMemory(&state, sizeof(inputState));
-    isInitialized = TRUE;
+    isInitialized = true;
     FORGE_LOG_INFO("Input system initialized");
 }
 
 void inputShutdown()
 {
     //TODO: Shutdown routines
-    isInitialized = FALSE;
+    isInitialized = false;
     FORGE_LOG_INFO("Input system shutdown");
 }
 
@@ -75,36 +75,36 @@ bool8 inputIsKeyDown(keys KEY)
 {
     if (!isInitialized)
     {
-        return FALSE;
+        return false;
     }
-    return state.keyBoardCurrent.keys[KEY] == TRUE;
+    return state.keyBoardCurrent.keys[KEY] == true;
 }
 
 bool8 inputIsKeyUp(keys KEY)
 {
     if (!isInitialized)
     {
-        return TRUE;
+        return true;
     }
-    return state.keyBoardCurrent.keys[KEY] == FALSE;
+    return state.keyBoardCurrent.keys[KEY] == false;
 }
 
 bool8 inputWasKeyDown(keys KEY)
 {
     if (!isInitialized)
     {
-        return FALSE;
+        return false;
     }
-    return state.keyBoardPrevious.keys[KEY] == TRUE;
+    return state.keyBoardPrevious.keys[KEY] == true;
 }
 
 bool8 inputWasKeyUp(keys KEY)
 {
     if (!isInitialized)
     {
-        return TRUE;
+        return true;
     }
-    return state.keyBoardPrevious.keys[KEY] == FALSE;
+    return state.keyBoardPrevious.keys[KEY] == false;
 }
 
 // - - - Input Processing Functions
@@ -128,36 +128,36 @@ bool8 inputIsButtonDown(buttons BUTTON)
 {
     if (!isInitialized)
     {
-        return FALSE;
+        return false;
     }
-    return state.mouseCurrent.buttons[BUTTON] == TRUE;
+    return state.mouseCurrent.buttons[BUTTON] == true;
 }
 
 bool8 inputIsButtonUp(buttons BUTTON)
 {
     if (!isInitialized)
     {
-        return TRUE;
+        return true;
     }
-    return state.mouseCurrent.buttons[BUTTON] == FALSE;
+    return state.mouseCurrent.buttons[BUTTON] == false;
 }
 
 bool8 inputWasButtonDown(buttons BUTTON)
 {
     if (!isInitialized)
     {
-        return FALSE;
+        return false;
     }
-    return state.mousePrevious.buttons[BUTTON] == TRUE;
+    return state.mousePrevious.buttons[BUTTON] == true;
 }
 
 bool8 inputWasButtonUp(buttons BUTTON)
 {
     if (!isInitialized)
     {
-        return TRUE;
+        return true;
     }
-    return state.mousePrevious.buttons[BUTTON] == FALSE;
+    return state.mousePrevious.buttons[BUTTON] == false;
 }
 
 void inputGetMousePosition(int *X, int *Y)

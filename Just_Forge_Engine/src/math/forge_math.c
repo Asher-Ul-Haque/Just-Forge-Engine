@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdlib.h> 
 
-static bool8 randomlySeeded = FALSE;
+static bool8 randomlySeeded = false;
 
 /*
  * Note that these are here so no need to include <math.h> everywhre
@@ -44,7 +44,7 @@ int forgeRandom()
     if (!randomlySeeded)
     {
         srand((unsigned int)platformGetTime());
-        randomlySeeded = TRUE;
+        randomlySeeded = true;
     }
     return rand();
 }
@@ -54,7 +54,7 @@ int forgeRandomRange(int MIN, int MAX)
     if (!randomlySeeded)
     {
         srand((unsigned int)platformGetTime());
-        randomlySeeded = TRUE;
+        randomlySeeded = true;
     }
     return (rand() % (MAX - MIN + 1)) + MIN;
 }

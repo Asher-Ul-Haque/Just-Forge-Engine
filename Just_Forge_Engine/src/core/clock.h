@@ -13,6 +13,6 @@ typedef struct clock
 
 // - - - Clock Functions - - -
 
-void clockUpdate(clock* CLOCK);
-void clockStart(clock* CLOCK);
-void clockStop(clock* CLOCK);
+FORGE_API void clockUpdate(clock* CLOCK);
+FORGE_API void clockStart(clock* CLOCK);
+FORGE_API void clockStop(clock* CLOCK);

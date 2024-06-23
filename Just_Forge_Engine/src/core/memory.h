@@ -9,6 +9,7 @@ typedef enum memoryTag
 {
     MEMORY_TAG_NONE,
     MEMORY_TAG_ARRAY,
+    MEMORY_TAG_PILE_ALLOCATOR,
     MEMORY_TAG_LIST,
     MEMORY_TAG_DICTIONARY,
     MEMORY_TAG_CIRCULAR_QUEUE,
@@ -32,10 +33,9 @@ typedef enum memoryTag
 
 // - - - Engine Memory Functions - - -
 
-// TODO: remove function exporting
-FORGE_API void initializeMemory();
+void initializeMemory(unsigned long long* MEMORY_REQUIREMENT, void* STATE);
 
-FORGE_API void shutdownMemory();
+void shutdownMemory();
 
 
 // - - - Game Developer Memory Functions - - -
@@ -52,3 +52,5 @@ FORGE_API void forgeSetMemory(void* MEMORY, int VALUE, unsigned long long SIZE);
 
 // - - - Debug Function
 FORGE_API char* forgeGetMemoryStats();
+
+FORGE_API unsigned long long forgeGetMemoryAllocCount();

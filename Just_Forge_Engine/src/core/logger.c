@@ -13,17 +13,33 @@
 #include <string.h>
 #include <stdarg.h>
 
-bool8 initializeLogger()
+typedef struct loggerSystemState
 {
+    bool8 initialized;
+} loggerSystemState;
+
+static loggerSystemState* statePtr;
+
+bool8 initializeLogger(unsigned long long* MEMORY_REQUIREMENT, void* STATE)
+{
+    *MEMORY_REQUIREMENT = sizeof(loggerSystemState);
+    if (STATE == 0)
+    {
+        return true;
+    }
+    statePtr = STATE;
+    statePtr->initialized = true;
+
     // TODO: create log file
     FORGE_LOG_INFO("Logging System Initialized");
-    return TRUE;
+    return true;
 }
 
-void shutdownLogger()
+void shutdownLogger(void* STATE)
 {
     FORGE_LOG_INFO("Logging System Shutdown");
     // TODO: cleanup and write all queued entries
+    statePtr = 0;
 }
 
 

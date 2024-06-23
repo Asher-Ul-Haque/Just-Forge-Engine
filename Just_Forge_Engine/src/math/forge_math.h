@@ -163,13 +163,13 @@ FORGE_INLINE bool8 compareVector2D(Vector2D A, Vector2D B, float TOLERANCE)
 {
     if (forgeAbs(A.x - B.x) > TOLERANCE) 
     {
-        return FALSE;
+        return false;
     }
     if (forgeAbs(A.y - B.y) > TOLERANCE) 
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 FORGE_INLINE float distanceSquaredVector2D(Vector2D A, Vector2D B)

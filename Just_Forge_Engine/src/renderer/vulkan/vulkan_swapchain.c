@@ -12,7 +12,7 @@ void create(vulkanContext* CONTEXT, unsigned int WIDTH, unsigned int HEIGHT, vul
     SWAPCHAIN->maxFramesInFlight = 2; //suporting triple buffering
     
     // Choose a swap surface format
-    bool8 foundFormat = FALSE;
+    bool8 foundFormat = false;
     for (unsigned int i = 0; i < CONTEXT->device.swapchainSupport.formatCount; ++i)
     {
         VkSurfaceFormatKHR format = CONTEXT->device.swapchainSupport.formats[i];
@@ -20,7 +20,7 @@ void create(vulkanContext* CONTEXT, unsigned int WIDTH, unsigned int HEIGHT, vul
         if (format.format == VK_FORMAT_B8G8R8A8_SRGB && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
         {
             SWAPCHAIN->imageFormat = format;
-            foundFormat = TRUE;
+            foundFormat = true;
             break;
         }
     }
@@ -136,7 +136,7 @@ void create(vulkanContext* CONTEXT, unsigned int WIDTH, unsigned int HEIGHT, vul
     }
 
     // Create depth image and its view
-    createVulkanImage(CONTEXT, VK_IMAGE_TYPE_2D, swapchainExtent.width, swapchainExtent.height, CONTEXT->device.depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, TRUE, VK_IMAGE_ASPECT_DEPTH_BIT, &SWAPCHAIN->depthAttachment);
+    createVulkanImage(CONTEXT, VK_IMAGE_TYPE_2D, swapchainExtent.width, swapchainExtent.height, CONTEXT->device.depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, true, VK_IMAGE_ASPECT_DEPTH_BIT, &SWAPCHAIN->depthAttachment);
 
     FORGE_LOG_INFO("Swapchain created");
 }
@@ -180,14 +180,14 @@ bool8 vulkanSwapchainAquireNextImageIndex(vulkanContext* CONTEXT, vulkanSwapchai
     {
         //Trigger swapchain recreation and boot out of render order
         recreateVulkanSwapchain(CONTEXT, CONTEXT->framebufferWidth, CONTEXT->framebufferHeight, SWAPCHAIN);
-        return FALSE;
+        return false;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
         FORGE_LOG_FATAL("Failed to aquire swapchain image");
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 void vulkanSwapchainPresentImage(vulkanContext* CONTEXT, vulkanSwapchain* SWAPCHAIN, VkQueue GRAPHICS_QUEUE, VkQueue PRESENT_QUEUE, VkSemaphore RENDER_FINISHED_SEMAPHORE, unsigned int IMAGE_INDEX)

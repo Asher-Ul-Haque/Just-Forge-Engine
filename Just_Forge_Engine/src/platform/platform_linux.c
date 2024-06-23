@@ -70,7 +70,7 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     if (xcb_connection_has_error(state->connection))
     {
         FORGE_LOG_FATAL("Failed to get the XCB connection\n");
-        return FALSE;
+        return false;
     }
 
     //Get data from X server
@@ -173,11 +173,11 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     if (streamResult <= 0)
     {
         FORGE_LOG_FATAL("Failed to flush the request: %d\n", streamResult);
-        return FALSE;
+        return false;
     }
 
     XAutoRepeatOn(state->display);
-    return TRUE;
+    return true;
 }
 
 void platformShutdown(platformState* STATE)
@@ -192,7 +192,7 @@ bool8 platformGiveMessages(platformState* STATE)
     internalState* state = (internalState*)STATE->internalState;
     xcb_generic_event_t* event;
     xcb_client_message_event_t* clientMessage;
-    bool8 quitFlag = FALSE;
+    bool8 quitFlag = false;
     
     while ((event = xcb_poll_for_event(state->connection)))
     {
@@ -271,7 +271,7 @@ bool8 platformGiveMessages(platformState* STATE)
                 //Check if the window is being closed
                 if (clientMessage->data.data32[0] == state->windowDelete)
                 {
-                    quitFlag = TRUE;
+                    quitFlag = true;
                 }
                 break;
 
@@ -488,6 +488,36 @@ keys translateKeycode(unsigned int X_KEYCODE)
         case XK_multiply:
             return KEY_MULTIPLY;
 
+        case XK_0:
+            return KEY_NUMPAD0;
+
+        case XK_1:
+            return KEY_NUMPAD1;
+
+        case XK_2:
+            return KEY_NUMPAD2;
+
+        case XK_3:
+            return KEY_NUMPAD3;
+
+        case XK_4:
+            return KEY_NUMPAD4;
+
+        case XK_5:
+            return KEY_NUMPAD5;
+
+        case XK_6:
+            return KEY_NUMPAD6;
+
+        case XK_7:
+            return KEY_NUMPAD7;
+
+        case XK_8:
+            return KEY_NUMPAD8;
+
+        case XK_9:
+            return KEY_NUMPAD9;
+
         case XK_KP_Add:
             return KEY_ADD;
 
@@ -597,8 +627,11 @@ keys translateKeycode(unsigned int X_KEYCODE)
             return KEY_RCONTROL;
 
         // case XK_Menu: return KEY_LMENU;
-        case XK_Menu:
-            return KEY_RMENU;
+        case XK_Alt_L:
+            return KEY_LALT;
+
+        case XK_Alt_R:
+            return KEY_RALT;
 
         case XK_semicolon:
             return KEY_SEMICOLON;
@@ -726,6 +759,7 @@ keys translateKeycode(unsigned int X_KEYCODE)
             return KEY_Z;
 
         default:
+            FORGE_LOG_WARNING("Unknown key pressed");
             return 0; 
     }
 }
@@ -749,10 +783,10 @@ bool8 platformCreateSurface(platformState* STATE, vulkanContext* CONTEXT)
     if (result != VK_SUCCESS)
     {
         FORGE_LOG_FATAL("Failed to create the surface: %d\n", result);
-        return FALSE;
+        return false;
     }
     CONTEXT->surface = state->surface;
-    return TRUE;
+    return true;
 }
 
 #endif

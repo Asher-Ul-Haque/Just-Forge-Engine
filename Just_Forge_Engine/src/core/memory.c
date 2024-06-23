@@ -1,6 +1,5 @@
 #include "memory.h"
 #include "core/logger.h"
-#include "logger.h"
 #include "platform/platform.h"
 #include "string.h"
 #include "stdio.h"
@@ -14,15 +13,23 @@ struct memoryStats
     unsigned long long taggedAllocated[MEMORY_TAG_MAX];
 };
 
-static struct memoryStats stats;
+typedef struct memorySystemState
+{
+    struct memoryStats stats;
+    unsigned long long allocCount;
+} memorySystemState;
+
+static memorySystemState* statePtr;
+
 
 // - - - String representation of tags
 static const char* memoryTagAsStrings[MEMORY_TAG_MAX] = {
     "NONE           ",
     "ARRAY          ",
+    "PILE ALLOCATOR ",
     "LIST           ",
     "DICTIONARY     ",
-    "CIRCULAR_QUEUE ",
+    "CIRCULAR QUEUE ",
     "BST            ",
     "APPLICATION    ",
     "TASK           ",
@@ -32,7 +39,7 @@ static const char* memoryTagAsStrings[MEMORY_TAG_MAX] = {
     "GAME           ",
     "TRANSFORM      ",
     "ENTITY         ",
-    "ENTITY_NODE    ",
+    "ENTITY NODE    ",
     "SCENE          "};
 
 
@@ -41,16 +48,24 @@ static const char* memoryTagAsStrings[MEMORY_TAG_MAX] = {
 
 // - - - Engine Memory Functions - - -
 
-void initializeMemory()
+void initializeMemory(unsigned long long* MEMORY_REQUIREMENT, void* STATE)
 {
+    *MEMORY_REQUIREMENT = sizeof(memorySystemState);
+    if (STATE == 0)
+    {
+        return;
+    }
+    statePtr = STATE;
+    statePtr->allocCount = 0;
+    platformZeroMemory(&statePtr->stats, sizeof(statePtr->stats));
     FORGE_LOG_INFO("Memory Initialized");
-    platformZeroMemory(&stats, sizeof(stats));
 }
 
 void shutdownMemory()
 {
     FORGE_LOG_INFO("Memory Shutdown");
     //TODO: cleanup of memory applications
+    statePtr = 0;
 }
 
 
@@ -62,12 +77,16 @@ void* forgeAllocateMemory(unsigned long long SIZE, memoryTag TAG)
     {
         FORGE_LOG_WARNING("forgeAllocateMemory called using MEMORY_TAG_NONE. Recommended to use only tagged allocations");
     }
-
-    stats.totalAllocated += SIZE;
-    stats.taggedAllocated[TAG] += SIZE;
+    
+    if (statePtr)
+    {
+        statePtr->stats.totalAllocated += SIZE;
+        statePtr->stats.taggedAllocated[TAG] += SIZE;
+        ++statePtr->allocCount;
+    }
 
     // TODO: memory allignment
-    void* memoryBlock = platformAllocateMemory(SIZE, FALSE);
+    void* memoryBlock = platformAllocateMemory(SIZE, false);
     platformZeroMemory(memoryBlock, SIZE);
 
     return memoryBlock;
@@ -80,11 +99,11 @@ void forgeFreeMemory(void* MEMORY, unsigned long long SIZE, memoryTag TAG)
         FORGE_LOG_WARNING("forgeAllocateMemory called using MEMORY_TAG_NONE. Recommended to use only tagged allocations");
     }
 
-    stats.totalAllocated -= SIZE;
-    stats.taggedAllocated[TAG] -= SIZE;
+    statePtr->stats.totalAllocated -= SIZE;
+    statePtr->stats.taggedAllocated[TAG] -= SIZE;
 
     // TODO: memory allignment
-    platformFreeMemory(MEMORY, FALSE);
+    platformFreeMemory(MEMORY, false);
 }
 
 void forgeZeroMemory(void* MEMORY, unsigned long long SIZE)
@@ -115,29 +134,29 @@ char* forgeGetMemoryStats()
     char unit[3] = "XB";
     for (int i = 0; i < MEMORY_TAG_MAX; ++i)
     {
-        if (stats.taggedAllocated[i] >= gb)
+        if (statePtr->stats.taggedAllocated[i] >= gb)
         {
             unit[0] = 'G';
             unit[1] = 'B';
-            amount = stats.taggedAllocated[i] / (float) gb;
+            amount = statePtr->stats.taggedAllocated[i] / (float) gb;
         }
-        else if (stats.taggedAllocated[i] >= mb)
+        else if (statePtr->stats.taggedAllocated[i] >= mb)
         {
             unit[0] = 'M';
             unit[1] = 'B';
-            amount = stats.taggedAllocated[i] / (float) mb;
+            amount = statePtr->stats.taggedAllocated[i] / (float) mb;
         }
-        else if (stats.taggedAllocated[i] >= kb)
+        else if (statePtr->stats.taggedAllocated[i] >= kb)
         {
             unit[0] = 'K';
             unit[1] = 'B';
-            amount = stats.taggedAllocated[i] / (float) kb;
+            amount = statePtr->stats.taggedAllocated[i] / (float) kb;
         }
         else
         {
             unit[0] = 'B';
             unit[1] = 0; //Terminate string
-            amount = stats.taggedAllocated[i];
+            amount = statePtr->stats.taggedAllocated[i];
         }
 
         int length = snprintf(buffer + offset, 8000, "  %s: %.2f %s\n", memoryTagAsStrings[i], amount, unit);
@@ -145,7 +164,7 @@ char* forgeGetMemoryStats()
 
         //Add a total memory allocation
     }
-    unsigned long long total = stats.totalAllocated;
+    unsigned long long total = statePtr->stats.totalAllocated;
     if (total >= gb)
     {
         unit[0] = 'G';
@@ -174,4 +193,13 @@ char* forgeGetMemoryStats()
 
     char* outputString = stringDuplicate(buffer);
     return outputString;
+}
+
+unsigned long long forgeGetMemoryAllocCount()
+{
+    if (statePtr)
+    {
+        return statePtr->allocCount;
+    }
+    return 0;
 }

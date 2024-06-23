@@ -1,7 +1,7 @@
-#include "platform/platform.h"
 
 // Windows platform layer.
 #if FORGE_PLATFORM_WINDOWS
+#include "platform/platform.h"
 
 #include "core/logger.h"
 #include "core/input.h"
@@ -67,7 +67,7 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     if (!RegisterClassA(&windowClass))
     {
         MessageBoxA(0, "Failed to register window class", "Error", MB_ICONERROR);
-        return FALSE;
+        return false;
     }
 
     //Create the window
@@ -112,7 +112,7 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     {
         MessageBoxA(0, "Failed to create window", "Error", MB_ICONERROR);
         FORGE_LOG_FATAL("Failed to create window!");
-        return FALSE;
+        return false;
     }
     else 
     {
@@ -132,7 +132,7 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     clockFrequency = 1.0 / (double)frequency.QuadPart;
     QueryPerformanceCounter(&startTime);
 
-    return TRUE;
+    return true;
 }
 
 // - - - Shutdown the platform
@@ -157,7 +157,7 @@ bool8 platformGiveMessages(platformState *STATE)
         DispatchMessageA(&message);
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -246,7 +246,7 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
         case WM_CLOSE:
             eventContext data = {};
             eventTrigger(EVENT_CODE_APPLICATION_QUIT, 0, data);
-            return TRUE;
+            return true;
 
         case WM_DESTROY:
             PostQuitMessage(0);
@@ -348,11 +348,11 @@ bool8 platformCreateSurface(platformState* PLATFORM_STATE, vulkanContext* CONTEX
     if (result != VK_SUCCESS)
     {
         FORGE_LOG_FATAL("Failed to create Vulkan surface!");
-        return FALSE;
+        return false;
     }
 
     CONTEXT->surface = state->surface;
-    return TRUE;
+    return true;
 }
 
 #endif //FORGE_PLATFORM_WINDOWS

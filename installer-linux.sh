@@ -21,7 +21,7 @@ install_vulkan_sdk() {
     echo "Installing Vulkan SDK from tarball..."
 
     # Extract the tarball into the user's home directory
-    tar -xvf vulkan_sdk.tar.gz -C "$HOME"
+    tar -xvf VulkanLinux.tar.gz -C "$HOME"
 
     # Assume the tarball extracts to a directory named VulkanSDK in the user's home directory
     VULKAN_SDK_DIR="$HOME/Vulkan"

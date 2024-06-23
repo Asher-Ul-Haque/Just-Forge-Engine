@@ -6,10 +6,10 @@
 
 // - - - Boolean Data Types
 typedef int bool32;
-typedef char bool8;
+typedef _Bool bool8;
 
-#define TRUE 1
-#define FALSE 0
+#define true 1
+#define false 0
 
 // - - - Static Assertions
 #if defined (__clang__) || defined(__gcc__)

@@ -75,8 +75,8 @@ void commandBufferReset(vulkanCommandBuffer* COMMAND_BUFFER)
 
 void commandBufferBeginSingleUse(vulkanContext* CONTEXT, VkCommandPool POOL, vulkanCommandBuffer* COMMAND_BUFFER)
 {
-    commandBufferAllocate(CONTEXT, POOL, TRUE, COMMAND_BUFFER);
-    commandBufferBegin(COMMAND_BUFFER, TRUE, FALSE, FALSE);
+    commandBufferAllocate(CONTEXT, POOL, true, COMMAND_BUFFER);
+    commandBufferBegin(COMMAND_BUFFER, true, false, false);
 }
 
 void commandBufferEndSingleUse(vulkanContext* CONTEXT, VkCommandPool POOL, vulkanCommandBuffer* COMMAND_BUFFER, VkQueue QUEUE)

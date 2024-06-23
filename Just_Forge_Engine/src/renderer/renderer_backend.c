@@ -12,18 +12,18 @@ bool8 rendererBackendCreate(rendererBackendType TYPE, struct platformState* PLAT
     {
         case RENDERER_OPENGL:
             //TODO: make an openGL renderer
-            return TRUE;
+            return true;
 
         case RENDERER_NULL:
-            return TRUE; // If You dont want a renderer, you could just say so
+            return true; // If You dont want a renderer, you could just say so
 
         case RENDERER_DIRECTX:
             //TODO: make a DirectX renderer
-            return TRUE;
+            return true;
         
         case RENDERER_METAL:
             //TODO: make a Metal renderer
-            return TRUE;
+            return true;
 
         case RENDERER_VULKAN:
             BACKEND->initialize = vulkanRendererBackendInitialize;
@@ -31,9 +31,9 @@ bool8 rendererBackendCreate(rendererBackendType TYPE, struct platformState* PLAT
             BACKEND->resized = vulkanRendererBackendResized;
             BACKEND->beginFrame = vulkanRendererBackendBeginFrame;
             BACKEND->endFrame = vulkanRendererBackendEndFrame;
-            return TRUE;
+            return true;
     }
-    return FALSE;
+    return false;
 }
 
 void rendererBackendDestroy(rendererBackend* BACKEND)
