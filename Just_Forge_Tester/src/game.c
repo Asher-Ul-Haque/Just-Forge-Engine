@@ -12,12 +12,17 @@ bool8 gameInit(game* GAME)
 
 bool8 gameUpdate(game* GAME, float DELTA_TIME)
 {
-//    FORGE_LOG_TRACE("Game updated");
-    unsigned long long allocCount = forgeGetMemoryAllocCount();
-    if (inputIsKeyUp(KEY_M) & inputWasKeyDown(KEY_M))
+    static unsigned long long allocCount = 0;
+    unsigned long long prevAllocCount = allocCount;
+    allocCount = forgeGetMemoryAllocCount();
+    if (inputIsKeyUp(KEY_F1) && inputWasKeyDown(KEY_F1))
     {
         FORGE_LOG_INFO("Memory allocations: %llu", forgeGetMemoryAllocCount() - allocCount);
         allocCount = forgeGetMemoryAllocCount();
+    }
+    if (inputIsKeyUp(KEY_F2) && inputWasKeyDown(KEY_F2))
+    {
+        FORGE_LOG_INFO(forgeGetMemoryStats());
     }
     return true;
 }

@@ -69,7 +69,7 @@ bool8 createApplication(game* GAME)
     appState->isSuspended = false;
 
     //Initialize pile allocator
-    unsigned long long systemAllocTotalSize = 24; // 1 mb
+    unsigned long long systemAllocTotalSize = 256; // 1/4 kb
     createPileAllocator(systemAllocTotalSize, 0, &appState->systemsAllocator);
 
     //Initialize memory system
@@ -246,10 +246,6 @@ bool8 applicationOnKey(unsigned short CODE, void* SENDER, void* LISTENER, eventC
             {
                 case KEY_ESCAPE:
                     eventTrigger(EVENT_CODE_APPLICATION_QUIT, 0, context);
-                    return true;
-
-                case KEY_F1:
-                    FORGE_LOG_DEBUG(forgeGetMemoryStats());
                     return true;
 
                 default:
