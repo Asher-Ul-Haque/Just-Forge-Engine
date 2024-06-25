@@ -7,7 +7,7 @@
 
 // - - - Start and Shutdown - - -
 
-bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPLICATION, struct platformState* PLATFORM);
+bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPLICATION);
 void vulkanRendererBackendShutdown(rendererBackend* BACKEND);
 
 // - - - Utils - - -

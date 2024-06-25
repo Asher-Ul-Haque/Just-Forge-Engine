@@ -93,9 +93,9 @@ typedef bool8 (*eventCallback)(unsigned short CODE, void* SENDER, void* LISTENER
 
 // - - - Game engine functions - - -
 
-bool8 eventInitialize();
+void eventSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE);
 
-void eventShutdown();
+void eventSystemShutdown(void* STATE);
 
 
 // - - - Game developer functions - - -

@@ -1,5 +1,5 @@
-#include <vulkan/vulkan_core.h>
 #include "vulkan_backend.h"
+
 #include "vulkan_types.h"
 #include "vulkan_platform.h"
 #include "vulkan_device.h"
@@ -11,15 +11,15 @@
 #include "vulkan_utils.h"
 
 #include "core/logger.h"
-#include "core/asserts.h"
 #include "core/memory.h"
 #include "core/application.h"
 
 #include "dataStructures/list.h"
+
+#include "platform/platform.h"
+
 #include <string.h>
-
 #include <stdlib.h>
-
 // - - - | Vulkan Setup | - - -
 
 
@@ -47,7 +47,7 @@ bool8 recreateSwapchain(rendererBackend* BACKEND);
 // - - - | Vulkan as a Renderer Backend | - - -
 
 
-bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPLICATION, struct platformState* PLATFORM)
+bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPLICATION)
 {
     //Function pointers
     context.findMemoryIndex = findMemoryIndex;
@@ -157,7 +157,7 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
     
     //Setup vulkan surface
     FORGE_LOG_INFO("Creating vulkan surface");
-    if (!platformCreateSurface(PLATFORM, &context))
+    if (!platformCreateSurface(&context))
     {
         FORGE_LOG_ERROR("Failed to create vulkan surface");
         return false;

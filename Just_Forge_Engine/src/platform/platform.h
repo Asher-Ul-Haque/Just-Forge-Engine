@@ -1,23 +1,17 @@
 #pragma once
 #include "../defines.h"
 
-// - - - Platform State
-typedef struct platformState
-{
-    void* internalState;
-} platformState;
-
 
 // - - - | Platform Functions | - - -
 
 
 // - - - State Functions - - -
 
-bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT);
+bool8 platformSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT);
 
-void platformShutdown(platformState* STATE);
+void platformSystemShutdown(void* STATE);
 
-bool8 platformGiveMessages(platformState* STATE);
+bool8 platformGiveMessages();
 
 
 // - - - Memory Functions - - -

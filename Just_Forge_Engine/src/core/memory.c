@@ -48,7 +48,7 @@ static const char* memoryTagAsStrings[MEMORY_TAG_MAX] = {
 
 // - - - Engine Memory Functions - - -
 
-void initializeMemory(unsigned long long* MEMORY_REQUIREMENT, void* STATE)
+void memorySystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE)
 {
     *MEMORY_REQUIREMENT = sizeof(memorySystemState);
     if (STATE == 0)
@@ -61,7 +61,7 @@ void initializeMemory(unsigned long long* MEMORY_REQUIREMENT, void* STATE)
     FORGE_LOG_INFO("Memory Initialized");
 }
 
-void shutdownMemory()
+void memorySystemShutdown()
 {
     FORGE_LOG_INFO("Memory Shutdown");
     //TODO: cleanup of memory applications

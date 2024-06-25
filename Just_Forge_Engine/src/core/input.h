@@ -155,8 +155,8 @@ typedef enum keys
 
 // - - - System Functions - - -
 
-void inputInitialize();
-void inputShutdown();
+void inputSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE);
+void inputSystemShutdown(void* STATE);
 void inputUpdate(double DELTA_TIME);
 
 

@@ -33,9 +33,9 @@ typedef enum memoryTag
 
 // - - - Engine Memory Functions - - -
 
-void initializeMemory(unsigned long long* MEMORY_REQUIREMENT, void* STATE);
+void memorySystemIntialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE);
 
-void shutdownMemory();
+void memorySystemShutdown();
 
 
 // - - - Game Developer Memory Functions - - -

@@ -19,4 +19,4 @@ void platformGetRequiredExtensions(const char*** EXTENSIONS);
  I want to modify the array of strings, so I need a pointer to a pointer to an array of pointers.
 */
 
-bool8 platformCreateSurface(struct platformState* PLATFORM_STATE, struct vulkanContext* CONTEXT);
+bool8 platformCreateSurface(struct vulkanContext* CONTEXT);

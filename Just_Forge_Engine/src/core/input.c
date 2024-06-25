@@ -32,8 +32,7 @@ typedef struct inputState
 } inputState;
 
 // - - - Input State
-static bool8 isInitialized =  false;
-static inputState state;
+static inputState* statePtr;
 
 
 // - - - | Input Functions | - - -
@@ -41,30 +40,36 @@ static inputState state;
 
 // - - - System Functions - - -
 
-void inputInitialize()
+void inputSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE)
 {
-    forgeZeroMemory(&state, sizeof(inputState));
-    isInitialized = true;
-    FORGE_LOG_INFO("Input system initialized");
+    *MEMORY_REQUIREMENT = sizeof(inputState);
+    if (STATE == 0)
+    {
+        return;
+    }
+    forgeZeroMemory(STATE, sizeof(inputState));
+    statePtr = STATE;
+    FORGE_LOG_INFO("Input Subsystem initialized");
 }
 
-void inputShutdown()
+void inputSystemShutdown(void* STATE)
 {
     //TODO: Shutdown routines
-    isInitialized = false;
+    statePtr = 0;
     FORGE_LOG_INFO("Input system shutdown");
 }
 
 void inputUpdate(double DELTA_TIME)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Input system not initialized");
         return;
     }
     
     //Copy current state to previous state 
-    forgeCopyMemory(&state.keyBoardPrevious, &state.keyBoardCurrent, sizeof(keyBoardState));
-    forgeCopyMemory(&state.mousePrevious, &state.mouseCurrent, sizeof(mouseState));
+    forgeCopyMemory(&statePtr->keyBoardPrevious, &statePtr->keyBoardCurrent, sizeof(keyBoardState));
+    forgeCopyMemory(&statePtr->mousePrevious, &statePtr->mouseCurrent, sizeof(mouseState));
 }
 
 
@@ -73,46 +78,50 @@ void inputUpdate(double DELTA_TIME)
 // - - - Key Functions
 bool8 inputIsKeyDown(keys KEY)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Input system not initialized");
         return false;
     }
-    return state.keyBoardCurrent.keys[KEY] == true;
+    return statePtr->keyBoardCurrent.keys[KEY] == true;
 }
 
 bool8 inputIsKeyUp(keys KEY)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Input system not initialized");
         return true;
     }
-    return state.keyBoardCurrent.keys[KEY] == false;
+    return statePtr->keyBoardCurrent.keys[KEY] == false;
 }
 
 bool8 inputWasKeyDown(keys KEY)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Input system not initialized");
         return false;
     }
-    return state.keyBoardPrevious.keys[KEY] == true;
+    return statePtr->keyBoardPrevious.keys[KEY] == true;
 }
 
 bool8 inputWasKeyUp(keys KEY)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
-        return true;
+        FORGE_LOG_WARNING("Input system not initialized");
+        return false;
     }
-    return state.keyBoardPrevious.keys[KEY] == false;
+    return statePtr->keyBoardPrevious.keys[KEY] == false;
 }
 
 // - - - Input Processing Functions
 void inputProcessKey(keys KEY, bool8 IS_DOWN)
 {
-    if (state.keyBoardCurrent.keys[KEY] != IS_DOWN)
+    if (statePtr->keyBoardCurrent.keys[KEY] != IS_DOWN)
     {
-        state.keyBoardCurrent.keys[KEY] = IS_DOWN;
+        statePtr->keyBoardCurrent.keys[KEY] = IS_DOWN;
 
         eventContext context;
         context.data.u16[0] = KEY;
@@ -126,70 +135,76 @@ void inputProcessKey(keys KEY, bool8 IS_DOWN)
 // - - - Button Functions
 bool8 inputIsButtonDown(buttons BUTTON)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Input system not initialized");
         return false;
     }
-    return state.mouseCurrent.buttons[BUTTON] == true;
+    return statePtr->mouseCurrent.buttons[BUTTON] == true;
 }
 
 bool8 inputIsButtonUp(buttons BUTTON)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Input system not initialized");
         return true;
     }
-    return state.mouseCurrent.buttons[BUTTON] == false;
+    return statePtr->mouseCurrent.buttons[BUTTON] == false;
 }
 
 bool8 inputWasButtonDown(buttons BUTTON)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Input system not initialized");
         return false;
     }
-    return state.mousePrevious.buttons[BUTTON] == true;
+    return statePtr->mousePrevious.buttons[BUTTON] == true;
 }
 
 bool8 inputWasButtonUp(buttons BUTTON)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Input system not initialized");
         return true;
     }
-    return state.mousePrevious.buttons[BUTTON] == false;
+    return statePtr->mousePrevious.buttons[BUTTON] == false;
 }
 
 void inputGetMousePosition(int *X, int *Y)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
         *X = 0;
         *Y = 0;
+        FORGE_LOG_WARNING("Input system not initialized");
         return;
     }
-    *X = state.mouseCurrent.x;
-    *Y = state.mouseCurrent.y;
+    *X = statePtr->mouseCurrent.x;
+    *Y = statePtr->mouseCurrent.y;
 }
 
 void inputGetPreviousMousePosition(int *X, int *Y)
 {
-    if (!isInitialized)
+    if (!statePtr)
     {
         *X = 0;
         *Y = 0;
+        FORGE_LOG_WARNING("Input system not initialized");
         return;
     }
-    *X = state.mousePrevious.x;
-    *Y = state.mousePrevious.y;
+    *X = statePtr->mousePrevious.x;
+    *Y = statePtr->mousePrevious.y;
 }
 
 // - - - Input Processing Functions
 void inputProcessButton(buttons BUTTON, bool8 IS_DOWN)
 {
-    if (state.mouseCurrent.buttons[BUTTON] != IS_DOWN)
+    if (statePtr->mouseCurrent.buttons[BUTTON] != IS_DOWN)
     {
-        state.mouseCurrent.buttons[BUTTON] = IS_DOWN;
+        statePtr->mouseCurrent.buttons[BUTTON] = IS_DOWN;
 
         eventContext context;
         context.data.u16[0] = BUTTON;
@@ -199,12 +214,12 @@ void inputProcessButton(buttons BUTTON, bool8 IS_DOWN)
 
 void inputProcessMouseMovement(short X, short Y)
 {
-    if (state.mouseCurrent.x != X || state.mouseCurrent.y != Y)
+    if (statePtr->mouseCurrent.x != X || statePtr->mouseCurrent.y != Y)
     {
         FORGE_LOG_TRACE("Mouse Position: %i, %i", X, Y);
 
-        state.mouseCurrent.x = X;
-        state.mouseCurrent.y = Y;
+        statePtr->mouseCurrent.x = X;
+        statePtr->mouseCurrent.y = Y;
 
         eventContext context;
         context.data.u16[0] = X;

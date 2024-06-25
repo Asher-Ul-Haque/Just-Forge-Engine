@@ -1,7 +1,6 @@
 #include "core/event.h"
 #include "core/memory.h"
 #include "core/logger.h"
-#include "event.h"
 #include "dataStructures/list.h"
 
 typedef struct registeredEvent
@@ -24,8 +23,7 @@ typedef struct eventSystemState
     eventCodeEntry registry[MAX_MESSAGE_CODES];
 } eventSystemState;
 
-static bool8 isInitialized = false;
-static eventSystemState state;
+static eventSystemState* statePtr;
 
 
 // - - - | Event System functions | - - -
@@ -33,30 +31,32 @@ static eventSystemState state;
 
 // - - - Game engine functions - - -
 
-bool8 eventInitialize()
+void eventSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void * STATE)
 {
-    if (isInitialized == true)
+    *MEMORY_REQUIREMENT = sizeof(eventSystemState);
+    if (STATE == 0)
     {
-        return false;
+        return;
     }
-    isInitialized = true;
-    forgeZeroMemory(&state, sizeof(state));
-    FORGE_LOG_INFO("Event System Initialized");
-    return true;
+    forgeZeroMemory(STATE, sizeof(STATE));
+    statePtr = STATE;
 }
 
-void eventShutdown()
+void eventSystemShutdown(void* STATE)
 {
-    for (unsigned short i = 0; i < MAX_MESSAGE_CODES; ++i)
+    if (statePtr)
     {
-        if (state.registry[i].events != 0)
+        // Free the events arrays.And objects pointed to should be self destroyed
+        for (unsigned short i = 0; i < MAX_MESSAGE_CODES; ++i)
         {
-            listDestroy(state.registry[i].events);
-            state.registry[i].events = 0;
+            if (statePtr->registry[i].events != 0)
+            {
+                listDestroy(statePtr->registry[i].events);
+                statePtr->registry[i].events = 0;
+            }
         }
     }
-    isInitialized = false;
-    FORGE_LOG_INFO("Event System Shutdown");
+    statePtr = 0;
 }
 
 
@@ -64,20 +64,21 @@ void eventShutdown()
 
 bool8 eventRegister(unsigned short CODE,  void* LISTENER, eventCallback CALLBACK)
 {
-    if (isInitialized == false)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Event system not initialized");
         return false;
     }
 
-    if (state.registry[CODE].events == 0)
+    if (statePtr->registry[CODE].events == 0)
     {
-        state.registry[CODE].events = listCreate(registeredEvent);
+        statePtr->registry[CODE].events = listCreate(registeredEvent);
     }
 
-    unsigned long long registeredCount = listLength(state.registry[CODE].events);
+    unsigned long long registeredCount = listLength(statePtr->registry[CODE].events);
     for (unsigned long long i = 0; i < registeredCount; ++i)
     {
-        if (state.registry[CODE].events[i].listener == LISTENER)
+        if (statePtr->registry[CODE].events[i].listener == LISTENER)
         {
             FORGE_LOG_WARNING("Listener already registered for event code %i", CODE);
             return false;
@@ -88,33 +89,34 @@ bool8 eventRegister(unsigned short CODE,  void* LISTENER, eventCallback CALLBACK
     registeredEvent event;
     event.listener = LISTENER;
     event.callback = CALLBACK;
-    listAppend(state.registry[CODE].events, event);
+    listAppend(statePtr->registry[CODE].events, event);
 
     return true;
 }
 
 bool8 eventUnregister(unsigned short CODE, void* LISTENER, eventCallback CALLBACK)
 {
-    if (isInitialized == false)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Event system not initialized");
         return false;
     }
 
-    if (state.registry[CODE].events == 0)
+    if (statePtr->registry[CODE].events == 0)
     {
         FORGE_LOG_WARNING("No listeners registered for event code %i", CODE);
         return false;
     }
 
-    unsigned long long registeredCount = listLength(state.registry[CODE].events);
+    unsigned long long registeredCount = listLength(statePtr->registry[CODE].events);
 
     for (unsigned long long i = 0; i < registeredCount; ++i)
     {
-        registeredEvent event = state.registry[CODE].events[i];
+        registeredEvent event = statePtr->registry[CODE].events[i];
         if (event.listener == LISTENER && event.callback == CALLBACK)
         {
             registeredEvent poppedEvent;
-            listRemove(state.registry[CODE].events, i, &poppedEvent);
+            listRemove(statePtr->registry[CODE].events, i, &poppedEvent);
             return true;
         }
     }
@@ -125,20 +127,22 @@ bool8 eventUnregister(unsigned short CODE, void* LISTENER, eventCallback CALLBAC
 
 bool8 eventTrigger(unsigned short CODE, void* SENDER, eventContext CONTEXT)
 {
-    if (isInitialized == false)
+    if (!statePtr)
     {
+        FORGE_LOG_WARNING("Event system not initialized");
         return false;
     }
 
-    if (state.registry[CODE].events == 0)
+    if (statePtr->registry[CODE].events == 0)
     {
+        FORGE_LOG_WARNING("No listeners to trigger for event code %i", CODE);
         return false;
     }
 
-    unsigned long long registeredCount = listLength(state.registry[CODE].events);
+    unsigned long long registeredCount = listLength(statePtr->registry[CODE].events);
     for (unsigned long long i = 0; i < registeredCount; ++i)
     {
-        registeredEvent event = state.registry[CODE].events[i];
+        registeredEvent event = statePtr->registry[CODE].events[i];
         if (event.callback(CODE, SENDER, event.listener, CONTEXT))
         {
             //Message has been handled, no need to send for other listeners

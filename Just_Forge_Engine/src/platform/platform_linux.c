@@ -1,4 +1,5 @@
 #include "platform.h"
+
 #if FORGE_PLATFORM_LINUX
 
 #include "core/logger.h"
@@ -36,7 +37,7 @@
 keys translateKeycode(unsigned int X_KEYCODE);
 
 // - - - Platform state 
-typedef struct internalState
+typedef struct platformState
 {
     Display* display;
     xcb_connection_t* connection;
@@ -45,7 +46,9 @@ typedef struct internalState
     xcb_atom_t windowProtocols;
     xcb_atom_t windowDelete;
     VkSurfaceKHR surface;
-} internalState;
+} platformState;
+
+static platformState* statePtr;
 
 
 // - - - | Platform Functions | - - -
@@ -53,28 +56,32 @@ typedef struct internalState
 
 // - - - State Functions - - -
 
-bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT)
+bool8 platformSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT)
 {
-    STATE->internalState = malloc(sizeof(internalState));
-    internalState* state = (internalState*)STATE->internalState;
-    
+    *MEMORY_REQUIREMENT = sizeof(platformState);
+    if (STATE == 0)
+    {
+        return true;
+    }
+    statePtr = STATE;
+
     //Connect to X
-    state->display = XOpenDisplay(NULL);
+    statePtr->display = XOpenDisplay(NULL);
     
     //Turn off key repeats
-    XAutoRepeatOff(state->display); //This happens OS wide, remember to turn it back on
+    XAutoRepeatOff(statePtr->display); //This happens OS wide, remember to turn it back on
     
     //Get the connection
-    state->connection = XGetXCBConnection(state->display);
+    statePtr->connection = XGetXCBConnection(statePtr->display);
 
-    if (xcb_connection_has_error(state->connection))
+    if (xcb_connection_has_error(statePtr->connection))
     {
         FORGE_LOG_FATAL("Failed to get the XCB connection\n");
         return false;
     }
 
     //Get data from X server
-    const struct xcb_setup_t* setup = xcb_get_setup(state->connection);
+    const struct xcb_setup_t* setup = xcb_get_setup(statePtr->connection);
 
     //Loop through the screens using iterator
     xcb_screen_iterator_t iterator = xcb_setup_roots_iterator(setup);
@@ -83,10 +90,10 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     {
         xcb_screen_next(&iterator);
     }
-    state->screen = iterator.data;
+    statePtr->screen = iterator.data;
 
     //Allocate a XID for the window to be created
-    state->window = xcb_generate_id(state->connection);
+    statePtr->window = xcb_generate_id(statePtr->connection);
 
     // Register for events
     // XCB_CW_BACK_PIXEL - The background color of the window
@@ -102,27 +109,27 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
                                 XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
     //Values to send to XCB (bg color and event mask)
-    unsigned int valueList[] = {state->screen->black_pixel, eventValues};
+    unsigned int valueList[] = {statePtr->screen->black_pixel, eventValues};
 
     //Create the window
     xcb_void_cookie_t cookie = xcb_create_window(
-        state->connection,
+        statePtr->connection,
         XCB_COPY_FROM_PARENT,   //Depth of the window
-        state->window,          
-        state->screen->root,    //Parent window
+        statePtr->window,          
+        statePtr->screen->root,    //Parent window
         X, Y,                   //X and Y position
         WIDTH, HEIGHT,          //Width and Height
         0,                      //Border width
         XCB_WINDOW_CLASS_INPUT_OUTPUT, //Window class (input/output)
-        state->screen->root_visual,
+        statePtr->screen->root_visual,
         eventMask,
         valueList);
 
     //Change the title
     xcb_change_property(
-        state->connection,
+        statePtr->connection,
         XCB_PROP_MODE_REPLACE,
-        state->window,
+        statePtr->window,
         XCB_ATOM_WM_NAME,
         XCB_ATOM_STRING,
         8, //8 bits per byte, Title is viewed a byte at a time, because title is an array of chars and a char is one byte
@@ -131,34 +138,34 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
 
     //Yo server, tell the window manager that when you want to close this window
     xcb_intern_atom_cookie_t deleteCookie = xcb_intern_atom(
-        state->connection,
+        statePtr->connection,
         0,
         strlen("WM_DELETE_WINDOW"),
         "WM_DELETE_WINDOW");
 
     xcb_intern_atom_cookie_t protocolsCookie = xcb_intern_atom(
-        state->connection, 
+        statePtr->connection, 
         0, 
         strlen("WM_PROTOCOLS"),
         "WM_PROTOCOLS");
 
     xcb_intern_atom_reply_t* deleteReply = xcb_intern_atom_reply(
-        state->connection, 
+        statePtr->connection, 
         deleteCookie, 
         NULL);
 
     xcb_intern_atom_reply_t* protocolsReply = xcb_intern_atom_reply(
-        state->connection, 
+        statePtr->connection, 
         protocolsCookie, 
         NULL);
 
-    state->windowDelete = deleteReply->atom;
-    state->windowProtocols = protocolsReply->atom;
+    statePtr->windowDelete = deleteReply->atom;
+    statePtr->windowProtocols = protocolsReply->atom;
 
     xcb_change_property(
-        state->connection,
+        statePtr->connection,
         XCB_PROP_MODE_REPLACE,
-        state->window,
+        statePtr->window,
         protocolsReply->atom,
         4,
         32,
@@ -166,93 +173,99 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
         &deleteReply->atom);
 
     //Map the window
-    xcb_map_window(state->connection, state->window);
+    xcb_map_window(statePtr->connection, statePtr->window);
 
     //Flush the request
-    int streamResult = xcb_flush(state->connection);
+    int streamResult = xcb_flush(statePtr->connection);
     if (streamResult <= 0)
     {
         FORGE_LOG_FATAL("Failed to flush the request: %d\n", streamResult);
         return false;
     }
 
-    XAutoRepeatOn(state->display);
+    XAutoRepeatOn(statePtr->display);
     return true;
 }
 
-void platformShutdown(platformState* STATE)
+void platformSystemShutdown(void* STATE)
 {
-    internalState* state = (internalState*)STATE->internalState;
-    XAutoRepeatOn(state->display);
-    xcb_destroy_window(state->connection, state->window);
+    if (statePtr)
+    {
+        // Turn the key repeats back on since this is global for the OS... just... wow. One downside of linux
+        XAutoRepeatOn(statePtr->display);
+        xcb_destroy_window(statePtr->connection, statePtr->window);
+        FORGE_LOG_INFO("Platform System shutdown");
+    }
 }
 
-bool8 platformGiveMessages(platformState* STATE)
+bool8 platformGiveMessages()
 {
-    internalState* state = (internalState*)STATE->internalState;
-    xcb_generic_event_t* event;
-    xcb_client_message_event_t* clientMessage;
-    bool8 quitFlag = false;
-    
-    while ((event = xcb_poll_for_event(state->connection)))
+    if (statePtr)
     {
-        if (event == 0)
+        xcb_generic_event_t* event;
+        xcb_client_message_event_t* clientMessage;
+
+        bool8 quitFlag = false;
+    
+        while ((event = xcb_poll_for_event(statePtr->connection)))
         {
-            break;
-        }
-
-        switch (event->response_type & ~0x80) //Documentation says so, do not question this number
-        {
-            case XCB_KEY_PRESS:
-
-            case XCB_KEY_RELEASE:
+            if (event == 0)
             {
-                xcb_key_press_event_t* keyEvent = (xcb_key_press_event_t *) event;
-                bool8 pressed = event->response_type == XCB_KEY_PRESS;
-                xcb_keycode_t code = keyEvent->detail;
-                KeySym keySym = XkbKeycodeToKeysym(state->display, (KeyCode) code, 0, code & ShiftMask ? 1 : 0);
-                keys key = translateKeycode(keySym);
-                inputProcessKey(key, pressed);
-            } 
-            break;
-
-            case XCB_BUTTON_PRESS:
-
-            case XCB_BUTTON_RELEASE:
-            {
-                xcb_button_press_event_t* mouseEvent = (xcb_button_press_event_t *) event;
-                bool8 pressed = event->response_type == XCB_BUTTON_PRESS;
-                buttons mouseButton = BUTTON_MAX_BUTTONS;
-                switch (mouseEvent->detail)
-                {
-                    case XCB_BUTTON_INDEX_1:
-                        mouseButton = BUTTON_LEFT;
-                        break;
-
-                    case XCB_BUTTON_INDEX_2:
-                        mouseButton = BUTTON_MIDDLE;
-                        break;
-
-                    case XCB_MAP_INDEX_3:
-                        mouseButton = BUTTON_RIGHT;
-                        break;
-                }
-
-                if (mouseButton != BUTTON_MAX_BUTTONS)
-                {
-                    inputProcessButton(mouseButton, pressed);
-                }
+                break;
             }
-            break;
 
-            case XCB_MOTION_NOTIFY:
+            switch (event->response_type & ~0x80) //Documentation says so, do not question this number
+            {
+                case XCB_KEY_PRESS:
+
+                case XCB_KEY_RELEASE:
                 {
-                    xcb_motion_notify_event_t* moveEvent = (xcb_motion_notify_event_t *) event;
-                    inputProcessMouseMovement(moveEvent->event_x, moveEvent->event_y);
+                    xcb_key_press_event_t* keyEvent = (xcb_key_press_event_t *) event;
+                    bool8 pressed = event->response_type == XCB_KEY_PRESS;
+                    xcb_keycode_t code = keyEvent->detail;
+                    KeySym keySym = XkbKeycodeToKeysym(statePtr->display, (KeyCode) code, 0, code & ShiftMask ? 1 : 0);
+                    keys key = translateKeycode(keySym);
+                    inputProcessKey(key, pressed);
+                } 
+                break;
+
+                case XCB_BUTTON_PRESS:
+
+                case XCB_BUTTON_RELEASE:
+                {
+                    xcb_button_press_event_t* mouseEvent = (xcb_button_press_event_t *) event;
+                    bool8 pressed = event->response_type == XCB_BUTTON_PRESS;
+                    buttons mouseButton = BUTTON_MAX_BUTTONS;
+                    switch (mouseEvent->detail)
+                    {
+                        case XCB_BUTTON_INDEX_1:
+                            mouseButton = BUTTON_LEFT;
+                            break;
+
+                        case XCB_BUTTON_INDEX_2:
+                            mouseButton = BUTTON_MIDDLE;
+                            break;
+
+                        case XCB_MAP_INDEX_3:
+                            mouseButton = BUTTON_RIGHT;
+                            break;
+                    }
+
+                    if (mouseButton != BUTTON_MAX_BUTTONS)
+                    {
+                        inputProcessButton(mouseButton, pressed);
+                    }
+                }
+                break;
+    
+                case XCB_MOTION_NOTIFY:
+                {
+                        xcb_motion_notify_event_t* moveEvent = (xcb_motion_notify_event_t *) event;
+                        inputProcessMouseMovement(moveEvent->event_x, moveEvent->event_y);
                 }
                 break;
 
-            case XCB_CONFIGURE_NOTIFY:
+                case XCB_CONFIGURE_NOTIFY:
                 //Note that this also happens in window moving
                 {
                     xcb_configure_notify_event_t* configureEvent = (xcb_configure_notify_event_t*) event;
@@ -265,22 +278,24 @@ bool8 platformGiveMessages(platformState* STATE)
                 }
                 break;
                 
-            case XCB_CLIENT_MESSAGE:
-                clientMessage = (xcb_client_message_event_t*)event;
+                case XCB_CLIENT_MESSAGE:
+                    clientMessage = (xcb_client_message_event_t*)event;
+    
+                    //Check if the window is being closed
+                    if (clientMessage->data.data32[0] == statePtr->windowDelete)
+                    {
+                        quitFlag = true;
+                    }
+                    break;
 
-                //Check if the window is being closed
-                if (clientMessage->data.data32[0] == state->windowDelete)
-                {
-                    quitFlag = true;
-                }
-                break;
-
-            default:
-                break;
+                default:
+                    break;
+            }
+            free(event);
         }
-        free(event);
+        return !quitFlag;
     }
-    return !quitFlag;
+    return true;
 }
 
 
@@ -771,21 +786,27 @@ void platformGetRequiredExtensions(const char*** EXTENSIONS)
     listAppend(*EXTENSIONS, &"VK_KHR_xcb_surface");
 }
 
-bool8 platformCreateSurface(platformState* STATE, vulkanContext* CONTEXT)
+// - - - Surface creation for Vulkan
+bool8 platformCreateSurface(vulkanContext* CONTEXT)
 {
-    internalState* state = (internalState*)STATE->internalState;
-
-    VkXcbSurfaceCreateInfoKHR createInfo = {VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};
-    createInfo.connection = state->connection;
-    createInfo.window = state->window;
-    
-    VkResult result = vkCreateXcbSurfaceKHR(CONTEXT->instance, &createInfo, CONTEXT->allocator, &state->surface);
-    if (result != VK_SUCCESS)
+    if (!statePtr)
     {
-        FORGE_LOG_FATAL("Failed to create the surface: %d\n", result);
+        FORGE_LOG_WARNING("Platform system not initialized");
         return false;
     }
-    CONTEXT->surface = state->surface;
+
+    VkXcbSurfaceCreateInfoKHR createInfo = {VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};
+    createInfo.connection = statePtr->connection;
+    createInfo.window = statePtr->window;
+
+    VkResult result = vkCreateXcbSurfaceKHR(CONTEXT->instance, &createInfo, CONTEXT->allocator, &statePtr->surface);
+    if (result != VK_SUCCESS)
+    {
+        FORGE_LOG_FATAL("Vulkan surface creation failed.");
+        return false;
+    }
+
+    CONTEXT->surface = statePtr->surface;
     return true;
 }
 

@@ -1,11 +1,9 @@
-#include "application.h"
+#include "core/application.h"
 #include "game_types.h"
-
-#include "core/logger.h"
 
 #include "platform/platform.h"
 
-
+#include "core/logger.h"
 #include "core/memory.h"
 #include "core/event.h"
 #include "core/input.h"
@@ -24,7 +22,6 @@ typedef struct applicationState
     game* gameInstance;
     bool8 isRunning;
     bool8 isSuspended;
-    platformState platform;
     short width;
     short height;
     double lastTime;
@@ -36,6 +33,18 @@ typedef struct applicationState
 
     unsigned long long memorySystemMemoryRequirement;
     void* memorySystemState;
+    
+    unsigned long long eventSystemMemoryRequirement;
+    void* eventSystemState;
+
+    unsigned long long inputSystemMemoryRequirement;
+    void* inputSystemState;
+
+    unsigned long long platformSystemMemoryRequirement;
+    void* platformSystemState;
+
+    unsigned long long rendererSystemMemoryRequirement;
+    void* rendererSystemState;
 } applicationState;
 
 static applicationState* appState;
@@ -69,13 +78,18 @@ bool8 createApplication(game* GAME)
     appState->isSuspended = false;
 
     //Initialize pile allocator
-    unsigned long long systemAllocTotalSize = 256; // 1/4 kb
+    unsigned long long systemAllocTotalSize = 1 * 1024; // 1kb
     createPileAllocator(systemAllocTotalSize, 0, &appState->systemsAllocator);
 
+    //Initialise event system
+    eventSystemInitialize(&appState->eventSystemMemoryRequirement, 0);
+    appState->eventSystemState = pileAlloc(&appState->systemsAllocator, appState->inputSystemMemoryRequirement);
+    eventSystemInitialize(&appState->eventSystemMemoryRequirement, appState->eventSystemState);
+
     //Initialize memory system
-    initializeMemory(&appState->memorySystemMemoryRequirement, 0);
+    memorySystemInitialize(&appState->memorySystemMemoryRequirement, 0);
     appState->memorySystemState = pileAlloc(&appState->systemsAllocator, appState->memorySystemMemoryRequirement);
-    initializeMemory(&appState->memorySystemMemoryRequirement, appState->memorySystemState);
+    memorySystemInitialize(&appState->memorySystemMemoryRequirement, appState->memorySystemState);
 
     //Initialise logging system
     initializeLogger(&appState->loggerSystemMemoryRequirement, 0);
@@ -87,15 +101,10 @@ bool8 createApplication(game* GAME)
     }
 
     //Intialise input system
-    inputInitialize();
+    inputSystemInitialize(&appState->inputSystemMemoryRequirement, 0);
+    appState->inputSystemState = pileAlloc(&appState->systemsAllocator, appState->inputSystemMemoryRequirement);
+    inputSystemInitialize(&appState->inputSystemMemoryRequirement, appState->inputSystemState);
 
-    //Initialise the event system
-    if (!eventInitialize())
-    {
-        FORGE_LOG_ERROR("Event system failed initialisation");
-        return false;
-    }
-    
     //Register event listeners
     eventRegister(EVENT_CODE_APPLICATION_QUIT, 0, applicationOnEvent);
     eventRegister(EVENT_CODE_KEY_PRESS, 0, applicationOnKey);
@@ -103,13 +112,18 @@ bool8 createApplication(game* GAME)
     eventRegister(EVENT_CODE_RESIZE, 0, applicationOnResize);
 
     //Intitialise the platform
-    if(!platformInit(&appState->platform, GAME->config.name, GAME->config.startPositionX, GAME->config.startPositionY, GAME->config.startWidth, GAME->config.startHeight)) 
+    platformSystemInitialize(&appState->platformSystemMemoryRequirement, 0, 0, 0, 0, 0, 0);
+    appState->platformSystemState = pileAlloc(&appState->systemsAllocator, appState->platformSystemMemoryRequirement);
+    if (!platformSystemInitialize(&appState->platformSystemMemoryRequirement, appState->platformSystemState, GAME->config.name, GAME->config.startPositionX, GAME->config.startPositionY, GAME->config.startWidth, GAME->config.startHeight))
     {
+        FORGE_LOG_FATAL("Failed to initialize platform system");
         return false;
     }
     
     //Initialise the renderer
-    if (!rendererIntitialize(GAME->config.name, &appState->platform))
+    renderingSystemInitialize(&appState->platformSystemMemoryRequirement, 0, 0);
+    appState->rendererSystemState = pileAlloc(&appState->systemsAllocator, appState->rendererSystemMemoryRequirement);
+    if (!renderingSystemInitialize(&appState->rendererSystemMemoryRequirement, appState->rendererSystemState, GAME->config.name))
     {
         FORGE_LOG_FATAL("Failed to initialize the renderer");
         return false;
@@ -140,7 +154,7 @@ bool8 runApplication()
 
     while (appState->isRunning) 
     {
-        if (!platformGiveMessages(&appState->platform))
+        if (!platformGiveMessages())
         {
             appState->isRunning = false;
         }
@@ -200,11 +214,10 @@ bool8 runApplication()
     eventUnregister(EVENT_CODE_APPLICATION_QUIT, 0, applicationOnEvent);
     eventUnregister(EVENT_CODE_KEY_PRESS, 0, applicationOnKey);
     eventUnregister(EVENT_CODE_KEY_RELEASE, 0, applicationOnKey);
-    eventShutdown();
-    inputShutdown();
-    rendererShutdown();
-    platformShutdown(&appState->platform);
-    shutdownMemory();
+
+    inputSystemShutdown(appState->inputSystemState);
+    memorySystemShutdown(appState->platformSystemState);
+    eventSystemShutdown(appState->eventSystemState);
     return true;
 }
 

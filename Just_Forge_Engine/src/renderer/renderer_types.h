@@ -22,9 +22,7 @@ typedef struct rendererBackend
 {
     unsigned long long frameNumber;
 
-    struct platformState* platform;
-
-    bool8 (*initialize)(struct rendererBackend* BACKEND, const char* APPLICATION, struct platformState* PLATFORM_STATE);
+    bool8 (*initialize)(struct rendererBackend* BACKEND, const char* APPLICATION);
 
     void (*shutdown)(struct rendererBackend* BACKEND);
 

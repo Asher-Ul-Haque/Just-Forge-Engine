@@ -1,5 +1,3 @@
-
-// Windows platform layer.
 #if FORGE_PLATFORM_WINDOWS
 #include "platform/platform.h"
 
@@ -19,16 +17,18 @@
 #include "renderer/vulkan/vulkan_types.h"
 
 // - - - Platform state 
-typedef struct internalState
+typedef struct platformState
 {
     HINSTANCE hInstance; //HISTANCE = HANDLE OF INSTANCE
     HWND hwnd; //HWND = HANDLE OF WINDOW
     VkSurfaceKHR surface;
-} internalState;
 
-// - - - Clock
-static double clockFrequency;
-static LARGE_INTEGER startTime;
+    //Clock
+    double clockFrequency;
+    LARGE_INTEGER startTime;
+} platformState;
+
+static platformState* statePtr;
 
 
 // - - - | Platform Functions | - - -
@@ -39,30 +39,31 @@ static LARGE_INTEGER startTime;
 LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE, WPARAM WINDOW_PARAMETER, LPARAM LONG_PARAMETER);
 
 // - - - Initialize the platform
-bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT)
+bool8 platformSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT)
 {
-    STATE->internalState = malloc(sizeof(internalState));
-    internalState* state = (internalState*) STATE->internalState;
-
-    state->hInstance = GetModuleHandle(0); //Get the handle to the application running this code
+    *MEMORY_REQUIREMENT = sizeof(platformState);
+    if (STATE == 0)
+    {
+        return true;
+    }
+    statePtr = STATE;
+    statePtr->hInstance = GetModuleHandleA(0); //Get the handle to the application running this code
     
     //Setup and register the window class
-    HICON icon = LoadIcon(state->hInstance, IDI_APPLICATION);
+    HICON icon = LoadIcon(statePtr->hInstance, IDI_APPLICATION);
     WNDCLASSA windowClass;
+
     //Zero out the memory of the window class
-    for (int i = 0; i < sizeof(WNDCLASSA); i++)
-    {
-        ((char*)&windowClass)[i] = 0;
-    }
+    memset(&windowClass, 0, sizeof(windowClass));
     windowClass.style = CS_DBLCLKS; //Double click messages
     windowClass.lpfnWndProc = windowsProcessMessage; //The message processing function
     windowClass.cbClsExtra = 0;
     windowClass.cbWndExtra = 0;
-    windowClass.hInstance = state->hInstance;
+    windowClass.hInstance = statePtr->hInstance;
     windowClass.hIcon = icon;
     windowClass.hCursor = LoadCursor(NULL, IDC_ARROW); //Default cursor,
     windowClass.hbrBackground = NULL; //No background
-    windowClass.lpszClassName = "ForgeWindowClass";
+    windowClass.lpszClassName = "JustForgeWindowClass";
 
     if (!RegisterClassA(&windowClass))
     {
@@ -81,7 +82,7 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     unsigned int windowX = clientX;
     unsigned int windowY = clientY;
 
-    unsigned int windowStyle = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_THICKFRAME;
+    unsigned int windowStyle = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME;
     unsigned int windowStyleEx = WS_EX_APPWINDOW;
 
     //Get border and title bar size
@@ -130,31 +131,34 @@ bool8 platformInit(platformState* STATE, const char* APPLICATION, int X, int Y, 
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
     clockFrequency = 1.0 / (double)frequency.QuadPart;
-    QueryPerformanceCounter(&startTime);
+    QueryPerformanceCounter(&statePtr->startTime);
 
+    FORGE_LOG_INFO("Platform system initialized");
     return true;
 }
 
 // - - - Shutdown the platform
-void platformShutdown(platformState *STATE)
+void platformSystemShutdown(void *STATE)
 {
-    internalState* state = (internalState*)STATE->internalState;
-    
-    if (state->hwnd)
+    if (statePtr && statePtr->hwnd)
     {
-        DestroyWindow(state->hwnd);
-        state->hwnd = 0;
+        DestroyWindow(statePtr->hwnd);
+        statePtr->hwnd = 0;
+        FORGE_LOG_INFO("Platform system shutdown");
     }
 }
 
 // - - - Give messages
-bool8 platformGiveMessages(platformState *STATE)
+bool8 platformGiveMessages()
 {
-    MSG message;
-    while (PeekMessageA(&message, NULL, 0, 0, PM_REMOVE))
+    if (statePtr)
     {
-        TranslateMessage(&message);
-        DispatchMessageA(&message);
+        MSG message;
+        while (PeekMessageA(&message, NULL, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&message);
+            DispatchMessageA(&message);
+        }
     }
 
     return true;
@@ -221,9 +225,13 @@ void platformWriteConsoleError(const char* MESSAGE, unsigned char COLOR)
 
 double platformGetTime()
 {
-    LARGE_INTEGER now;
-    QueryPerformanceCounter(&now);
-    return (double) now.QuadPart * clockFrequency;
+    if (statePtr)
+    {
+        LARGE_INTEGER now;
+        QueryPerformanceCounter(&now);
+        return (double) now.QuadPart * statePtr->clockFrequency;
+    }
+    return 0;
 }
 
 void platformSleep(unsigned long long MILLISECONDS)
@@ -246,7 +254,7 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
         case WM_CLOSE:
             eventContext data = {};
             eventTrigger(EVENT_CODE_APPLICATION_QUIT, 0, data);
-            return true;
+            return 0;
 
         case WM_DESTROY:
             PostQuitMessage(0);
@@ -257,6 +265,9 @@ LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE,
             GetClientRect(HANDLE_WINDOW, &r);
             unsigned int width = r.right - r.left;
             unsigned int height = r.bottom - r.top;
+            
+            // Fire the event. The application layer should pick this up, but not handle it
+            // as it shouldn be visible to other parts of the application.
             eventContext context;
             context.data.u16[0] = (unsigned short)width;
             context.data.u16[1] = (unsigned short)height;
@@ -336,22 +347,26 @@ void platformGetRequiredExtensions(const char*** EXTENSIONS)
     listAppend(*EXTENSIONS, &"VK_KHR_win32_surface");
 }
 
-bool8 platformCreateSurface(platformState* PLATFORM_STATE, vulkanContext* CONTEXT)
+// - - - Vulkan Surface Creation
+bool8 platformCreateSurface(vulkanContext* CONTEXT)
 {
-    internalState* state = (internalState*)PLATFORM_STATE->internalState;
+    if (!statePtr)
+    {
+        FORGE_LOG_WARNING("Platform system not initialized");
+        return false;
+    }
+    VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
+    surfaceCreateInfo.hinstance = statePtr->hInstance;
+    surfaceCreateInfo.hwnd = statePtr->hwnd;
 
-    VkWin32SurfaceCreateInfoKHR createInfo = {VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
-    createInfo.hinstance = state->hInstance;
-    createInfo.hwnd = state->hwnd;
-
-    VkResult result = vkCreateWin32SurfaceKHR(CONTEXT->instance, &createInfo, CONTEXT->allocator, &state->surface);
+    VkResult result = vkCreateWin32SurfaceKHR(CONTEXT->instance, &surfaceCreateInfo, 0, &statePtr->surface);
     if (result != VK_SUCCESS)
     {
-        FORGE_LOG_FATAL("Failed to create Vulkan surface!");
+        FORGE_LOG_FATAL("Failed to create surface");
         return false;
     }
 
-    CONTEXT->surface = state->surface;
+    CONTEXT->surface = statePtr->surface;
     return true;
 }
 

@@ -5,12 +5,8 @@
 // - - - | Renderer Backend | - - -
 
 
-// - - - Forward Declaration
-struct platformState;
-
-
 // - - - Renderer Backend Functions - - - 
 
-bool8 rendererBackendCreate(rendererBackendType TYPE, struct platformState* PLATFORM_STATE, rendererBackend* BACKEND);
+bool8 rendererBackendCreate(rendererBackendType TYPE, rendererBackend* BACKEND);
 
 void rendererBackendDestroy(rendererBackend* BACKEND);

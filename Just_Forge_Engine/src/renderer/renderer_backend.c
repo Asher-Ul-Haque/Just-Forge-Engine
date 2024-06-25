@@ -1,13 +1,10 @@
 #include "renderer_backend.h"
-#include "renderer_types.h"
 #include "vulkan/vulkan_backend.h"
 
 // - - - Renderer Backend Functions - - -
 
-bool8 rendererBackendCreate(rendererBackendType TYPE, struct platformState* PLATFORM_STATE, rendererBackend* BACKEND)
+bool8 rendererBackendCreate(rendererBackendType TYPE, rendererBackend* BACKEND)
 {
-    BACKEND->platform = PLATFORM_STATE;
-
     switch (TYPE)
     {
         case RENDERER_OPENGL:

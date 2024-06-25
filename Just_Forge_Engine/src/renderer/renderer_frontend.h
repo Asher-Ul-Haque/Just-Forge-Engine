@@ -5,16 +5,11 @@
 // - - - | Renderer Frontend | - - -
 
 
-// - - - Forward Declarations
-struct staticMeshData; 
-struct platformState;
-
-
 // - - - Renderer Frontend Struct (Class) - - -
 
-bool8 rendererIntitialize(const char* APPLICATION, struct platformState* PLATFORM_STATE);
+bool8 renderingSystemIntitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE, const char* APPLICATION);
 
-void rendererShutdown();
+void rendererSystemShutdown(void* STATE);
 
 void rendererResized(unsigned short WIDTH, unsigned short HEIGHT);
 
