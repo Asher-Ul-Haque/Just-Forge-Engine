@@ -22,11 +22,11 @@ typedef struct platformState
     HINSTANCE hInstance; //HISTANCE = HANDLE OF INSTANCE
     HWND hwnd; //HWND = HANDLE OF WINDOW
     VkSurfaceKHR surface;
-
-    //Clock
-    double clockFrequency;
-    LARGE_INTEGER startTime;
 } platformState;
+
+//Clock
+double clockFrequency;
+LARGE_INTEGER startTime;
 
 static platformState* statePtr;
 
@@ -37,6 +37,15 @@ static platformState* statePtr;
 // - - - State Functions - - -
 
 LRESULT CALLBACK windowsProcessMessage(HWND HANDLE_WINDOW, unsigned int MESSAGE, WPARAM WINDOW_PARAMETER, LPARAM LONG_PARAMETER);
+
+// - - - Clock Setup
+void clockSetup()
+{
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+    clockFrequency = 1.0 / (double)frequency.QuadPart;
+    QueryPerformanceCounter(&startTime);
+}
 
 // - - - Initialize the platform
 bool8 platformSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE, const char* APPLICATION, int X, int Y, int WIDTH, int HEIGHT)
@@ -127,11 +136,7 @@ bool8 platformSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STA
     //If the window is initially maximized, use SW_MAXIMIZE : SW_SHOWMAXIMIZED
     ShowWindow(state->hwnd, showWindowCommandFlags);
 
-    //Clock setup
-    LARGE_INTEGER frequency;
-    QueryPerformanceFrequency(&frequency);
-    clockFrequency = 1.0 / (double)frequency.QuadPart;
-    QueryPerformanceCounter(&statePtr->startTime);
+    clockSetup();
 
     FORGE_LOG_INFO("Platform system initialized");
     return true;
@@ -225,13 +230,15 @@ void platformWriteConsoleError(const char* MESSAGE, unsigned char COLOR)
 
 double platformGetTime()
 {
-    if (statePtr)
+    if (!clockFrequency)
     {
-        LARGE_INTEGER now;
-        QueryPerformanceCounter(&now);
-        return (double) now.QuadPart * statePtr->clockFrequency;
+        clockSetup();
     }
-    return 0;
+
+    LARGE_INTEGER now;
+    QueryPerformanceCounter(&now);
+
+    return (double)now.QuadPart * clockFrequency;
 }
 
 void platformSleep(unsigned long long MILLISECONDS)
