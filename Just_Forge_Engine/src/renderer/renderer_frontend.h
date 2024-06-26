@@ -7,7 +7,7 @@
 
 // - - - Renderer Frontend Struct (Class) - - -
 
-bool8 renderingSystemIntitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE, const char* APPLICATION);
+void rendererSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE, const char* APPLICATION);
 
 void rendererSystemShutdown(void* STATE);
 

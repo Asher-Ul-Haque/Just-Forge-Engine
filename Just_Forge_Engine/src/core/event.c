@@ -2,6 +2,7 @@
 #include "core/memory.h"
 #include "core/logger.h"
 #include "dataStructures/list.h"
+#include "logger.h"
 
 typedef struct registeredEvent
 {
@@ -40,23 +41,29 @@ void eventSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void * STATE)
     }
     forgeZeroMemory(STATE, sizeof(STATE));
     statePtr = STATE;
+    FORGE_LOG_INFO("Event system initialized");
 }
 
 void eventSystemShutdown(void* STATE)
 {
+    FORGE_LOG_TRACE("Successfully got callback");
     if (statePtr)
     {
+        FORGE_LOG_TRACE("StatePtr exists");
         // Free the events arrays.And objects pointed to should be self destroyed
         for (unsigned short i = 0; i < MAX_MESSAGE_CODES; ++i)
         {
             if (statePtr->registry[i].events != 0)
             {
+                FORGE_LOG_TRACE("StatePtr->registry[i].events != 0");
                 listDestroy(statePtr->registry[i].events);
+                FORGE_LOG_TRACE("list destroy done");
                 statePtr->registry[i].events = 0;
             }
         }
     }
     statePtr = 0;
+    FORGE_LOG_INFO("Event system shut down");
 }
 
 
@@ -122,6 +129,7 @@ bool8 eventUnregister(unsigned short CODE, void* LISTENER, eventCallback CALLBAC
     }
 
     //Not found
+    FORGE_LOG_WARNING("No event was registered for code %i with listener %p", CODE, LISTENER);
     return false;
 }
 

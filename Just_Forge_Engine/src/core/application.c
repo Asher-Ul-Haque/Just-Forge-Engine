@@ -1,9 +1,10 @@
-#include "core/application.h"
+#include "application.h"
 #include "game_types.h"
+
+#include "logger.h"
 
 #include "platform/platform.h"
 
-#include "core/logger.h"
 #include "core/memory.h"
 #include "core/event.h"
 #include "core/input.h"
@@ -78,7 +79,7 @@ bool8 createApplication(game* GAME)
     appState->isSuspended = false;
 
     //Initialize pile allocator
-    unsigned long long systemAllocTotalSize = 1 * 1024; // 1kb
+    unsigned long long systemAllocTotalSize = 64 * 1024 * 1024; // 64 mbkb
     createPileAllocator(systemAllocTotalSize, 0, &appState->systemsAllocator);
 
     //Initialise event system
@@ -121,13 +122,9 @@ bool8 createApplication(game* GAME)
     }
     
     //Initialise the renderer
-    renderingSystemInitialize(&appState->platformSystemMemoryRequirement, 0, 0);
+    rendererSystemInitialize(&appState->platformSystemMemoryRequirement, 0, GAME->config.name);
     appState->rendererSystemState = pileAlloc(&appState->systemsAllocator, appState->rendererSystemMemoryRequirement);
-    if (!renderingSystemInitialize(&appState->rendererSystemMemoryRequirement, appState->rendererSystemState, GAME->config.name))
-    {
-        FORGE_LOG_FATAL("Failed to initialize the renderer");
-        return false;
-    }
+    rendererSystemInitialize(&appState->rendererSystemMemoryRequirement, appState->rendererSystemState, GAME->config.name);
     
     //Initialise the game
     if (!appState->gameInstance->init(appState->gameInstance))
@@ -181,6 +178,7 @@ bool8 runApplication()
                 break;
             }
 
+            // TODO: refctor packet creation
             rendererPacket packet;
             packet.deltaTime = deltaTime;
             rendererDrawFrame(&packet);  
@@ -216,7 +214,10 @@ bool8 runApplication()
     eventUnregister(EVENT_CODE_KEY_RELEASE, 0, applicationOnKey);
 
     inputSystemShutdown(appState->inputSystemState);
+    rendererSystemShutdown(appState->rendererSystemState);
+    platformSystemShutdown(appState->platformSystemState);
     memorySystemShutdown(appState->platformSystemState);
+    FORGE_LOG_TRACE("DEBUG TRACE");
     eventSystemShutdown(appState->eventSystemState);
     return true;
 }

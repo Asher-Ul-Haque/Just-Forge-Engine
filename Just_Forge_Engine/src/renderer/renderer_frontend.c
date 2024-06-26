@@ -13,17 +13,18 @@ typedef struct rendererSystemState
 {
     rendererBackend backend;
 } rendererSystemState;
+
 static rendererSystemState* statePtr;
 
 
 // - - - Renderer Frontend Class Methods - - -
 
-bool8 renderingSystemIntitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE, const char* APPLICATION)
+void rendererSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void* STATE, const char* APPLICATION)
 {
     *MEMORY_REQUIREMENT = sizeof(rendererSystemState);
     if (STATE == 0)
     {
-        return true;
+        return;
     }
 
     statePtr = STATE;
@@ -35,11 +36,11 @@ bool8 renderingSystemIntitialize(unsigned long long* MEMORY_REQUIREMENT, void* S
     if (!statePtr->backend.initialize(&statePtr->backend, APPLICATION))
     {
         FORGE_LOG_FATAL("Renderer Backend Failed to Create!");
-        return false;
+        return;
     }
 
     FORGE_LOG_INFO("Renderer Backend Initialized");
-    return true;
+    return;
 }
 
 void rendererSystemShutdown(void* STATE)
@@ -56,7 +57,7 @@ bool8 rendererBeginFrame(float DELTA_TIME)
 {
     if (!statePtr)
     {
-        FORGE_LOG_WARNING("Renderer Backend not initialized");
+        FORGE_LOG_WARNING("Renderer System not initialized");
         return false;
     }
     return statePtr->backend.beginFrame(&statePtr->backend, DELTA_TIME);
@@ -66,7 +67,7 @@ bool8 rendererEndFrame(float DELTA_TIME)
 {
     if (!statePtr)
     {
-        FORGE_LOG_WARNING("Renderer Backend not initialized");
+        FORGE_LOG_WARNING("Renderer System not initialized");
         return false;
     }
     bool8 result = statePtr->backend.endFrame(&statePtr->backend, DELTA_TIME);

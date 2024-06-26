@@ -3,7 +3,7 @@ OBJ_DIR := obj
 ASSEMBLY := Just_Forge_Engine
 EXTENSION := .so
 COMPILER_FLAGS := -g -fdeclspec -fPIC
-INCLUDE_FLAGS := -I$(ASSEMBLY)/src -I$(VULKAN_SDK)/include
+INCLUDE_FLAGS := -IJust_Forge_Engine/src -I$(VULKAN_SDK)/include
 LINKER_FLAGS := -g -shared -lvulkan -lxcb -lX11 -lX11-xcb -lxkbcommon -L$(VULKAN_SDK)/lib -L/usr/X11R6/lib
 DEFINES := -DFORGE_EXPORT -D_DEBUG
 
@@ -29,9 +29,9 @@ link: scaffold $(OBJ_FILES) # link
 	@echo Linking $(ASSEMBLY)...
 	@clang $(OBJ_FILES) -o $(BUILD_DIR)/lib$(ASSEMBLY)$(EXTENSION) $(LINKER_FLAGS)
 
-.PHONY: compile
 compile: #compile .c files
 	@echo Compiling...
+-include $(OBJ_FILES:.o=.d)
 
 .PHONY: clean
 clean: # clean build directory
