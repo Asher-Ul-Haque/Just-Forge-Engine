@@ -46,18 +46,15 @@ void eventSystemInitialize(unsigned long long* MEMORY_REQUIREMENT, void * STATE)
 
 void eventSystemShutdown(void* STATE)
 {
-    FORGE_LOG_TRACE("Successfully got callback");
     if (statePtr)
     {
-        FORGE_LOG_TRACE("StatePtr exists");
         // Free the events arrays.And objects pointed to should be self destroyed
         for (unsigned short i = 0; i < MAX_MESSAGE_CODES; ++i)
         {
             if (statePtr->registry[i].events != 0)
             {
-                FORGE_LOG_TRACE("StatePtr->registry[i].events != 0");
+                //Print out the registry[i].events list
                 listDestroy(statePtr->registry[i].events);
-                FORGE_LOG_TRACE("list destroy done");
                 statePtr->registry[i].events = 0;
             }
         }

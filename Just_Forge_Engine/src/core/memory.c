@@ -98,9 +98,12 @@ void forgeFreeMemory(void* MEMORY, unsigned long long SIZE, memoryTag TAG)
     {
         FORGE_LOG_WARNING("forgeAllocateMemory called using MEMORY_TAG_NONE. Recommended to use only tagged allocations");
     }
-
-    statePtr->stats.totalAllocated -= SIZE;
-    statePtr->stats.taggedAllocated[TAG] -= SIZE;
+    
+    if (statePtr)
+    {
+        statePtr->stats.totalAllocated -= SIZE;
+        statePtr->stats.taggedAllocated[TAG] -= SIZE;
+    }
 
     // TODO: memory allignment
     platformFreeMemory(MEMORY, false);

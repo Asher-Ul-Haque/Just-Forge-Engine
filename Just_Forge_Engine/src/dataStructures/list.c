@@ -1,6 +1,7 @@
 #include "dataStructures/list.h"
 #include "core/memory.h"
 #include "core/logger.h"
+#include "list.h"
 
 
 // - - - | List Functions | - - -
@@ -13,7 +14,7 @@ void* _listCreate(unsigned long long CAPACITY, unsigned long long STRIDE)
     unsigned long long headerSize = LIST_FIELD_LENGTH * sizeof(unsigned long long);
     unsigned long long dataSize = CAPACITY * STRIDE;
     unsigned long long* list = forgeAllocateMemory(headerSize + dataSize, MEMORY_TAG_LIST);
-    forgeSetMemory(list, headerSize + dataSize, 0);
+    forgeSetMemory(list, 0, headerSize + dataSize);
     list[LIST_CAPACITY] = CAPACITY;
     list[LIST_LENGTH] = 0;
     list[LIST_STRIDE] = STRIDE;
@@ -25,7 +26,6 @@ void _listDestroy(void* LIST)
     unsigned long long* header = (unsigned long long*) LIST - LIST_FIELD_LENGTH;
     unsigned long long headerSize = LIST_FIELD_LENGTH * sizeof(unsigned long long);
     unsigned long long totalSize = headerSize + header[LIST_CAPACITY] * header[LIST_STRIDE];
-    forgeFreeMemory(header, totalSize, MEMORY_TAG_LIST);
 }
 
 

@@ -84,7 +84,7 @@ bool8 createApplication(game* GAME)
 
     //Initialise event system
     eventSystemInitialize(&appState->eventSystemMemoryRequirement, 0);
-    appState->eventSystemState = pileAlloc(&appState->systemsAllocator, appState->inputSystemMemoryRequirement);
+    appState->eventSystemState = pileAlloc(&appState->systemsAllocator, appState->eventSystemMemoryRequirement);
     eventSystemInitialize(&appState->eventSystemMemoryRequirement, appState->eventSystemState);
 
     //Initialize memory system
@@ -217,7 +217,6 @@ bool8 runApplication()
     rendererSystemShutdown(appState->rendererSystemState);
     platformSystemShutdown(appState->platformSystemState);
     memorySystemShutdown(appState->platformSystemState);
-    FORGE_LOG_TRACE("DEBUG TRACE");
     eventSystemShutdown(appState->eventSystemState);
     return true;
 }
