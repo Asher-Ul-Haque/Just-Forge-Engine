@@ -2,6 +2,7 @@
 #include "defines.h"
 #include "core/asserts.h"
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 
 // - - - Assert on Vulkan check
@@ -133,7 +134,35 @@ typedef struct vulkanFence
     bool8 isSignaled;
 } vulkanFence;
 
-// - - - Vulkan Context
+// - - - Vulkan Pipleline
+typedef struct vulkanPipeline
+{
+    VkPipeline handle;
+    VkPipelineLayout layout;
+} vulkanPipeline;
+
+// - - - Vulkan Shaders - - -
+
+#define OBJECT_SHADER_STAGE_COUNT 2 //vertex and fragment
+
+// - - - Shader stages
+typedef struct vulkanShaderStage
+{
+    VkShaderModuleCreateInfo createInfo;
+    VkShaderModule handle;
+    VkPipelineShaderStageCreateInfo stageCreateInfo;
+} vulkanShaderStage;
+
+// - - - Object Shader
+typedef struct vulkanObjectShader
+{
+    vulkanShaderStage stages[OBJECT_SHADER_STAGE_COUNT];
+    vulkanPipeline pipeline;
+} vulkanObjectShader;
+
+
+// - - - Vulkan Context - - -
+
 typedef struct vulkanContext
 {
     unsigned int framebufferHeight;
@@ -157,6 +186,7 @@ typedef struct vulkanContext
     vulkanFence** imagesInFlight;
     unsigned long long framebufferSizeGeneration;
     unsigned long long framebufferSizeLastGeneration;
+    vulkanObjectShader objectShader;
     #if defined(_DEBUG)
         VkDebugUtilsMessengerEXT debugMessenger;
     #endif

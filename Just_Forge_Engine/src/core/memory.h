@@ -8,6 +8,7 @@
 typedef enum memoryTag
 {
     MEMORY_TAG_NONE,
+    MEMORY_TAG_FILE,
     MEMORY_TAG_ARRAY,
     MEMORY_TAG_PILE_ALLOCATOR,
     MEMORY_TAG_LIST,

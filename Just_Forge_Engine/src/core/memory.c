@@ -25,6 +25,7 @@ static memorySystemState* statePtr;
 // - - - String representation of tags
 static const char* memoryTagAsStrings[MEMORY_TAG_MAX] = {
     "NONE           ",
+    "FILE           ",
     "ARRAY          ",
     "PILE ALLOCATOR ",
     "LIST           ",

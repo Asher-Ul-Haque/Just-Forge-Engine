@@ -18,6 +18,8 @@
 
 #include "platform/platform.h"
 
+#include "shaders/vulkan_object_shader.h"
+
 #include <string.h>
 #include <stdlib.h>
 // - - - | Vulkan Setup | - - -
@@ -205,6 +207,13 @@ bool8 vulkanRendererBackendInitialize(rendererBackend* BACKEND, const char* APPL
     for (unsigned int i = 0; i < context.swapchain.imageCount; ++i)
     {
         context.imagesInFlight[i] = 0;
+    }
+
+    // Object shader
+    if (!createObjectShader(&context, &context.objectShader))
+    {
+        FORGE_LOG_ERROR("Failed to initialize object shader");
+        return false;
     }
     
     FORGE_LOG_INFO("Vulkan Renderer Initialized");
