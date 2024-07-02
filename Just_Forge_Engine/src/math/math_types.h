@@ -84,3 +84,12 @@ typedef union Matrix4
     float data[16];
     Vector4D rows[4];
 } Matrix4;
+
+
+// - - - | Vertices | - - -
+
+
+typedef struct Vertex3D
+{
+    Vector3D position;
+} Vertex3D;

@@ -1,6 +1,7 @@
 #include "logger.h"
 #include "asserts.h"
 #include "platform/platform.h"
+#include "platform/filesystem.h"
 
 
 // - - - | Log Functions | - - -
@@ -15,10 +16,24 @@
 
 typedef struct loggerSystemState
 {
-    bool8 initialized;
+    File logFile;
 } loggerSystemState;
 
 static loggerSystemState* statePtr;
+
+void appendLogFile(const char* MESSAGE)
+{
+    if (statePtr && statePtr->logFile.isValid)
+    {
+        unsigned long long length = strlen(MESSAGE);
+        unsigned long long written = 0;
+        if (!writeFile(&statePtr->logFile, length, MESSAGE, &written))
+        {
+            platformWriteConsoleError("Failed to write to log file", LOG_LEVEL_ERROR);
+        }
+    }
+}
+
 
 bool8 initializeLogger(unsigned long long* MEMORY_REQUIREMENT, void* STATE)
 {
@@ -27,10 +42,15 @@ bool8 initializeLogger(unsigned long long* MEMORY_REQUIREMENT, void* STATE)
     {
         return true;
     }
-    statePtr = STATE;
-    statePtr->initialized = true;
 
-    // TODO: create log file
+    statePtr = STATE;
+
+    if (!openFile("forge.log", FILE_MODE_WRITE, false, &statePtr->logFile))
+    {
+        platformWriteConsoleError("Failed to open log file", LOG_LEVEL_FATAL);
+        return false;
+    }
+
     FORGE_LOG_INFO("Logging System Initialized");
     return true;
 }
@@ -72,6 +92,9 @@ void logOutput(LogLevel LEVEL, const char* MESSAGE, ...)
     {
         platformWriteConsole(finalMessage, LEVEL);    
     }
+
+    //Write to the log file
+    appendLogFile(finalMessage);
 }
 
 

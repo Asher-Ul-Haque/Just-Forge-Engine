@@ -9,7 +9,7 @@ bool8 createShaderModule(vulkanContext* CONTEXT, const char* NAME, const char* T
     char fileName[512];
     sprintf(fileName, "Assets/shaders/%s.%s.spv", NAME, TYPE_STRING);
 
-    forgeZeroMemory(&SHADER_STAGES[STAGE_INDEX].createInfo, sizeof(vulkanShaderStage));
+    forgeZeroMemory(&SHADER_STAGES[STAGE_INDEX].createInfo, sizeof(VkShaderModuleCreateInfo));
     SHADER_STAGES[STAGE_INDEX].createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 
     //Obtian the file handle
@@ -26,7 +26,6 @@ bool8 createShaderModule(vulkanContext* CONTEXT, const char* NAME, const char* T
     if (!readAllBytes(&file, &buffer, &size))
     {
         FORGE_LOG_ERROR("Failed to read shader file: %s", fileName);
-        closeFile(&file);
         return false;
     }
 
